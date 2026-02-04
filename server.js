@@ -48,8 +48,8 @@ async function fetchFromTMDB(path, params = {}) {
 
     if (!response.ok) {
         const errorText = await response.text();
-        console.error(`TMDB API xətası: ${response.status} - ${errorText}`);
-        throw new Error(`TMDB API xətası: ${response.status} - ${errorText}`);
+        console.error(`TMDB API xətası: ${response.status} - ${response.statusText}. Cavab: ${errorText}`);
+        throw new Error(`TMDB API xətası: ${response.status} - ${response.statusText}. Detay: ${errorText}`);
     }
     return await response.json();
 }
@@ -190,7 +190,7 @@ app.get('/api/genres/movie', async (req, res) => {
     try {
         const data = await fetchFromTMDB('/genre/movie/list');
         res.json(data);
-    } catch (error) {
+    } catch (error) { // <-- Düzəldilmiş sintaksis
         res.status(500).json({ error: error.message });
     }
 });
@@ -199,7 +199,7 @@ app.get('/api/genres/tv', async (req, res) => {
     try {
         const data = await fetchFromTMDB('/genre/tv/list');
         res.json(data);
-    } catch (error) => {
+    } catch (error) { // <-- Düzəldilmiş sintaksis
         res.status(500).json({ error: error.message });
     }
 });
