@@ -76,6 +76,21 @@ app.get('/api/movies/now_playing', async (req, res) => {
     }
 });
 
+// Axtarış üçün route (filmlər, seriallar, insanlar)
+app.get('/api/search', async (req, res) => {
+    try {
+        const { query, page } = req.query; // Query parametrini alırıq
+        if (!query) {
+            return res.status(400).json({ error: 'Axtarış parametri (query) tələb olunur.' });
+        }
+        // /search/multi TMDB-də həm filmləri, həm serialları, həm də insanları axtarır
+        const data = await fetchFromTMDB('/search/multi', { query: query, page: page || 1 });
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Ən reytinqli filmləri çəkmək üçün route
 app.get('/api/movies/top_rated', async (req, res) => {
     try {
