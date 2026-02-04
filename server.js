@@ -38,7 +38,7 @@ async function fetchFromTMDB(path, params = {}) {
 
     const queryParams = new URLSearchParams({
         api_key: TMDB_API_KEY,
-        language: 'az-AZ', // Və ya istədiyiniz digər dil
+        language: 'en-US', // Və ya istədiyiniz digər dil
         ...params
     }).toString();
 
