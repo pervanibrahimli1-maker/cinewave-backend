@@ -1,0 +1,27 @@
+{
+  "name": "cinewave-backend",
+  "version": "1.0.0",
+  "description": "CineWave project backend for fetching movie data from TMDB API.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "nodejs",
+    "express",
+    "tmdb",
+    "api",
+    "backend"
+  ],
+  "author": "Sizin Adınız",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "node-fetch": "^2.6.7"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
