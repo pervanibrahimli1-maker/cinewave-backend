@@ -4,7 +4,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const fetch = require('node-fetch'); // API çağırışları üçün
 
-dotenv.config(); // .env faylındakı dəyişənləri yüklə (yalnız yerli inkişaf üçün işləyir)
+dotenv.config(); // .env faylındakı dəyişənləri yüklə (yalnız yerli inkişaf üçün)
 
 const app = express();
 // Render kimi platformalar avtomatik olaraq PORT dəyişənini təyin edir.
@@ -20,7 +20,8 @@ const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 // CORS-u aktivləşdirir
 // Hələlik bütün domainlərdən müraciətə icazə verir.
 // Təhlükəsizlik üçün deploy etdiyiniz frontend URL-ini (məsələn, 'https://username.github.io/cinewave-frontend')
-// buraya əlavə etmək daha yaxşı olar.
+// buraya əlavə etmək daha yaxşı olar:
+// app.use(cors({ origin: 'SİZİN_FRONTEND_URLİNİZ_BURADA' }));
 app.use(cors());
 
 // Serverin ilkin yoxlanışı
@@ -56,7 +57,7 @@ async function fetchFromTMDB(path, params = {}) {
 // === API ROUTES ===
 // Bütün API endpointləri /api prefiksi ilə başlayır.
 
-// Populyar filmləri çəkmək üçün route
+// Filmlərlə bağlı endpointlər
 app.get('/api/movies/popular', async (req, res) => {
     try {
         const data = await fetchFromTMDB('/movie/popular', { page: req.query.page || 1 });
@@ -66,7 +67,6 @@ app.get('/api/movies/popular', async (req, res) => {
     }
 });
 
-// İndi nümayişdə olan filmləri çəkmək üçün route
 app.get('/api/movies/now_playing', async (req, res) => {
     try {
         const data = await fetchFromTMDB('/movie/now_playing', { page: req.query.page || 1 });
@@ -76,7 +76,135 @@ app.get('/api/movies/now_playing', async (req, res) => {
     }
 });
 
-// Axtarış üçün route (filmlər, seriallar, insanlar)
+app.get('/api/movies/top_rated', async (req, res) => {
+    try {
+        const data = await fetchFromTMDB('/movie/top_rated', { page: req.query.page || 1 });
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/movie/:id', async (req, res) => {
+    try {
+        const movieDetails = await fetchFromTMDB(`/movie/${req.params.id}`);
+        res.json(movieDetails);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/movie/:id/videos', async (req, res) => {
+    try {
+        const movieVideos = await fetchFromTMDB(`/movie/${req.params.id}/videos`);
+        res.json(movieVideos);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/movie/:id/credits', async (req, res) => {
+    try {
+        const movieCredits = await fetchFromTMDB(`/movie/${req.params.id}/credits`);
+        res.json(movieCredits);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/movie/:id/similar', async (req, res) => {
+    try {
+        const similarMovies = await fetchFromTMDB(`/movie/${req.params.id}/similar`);
+        res.json(similarMovies);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Seriallarla bağlı endpointlər
+app.get('/api/tv/popular', async (req, res) => {
+    try {
+        const data = await fetchFromTMDB('/tv/popular', { page: req.query.page || 1 });
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/tv/on_the_air', async (req, res) => {
+    try {
+        const data = await fetchFromTMDB('/tv/on_the_air', { page: req.query.page || 1 });
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/tv/top_rated', async (req, res) => {
+    try {
+        const data = await fetchFromTMDB('/tv/top_rated', { page: req.query.page || 1 });
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/tv/:id', async (req, res) => {
+    try {
+        const tvDetails = await fetchFromTMDB(`/tv/${req.params.id}`);
+        res.json(tvDetails);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/tv/:id/videos', async (req, res) => {
+    try {
+        const tvVideos = await fetchFromTMDB(`/tv/${req.params.id}/videos`);
+        res.json(tvVideos);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/tv/:id/credits', async (req, res) => {
+    try {
+        const tvCredits = await fetchFromTMDB(`/tv/${req.params.id}/credits`);
+        res.json(tvCredits);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/tv/:id/similar', async (req, res) => {
+    try {
+        const similarTv = await fetchFromTMDB(`/tv/${req.params.id}/similar`);
+        res.json(similarTv);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Janrlarla bağlı endpointlər
+app.get('/api/genres/movie', async (req, res) => {
+    try {
+        const data = await fetchFromTMDB('/genre/movie/list');
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/genres/tv', async (req, res) => {
+    try {
+        const data = await fetchFromTMDB('/genre/tv/list');
+        res.json(data);
+    } catch (error) => {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Axtarışla bağlı endpoint
 app.get('/api/search', async (req, res) => {
     try {
         const { query, page } = req.query; // Query parametrini alırıq
@@ -91,55 +219,6 @@ app.get('/api/search', async (req, res) => {
     }
 });
 
-// Ən reytinqli filmləri çəkmək üçün route
-app.get('/api/movies/top_rated', async (req, res) => {
-    try {
-        const data = await fetchFromTMDB('/movie/top_rated', { page: req.query.page || 1 });
-        res.json(data);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Film detallarını ID-yə görə çəkmək üçün route
-app.get('/api/movie/:id', async (req, res) => {
-    try {
-        const movieDetails = await fetchFromTMDB(`/movie/${req.params.id}`);
-        res.json(movieDetails);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Filmin videolarını (treylerlərini) ID-yə görə çəkmək üçün route
-app.get('/api/movie/:id/videos', async (req, res) => {
-    try {
-        const movieVideos = await fetchFromTMDB(`/movie/${req.params.id}/videos`);
-        res.json(movieVideos);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Filmin heyətini (aktyorları və rejissorunu) ID-yə görə çəkmək üçün route
-app.get('/api/movie/:id/credits', async (req, res) => {
-    try {
-        const movieCredits = await fetchFromTMDB(`/movie/${req.params.id}/credits`);
-        res.json(movieCredits);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Bənzər filmləri ID-yə görə çəkmək üçün route
-app.get('/api/movie/:id/similar', async (req, res) => {
-    try {
-        const similarMovies = await fetchFromTMDB(`/movie/${req.params.id}/similar`);
-        res.json(similarMovies);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
 
 // Serveri işə salırıq
 app.listen(PORT, () => {
