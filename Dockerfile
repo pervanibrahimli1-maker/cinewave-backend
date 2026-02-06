@@ -1,20 +1,27 @@
-# Əsas olaraq Node.js 18 (Alpine Linux üzərində) istifadə edirik.
+# 1. Daha stabil və yüngül Node.js versiyası
 FROM node:18-alpine
 
-# İş qovluğunu /app olaraq təyin edirik
+# 2. Təhlükəsizlik üçün: root olmayan istifadəçi ilə işləmək (opsional amma məsləhətdir)
+# Alpine-də "node" istifadəçisi artıq mövcuddur.
+
+# 3. İş qovluğunu təyin edirik
 WORKDIR /app
 
-# package.json və package-lock.json fayllarını kopyalayırıq
+# 4. Asılılıqları kopyalayırıq
 COPY package*.json ./
 
-# Layihə asılılıqlarını quraşdırırıq (yalnız "production" üçün)
-RUN npm install --only=production
+# 5. npm install əvəzinə npm ci istifadə edirik (daha sürətli və stabil build üçün)
+# Yalnız production asılılıqlarını yükləyirik
+RUN npm ci --only=production
 
-# Bütün digər layihə fayllarını (server.js və s.) kopyalayırıq
+# 6. Layihənin qalan hissəsini kopyalayırıq
 COPY . .
 
-# Serverin dinləyəcəyi portu açırıq
+# 7. Təhlükəsizlik üçün: Proqramı root istifadəçisi ilə yox, "node" istifadəçisi ilə başladırıq
+USER node
+
+# 8. Serverin portunu təyin edirik (Render adətən PORT mühit dəyişənini özü verir)
 EXPOSE 3000
 
-# Serveri işə salmaq üçün əmri təyin edirik
-CMD ["npm", "start"]
+# 9. Serveri birbaşa node ilə başlatmaq (npm-dən daha az resurs sərf edir)
+CMD ["node", "server.js"]
