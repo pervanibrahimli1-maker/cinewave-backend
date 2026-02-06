@@ -1,7 +1,7 @@
 {
   "name": "cinewave-backend",
   "version": "1.0.0",
-  "description": "CineWave project backend for fetching movie data from TMDB API.",
+  "description": "CineWave project backend with TMDB API and MongoDB Authentication.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
@@ -10,18 +10,22 @@
     "nodejs",
     "express",
     "tmdb",
-    "api",
+    "mongodb",
+    "auth",
     "backend"
   ],
   "author": "Sizin Adınız",
   "license": "MIT",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.0",
+    "mongoose": "^7.6.3",
     "node-fetch": "^2.6.7"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=18.0.0"
   }
 }
