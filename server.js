@@ -20,13 +20,32 @@ mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log('✅ MongoDB Hazırdır.'))
     .catch(err => console.error('❌ MongoDB Xətası:', err));
 
+// MODEL
 const User = mongoose.model('User', new mongoose.Schema({
     fullName: { type: String, required: true },
     email: { type: String, unique: true, required: true },
     username: { type: String, unique: true, required: true },
     password: { type: String, required: true },
-    watchlist: [{ type: Object }] 
+    watchlist: [{ 
+        id: { type: Number },
+        title: { type: String },
+        poster_path: { type: String },
+        addedAt: { type: Date, default: Date.now }
+    }] 
 }));
+
+// MIDDLEWARE - TOKEN YOXLAMAQ ÜÇÜN
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return res.status(401).json({ error: "Giriş tələb olunur" });
+
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+        if (err) return res.status(403).json({ error: "Token keçərsizdir" });
+        req.userId = user.id;
+        next();
+    });
+};
 
 async function fetchTMDB(path, params = {}) {
     const queryParams = new URLSearchParams({ api_key: TMDB_API_KEY, ...params });
@@ -36,15 +55,18 @@ async function fetchTMDB(path, params = {}) {
     } catch (e) { return {}; }
 }
 
-// AUTH
+// --- AUTH ROUTES ---
 app.post('/api/auth/register', async (req, res) => {
     try {
         const { fullName, email, username, password } = req.body;
+        // Email yoxlanışı artıq MongoDB unique sayəsində error atacaq
         const hashed = await bcrypt.hash(password, 10);
         const user = new User({ fullName, email, username, password: hashed });
         await user.save();
         res.status(201).json({ success: true });
-    } catch (err) { res.status(400).json({ success: false, error: "Email və ya istifadəçi adı artıq var" }); }
+    } catch (err) { 
+        res.status(400).json({ success: false, error: "Bu email və ya istifadəçi adı artıq istifadə olunub!" }); 
+    }
 });
 
 app.post('/api/auth/login', async (req, res) => {
@@ -53,22 +75,59 @@ app.post('/api/auth/login', async (req, res) => {
         const user = await User.findOne({ email });
         if (!user || !await bcrypt.compare(password, user.password)) 
             return res.status(400).json({ success: false, error: "Məlumatlar yanlışdır" });
+        
         const token = jwt.sign({ id: user._id }, JWT_SECRET);
         res.json({ success: true, token, user: { username: user.username, fullName: user.fullName } });
     } catch (err) { res.status(500).json({ success: false }); }
-} );
+});
 
-// CONTENT
+// --- WATCHLIST ROUTES (YENİ) ---
+
+// 1. Siyahıya əlavə et (Təkrar yoxlanışı ilə)
+app.post('/api/watchlist/add', authenticateToken, async (req, res) => {
+    try {
+        const { id, title, poster_path } = req.body;
+        const user = await User.findById(req.userId);
+
+        // TƏKRAR YOXLANIŞI
+        const exists = user.watchlist.find(item => item.id === id);
+        if (exists) {
+            return res.status(400).json({ success: false, error: "Bu artıq siyahınızda var!" });
+        }
+
+        user.watchlist.push({ id, title, poster_path });
+        await user.save();
+        res.json({ success: true, message: "Siyahıya əlavə edildi" });
+    } catch (err) {
+        res.status(500).json({ error: "Xəta baş verdi" });
+    }
+});
+
+// 2. Siyahını gətir
+app.get('/api/watchlist', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.userId);
+        res.json(user.watchlist);
+    } catch (err) { res.status(500).json({ error: "Xəta" }); }
+});
+
+// 3. Siyahıdan sil
+app.delete('/api/watchlist/remove/:id', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.userId);
+        user.watchlist = user.watchlist.filter(item => item.id != req.params.id);
+        await user.save();
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ error: "Xəta" }); }
+});
+
+// --- TMDB CONTENT ROUTES ---
 app.get('/api/movies/popular', async (req, res) => {
     const data = await fetchTMDB('/movie/popular', { language: 'az-AZ' });
     res.json(data.results || []);
 });
 app.get('/api/movies/top_rated', async (req, res) => {
     const data = await fetchTMDB('/movie/top_rated', { language: 'az-AZ' });
-    res.json(data.results || []);
-});
-app.get('/api/movies/now_playing', async (req, res) => {
-    const data = await fetchTMDB('/movie/now_playing', { language: 'az-AZ' });
     res.json(data.results || []);
 });
 app.get('/api/tv/popular', async (req, res) => {
