@@ -1,29 +1,31 @@
-# 1. Əsas olaraq Node.js-in ən stabil və yüngül versiyasını götürürük
+# 1. Yüngül Alpine versiyası
 FROM node:18-alpine
 
-# 2. Build zamanı bəzi native modullar (məsələn bcrypt) üçün lazım ola biləcək 
-# kiçik alətləri yükləyirik (Alpine çox yüngül olduğu üçün bunlar lazım ola bilər)
+# 2. Əgər bcryptjs istifadə edirsənsə, python/make/g++ lazım deyil. 
+# Amma gələcəkdə native kitabxanalar əlavə etsən deyə saxlamaq olar.
 RUN apk add --no-cache python3 make g++
 
-# 3. İş qovluğunu təyin edirik
+# 3. İş qovluğu
 WORKDIR /app
 
-# 4. Asılılıqları (dependencies) kopyalayırıq
-# Bu, build prosesini sürətləndirir (cache istifadə edir)
+# 4. NODE_ENV-ni production olaraq təyin edirik
+ENV NODE_ENV=production
+
+# 5. Paket fayllarını kopyalayırıq
 COPY package*.json ./
 
-# 5. Bütün kitabxanaları quraşdırırıq 
-# (mongoose, bcryptjs, jsonwebtoken, express, cors, dotenv bura daxildir)
-RUN npm install
+# 6. Yalnız lazım olan (production) kitabxanaları quraşdırırıq
+# npm install yerinə npm ci (clean install) istifadə etmək daha stabil build verir
+RUN npm ci --only=production
 
-# 6. Layihənin bütün fayllarını (server.js, Dockerfile və s.) konteynerə kopyalayırıq
+# 7. Kodları kopyalayırıq
 COPY . .
 
-# 7. Təhlükəsizlik üçün root olmayan istifadəçiyə keçirik
+# 8. Təhlükəsizlik
 USER node
 
-# 8. Render-in istifadə edəcəyi portu açırıq
-EXPOSE 3000
+# 9. Render adətən dinamik PORT təyin edir, amma 10000 standartdır
+EXPOSE 10000
 
-# 9. Serveri işə salırıq
+# 10. Serveri başladırıq
 CMD ["node", "server.js"]
