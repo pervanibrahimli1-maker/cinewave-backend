@@ -14,14 +14,12 @@ app.use(express.json());
 const PORT = process.env.PORT || 10000;
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
-const JWT_SECRET = process.env.JWT_SECRET || 'cinewave_secret_2026';
+const JWT_SECRET = process.env.JWT_SECRET || 'cinewave_secret_key_2026';
 
-// MongoDB Bağlantısı
 mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('✅ MongoDB Qoşuldu'))
+    .then(() => console.log('✅ MongoDB Hazırdır.'))
     .catch(err => console.error('❌ MongoDB Xətası:', err));
 
-// İstifadəçi Modeli
 const User = mongoose.model('User', new mongoose.Schema({
     fullName: { type: String, required: true },
     email: { type: String, unique: true, required: true },
@@ -30,7 +28,6 @@ const User = mongoose.model('User', new mongoose.Schema({
     watchlist: [{ type: Object }] 
 }));
 
-// TMDB Fetcher
 async function fetchTMDB(path, params = {}) {
     const queryParams = new URLSearchParams({ api_key: TMDB_API_KEY, ...params });
     try {
@@ -39,7 +36,7 @@ async function fetchTMDB(path, params = {}) {
     } catch (e) { return {}; }
 }
 
-// === AUTH SİSTEMİ ===
+// AUTH
 app.post('/api/auth/register', async (req, res) => {
     try {
         const { fullName, email, username, password } = req.body;
@@ -47,7 +44,7 @@ app.post('/api/auth/register', async (req, res) => {
         const user = new User({ fullName, email, username, password: hashed });
         await user.save();
         res.status(201).json({ success: true });
-    } catch (err) { res.status(400).json({ success: false, error: "Qeydiyyat xətası (Email və ya Username artıq mövcuddur)" }); }
+    } catch (err) { res.status(400).json({ success: false, error: "Email və ya istifadəçi adı artıq var" }); }
 });
 
 app.post('/api/auth/login', async (req, res) => {
@@ -55,39 +52,13 @@ app.post('/api/auth/login', async (req, res) => {
         const { email, password } = req.body;
         const user = await User.findOne({ email });
         if (!user || !await bcrypt.compare(password, user.password)) 
-            return res.status(400).json({ success: false, error: "Email və ya şifrə yanlışdır" });
-        
+            return res.status(400).json({ success: false, error: "Məlumatlar yanlışdır" });
         const token = jwt.sign({ id: user._id }, JWT_SECRET);
         res.json({ success: true, token, user: { username: user.username, fullName: user.fullName } });
     } catch (err) { res.status(500).json({ success: false }); }
-});
+} );
 
-// === WATCHLIST SİSTEMİ ===
-app.post('/api/watchlist/add', async (req, res) => {
-    try {
-        const token = req.headers.authorization.split(" ")[1];
-        const decoded = jwt.verify(token, JWT_SECRET);
-        const user = await User.findById(decoded.id);
-        
-        const exists = user.watchlist.some(m => m.id === req.body.id);
-        if (exists) return res.status(400).json({ message: "Artıq siyahıdadır" });
-
-        user.watchlist.push(req.body);
-        await user.save();
-        res.json({ success: true });
-    } catch (err) { res.status(401).json({ error: "Giriş edilməyib" }); }
-});
-
-app.get('/api/watchlist', async (req, res) => {
-    try {
-        const token = req.headers.authorization.split(" ")[1];
-        const decoded = jwt.verify(token, JWT_SECRET);
-        const user = await User.findById(decoded.id);
-        res.json(user.watchlist || []);
-    } catch (err) { res.status(401).json({ error: "Giriş edilməyib" }); }
-});
-
-// === MƏZMUN YOLLARI ===
+// CONTENT
 app.get('/api/movies/popular', async (req, res) => {
     const data = await fetchTMDB('/movie/popular', { language: 'az-AZ' });
     res.json(data.results || []);
@@ -136,7 +107,7 @@ app.get('/api/details/:type/:id', async (req, res) => {
 
         res.json({
             ...details,
-            cast: credits.cast ? credits.cast.slice(0, 12) : [],
+            cast: credits.cast ? credits.cast.slice(0, 15) : [],
             similar: similar.results || []
         });
     } catch (err) { res.status(404).json({ error: "Tapılmadı" }); }
