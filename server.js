@@ -4,7 +4,7 @@ const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { translate } = require('@vitalets/google-translate-api'); // Tərcümə kitabxanası
+const { translate } = require('@vitalets/google-translate-api');
 
 dotenv.config();
 const app = express();
@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 10000;
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 
-// MongoDB bağlantısı
+// MongoDB Bağlantısı
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log('✅ MongoDB Hazırdır.'))
     .catch(err => console.error('❌ MongoDB Xətası:', err));
@@ -29,7 +29,7 @@ const User = mongoose.model('User', new mongoose.Schema({
     watchlist: [{ type: Object }] 
 }));
 
-// TMDB Fetcher Köməkçisi
+// TMDB Fetcher
 async function fetchTMDB(path, params = {}) {
     const lang = params.language || 'az-AZ';
     const queryParams = new URLSearchParams({
@@ -44,15 +44,18 @@ async function fetchTMDB(path, params = {}) {
     } catch (e) { return {}; }
 }
 
-// === AUTH ROUTES (Qeydiyyat və Giriş) ===
+// === AUTH MARŞRUTLARI ===
+
 app.post('/api/auth/register', async (req, res) => {
     try {
         const { fullName, email, username, password } = req.body;
+        const existing = await User.findOne({ $or: [{ email }, { username }] });
+        if (existing) return res.status(400).json({ success: false, error: "Bu məlumatlar artıq istifadə olunur!" });
         const hashed = await bcrypt.hash(password, 10);
         const user = new User({ fullName, email, username, password: hashed });
         await user.save();
         res.status(201).json({ success: true });
-    } catch (err) { res.status(400).json({ success: false, error: "Qeydiyyat alınmadı" }); }
+    } catch (err) { res.status(500).json({ success: false }); }
 });
 
 app.post('/api/auth/login', async (req, res) => {
@@ -64,6 +67,22 @@ app.post('/api/auth/login', async (req, res) => {
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'secret');
         res.json({ success: true, token, user: { username: user.username, fullName: user.fullName } });
     } catch (err) { res.status(500).json({ success: false }); }
+});
+
+// === WATCHLIST MARŞRUTLARI ===
+
+app.post('/api/watchlist/add', async (req, res) => {
+    try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader) return res.status(401).json({ error: "Giriş edilməyib" });
+        const token = authHeader.split(" ")[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+        const user = await User.findById(decoded.id);
+        if (user.watchlist.some(m => m.id === req.body.id)) return res.status(400).json({ error: "Artıq siyahıdadır" });
+        user.watchlist.push(req.body);
+        await user.save();
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ error: "Xəta" }); }
 });
 
 // === MƏZMUN MARŞRUTLARI ===
@@ -98,11 +117,11 @@ app.get('/api/discover/genre', async (req, res) => {
     res.json(data.results || []);
 });
 
-// === DETALLAR (TƏRCÜMƏ VƏ VİDEO YOXLAMASI BURADADIR) ===
+// === DETALLAR (AVTO-TƏRCÜMƏ İLƏ) ===
+
 app.get('/api/details/:type/:id', async (req, res) => {
     const { type, id } = req.params;
     try {
-        // 1. Öncə hər şeyi Azərbaycan dilində çək
         let [details, credits, similar, videos] = await Promise.all([
             fetchTMDB(`/${type}/${id}`, { language: 'az-AZ' }),
             fetchTMDB(`/${type}/${id}/credits`, { language: 'az-AZ' }),
@@ -110,23 +129,18 @@ app.get('/api/details/:type/:id', async (req, res) => {
             fetchTMDB(`/${type}/${id}/videos`, { language: 'az-AZ' })
         ]);
 
-        // 2. Açıqlama tərcüməsi (Overview)
-        // Əgər Azərbaycan dilində açıqlama yoxdursa və ya çox qısadırsa
+        // Açıqlama yoxdursa İngilis dilindən tərcümə et
         if (!details.overview || details.overview.length < 10) {
             const enData = await fetchTMDB(`/${type}/${id}`, { language: 'en-US' });
             if (enData.overview) {
                 try {
-                    // İngilis dilindən Azərbaycan dilinə tərcümə et
-                    const translated = await translate(enData.overview, { to: 'az' });
-                    details.overview = translated.text;
-                } catch (e) {
-                    details.overview = enData.overview; // Tərcümə alınmasa İngiliscə qalsın
-                }
+                    const tr = await translate(enData.overview, { to: 'az' });
+                    details.overview = tr.text;
+                } catch (e) { details.overview = enData.overview; }
             }
         }
 
-        // 3. Video (Treyler) Fallback
-        // Azərbaycan dilində video yoxdursa, İngilis dilində treyler axtar
+        // Treyler yoxdursa İngilis dilində axtar
         let video = videos.results?.find(v => v.type === 'Trailer') || videos.results?.[0];
         if (!video) {
             const enV = await fetchTMDB(`/${type}/${id}/videos`, { language: 'en-US' });
@@ -139,9 +153,7 @@ app.get('/api/details/:type/:id', async (req, res) => {
             similar: similar.results ? similar.results.slice(0, 8) : [],
             video: video || null
         });
-    } catch (err) {
-        res.status(404).json({ error: "Məlumat tapılmadı" });
-    }
+    } catch (err) { res.status(404).json({ error: "Məlumat tapılmadı" }); }
 });
 
-app.listen(PORT, () => console.log(`🚀 CineWave Server ${PORT} portunda aktivdir.`));
+app.listen(PORT, () => console.log(`🚀 Server ${PORT} portunda aktivdir.`));
