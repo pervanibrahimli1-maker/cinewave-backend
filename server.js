@@ -10,16 +10,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const PORT = process.env.PORT || 10000; // Render üçün 10000 daha yaxşıdır
+const PORT = process.env.PORT || 10000;
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 
-// MongoDB
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log('MongoDB Hazırdır.'))
     .catch(err => console.error('MongoDB Xətası:', err));
 
-// Model
 const User = mongoose.model('User', new mongoose.Schema({
     fullName: { type: String, required: true },
     email: { type: String, unique: true, required: true },
@@ -28,11 +26,12 @@ const User = mongoose.model('User', new mongoose.Schema({
     watchlist: [{ type: Object }] 
 }));
 
-// TMDB Fetcher
 async function fetchTMDB(path, params = {}) {
     const url = `${TMDB_BASE_URL}${path}?api_key=${TMDB_API_KEY}&language=az-AZ&${new URLSearchParams(params)}`;
-    const response = await fetch(url);
-    return await response.json();
+    try {
+        const response = await fetch(url);
+        return await response.json();
+    } catch (e) { return {}; }
 }
 
 // === AUTH ROUTES ===
@@ -52,13 +51,12 @@ app.post('/api/auth/login', async (req, res) => {
         const user = await User.findOne({ email });
         if (!user || !await bcrypt.compare(password, user.password)) 
             return res.status(400).json({ success: false, error: "Email və ya şifrə səhvdir" });
-
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'secret');
         res.json({ success: true, token, user: { username: user.username, email: user.email } });
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
-// === API ROUTES (Ardıcıllıq önəmlidir!) ===
+// === MOVIE & GENRE ROUTES (Parametrlərdən YUXARIDA OLMALIDIR) ===
 
 app.get('/api/movies/popular', async (req, res) => {
     const data = await fetchTMDB('/movie/popular');
@@ -67,21 +65,6 @@ app.get('/api/movies/popular', async (req, res) => {
 
 app.get('/api/movies/now_playing', async (req, res) => {
     const data = await fetchTMDB('/movie/now_playing');
-    res.json(data.results || []);
-});
-
-app.get('/api/movies/top_rated', async (req, res) => {
-    const data = await fetchTMDB('/movie/top_rated');
-    res.json(data.results || []);
-});
-
-app.get('/api/tv/popular', async (req, res) => {
-    const data = await fetchTMDB('/tv/popular');
-    res.json(data.results || []);
-});
-
-app.get('/api/tv/on_the_air', async (req, res) => {
-    const data = await fetchTMDB('/tv/on_the_air');
     res.json(data.results || []);
 });
 
@@ -95,18 +78,18 @@ app.get('/api/genres/tv/list', async (req, res) => {
     res.json(data.genres || []);
 });
 
+app.get('/api/search', async (req, res) => {
+    const data = await fetchTMDB('/search/multi', { query: req.query.query });
+    res.json(data.results || []);
+});
+
 app.get('/api/discover/genre', async (req, res) => {
     const { genreId, type } = req.query;
     const data = await fetchTMDB(`/discover/${type || 'movie'}`, { with_genres: genreId });
     res.json(data.results || []);
 });
 
-app.get('/api/search', async (req, res) => {
-    const data = await fetchTMDB('/search/multi', { query: req.query.query });
-    res.json(data.results || []);
-});
-
-// BU EN SONDA OLMALIDIR (Toqquşma olmasın deyə)
+// === DETALLAR (ƏN SONDA OLMALIDIR) ===
 app.get('/api/details/:type/:id', async (req, res) => {
     const { type, id } = req.params;
     try {
@@ -121,7 +104,7 @@ app.get('/api/details/:type/:id', async (req, res) => {
             similar: similar.results ? similar.results.slice(0, 8) : [],
             video: videos.results ? (videos.results.find(v => v.type === 'Trailer') || videos.results[0]) : null
         });
-    } catch (e) { res.status(404).json({ error: "Tapılmadı" }); }
+    } catch (e) { res.status(404).json({ error: "Məlumat tapılmadı" }); }
 });
 
 app.listen(PORT, () => console.log(`Server ${PORT} portunda aktivdir`));
