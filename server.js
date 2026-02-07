@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { translate } = require('@vitalets/google-translate-api');
 
 dotenv.config();
 const app = express();
@@ -14,7 +15,7 @@ const PORT = process.env.PORT || 10000;
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 
-// MongoDB Bağlantısı
+// MongoDB
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log('✅ MongoDB Hazırdır.'))
     .catch(err => console.error('❌ MongoDB Xətası:', err));
@@ -28,31 +29,38 @@ const User = mongoose.model('User', new mongoose.Schema({
     watchlist: [{ type: Object }] 
 }));
 
-// TMDB-dən məlumat çəkmək üçün köməkçi funksiya
+// TMDB Fetcher
 async function fetchTMDB(path, params = {}) {
-    const url = `${TMDB_BASE_URL}${path}?api_key=${TMDB_API_KEY}&language=az-AZ&${new URLSearchParams(params)}`;
+    const lang = params.language || 'az-AZ';
+    const queryParams = new URLSearchParams({
+        api_key: TMDB_API_KEY,
+        language: lang,
+        ...params
+    });
+    const url = `${TMDB_BASE_URL}${path}?${queryParams}`;
     try {
         const response = await fetch(url);
         return await response.json();
-    } catch (e) {
-        return {};
-    }
+    } catch (e) { return {}; }
 }
 
-// === AUTH (QEYDİYYAT VƏ GİRİŞ) ===
+// === AUTH ROUTES ===
+
+// Qeydiyyat
 app.post('/api/auth/register', async (req, res) => {
     try {
         const { fullName, email, username, password } = req.body;
         const existing = await User.findOne({ $or: [{ email }, { username }] });
-        if (existing) return res.status(400).json({ success: false, error: "Email və ya istifadəçi adı artıq mövcuddur" });
+        if (existing) return res.status(400).json({ success: false, error: "Email və ya istifadəçi adı artıq mövcuddur!" });
         
         const hashed = await bcrypt.hash(password, 10);
         const user = new User({ fullName, email, username, password: hashed });
         await user.save();
         res.status(201).json({ success: true });
-    } catch (err) { res.status(500).json({ success: false, error: "Server xətası" }); }
+    } catch (err) { res.status(500).json({ success: false, error: "Server xətası baş verdi" }); }
 });
 
+// Giriş
 app.post('/api/auth/login', async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -62,10 +70,10 @@ app.post('/api/auth/login', async (req, res) => {
 
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'secret');
         res.json({ success: true, token, user: { username: user.username, fullName: user.fullName } });
-    } catch (err) { res.status(500).json({ success: false, error: "Giriş xətası" }); }
+    } catch (err) { res.status(500).json({ success: false, error: "Giriş zamanı xəta" }); }
 });
 
-// === MƏZMUN MARŞRUTLARI ===
+// === MƏZMUN ROUTES ===
 app.get('/api/movies/popular', async (req, res) => {
     const data = await fetchTMDB('/movie/popular');
     res.json(data.results || []);
@@ -91,13 +99,12 @@ app.get('/api/tv/on_the_air', async (req, res) => {
     res.json(data.results || []);
 });
 
-app.get('/api/genres/movie/list', async (req, res) => {
-    const data = await fetchTMDB('/genre/movie/list');
-    res.json(data.genres || []);
-});
-
-app.get('/api/genres/tv/list', async (req, res) => {
-    const data = await fetchTMDB('/genre/tv/list');
+app.get('/api/genres/:type/list', async (req, res) => {
+    const { type } = req.params;
+    let data = await fetchTMDB(`/genre/${type}/list`, { language: 'az-AZ' });
+    if (!data.genres || data.genres.some(g => !g.name)) {
+        data = await fetchTMDB(`/genre/${type}/list`, { language: 'en-US' });
+    }
     res.json(data.genres || []);
 });
 
@@ -112,25 +119,40 @@ app.get('/api/discover/genre', async (req, res) => {
     res.json(data.results || []);
 });
 
-// DETALLAR (ƏN SONDA OLMALIDIR)
+// DETALLAR (Tərcümə və Video Fallback ilə)
 app.get('/api/details/:type/:id', async (req, res) => {
     const { type, id } = req.params;
     try {
-        const [details, credits, similar, videos] = await Promise.all([
-            fetchTMDB(`/${type}/${id}`),
-            fetchTMDB(`/${type}/${id}/credits`),
-            fetchTMDB(`/${type}/${id}/similar`),
-            fetchTMDB(`/${type}/${id}/videos`)
+        let [details, credits, similar, videos] = await Promise.all([
+            fetchTMDB(`/${type}/${id}`, { language: 'az-AZ' }),
+            fetchTMDB(`/${type}/${id}/credits`, { language: 'az-AZ' }),
+            fetchTMDB(`/${type}/${id}/similar`, { language: 'az-AZ' }),
+            fetchTMDB(`/${type}/${id}/videos`, { language: 'az-AZ' })
         ]);
+
+        if (!details.overview || details.overview.length < 10) {
+            const enData = await fetchTMDB(`/${type}/${id}`, { language: 'en-US' });
+            if (enData.overview) {
+                try {
+                    const tr = await translate(enData.overview, { to: 'az' });
+                    details.overview = tr.text;
+                } catch (e) { details.overview = enData.overview; }
+            }
+        }
+
+        let video = videos.results?.find(v => v.type === 'Trailer') || videos.results?.[0];
+        if (!video) {
+            const enV = await fetchTMDB(`/${type}/${id}/videos`, { language: 'en-US' });
+            video = enV.results?.find(v => v.type === 'Trailer') || enV.results?.[0];
+        }
+
         res.json({
             ...details,
             cast: credits.cast ? credits.cast.slice(0, 12) : [],
             similar: similar.results ? similar.results.slice(0, 8) : [],
-            video: videos.results ? (videos.results.find(v => v.type === 'Trailer') || videos.results[0]) : null
+            video: video || null
         });
-    } catch (e) {
-        res.status(404).json({ error: "Məlumat tapılmadı" });
-    }
+    } catch (err) { res.status(404).json({ error: "Tapılmadı" }); }
 });
 
-app.listen(PORT, () => console.log(`🚀 Server ${PORT} portunda aktivdir`));
+app.listen(PORT, () => console.log(`🚀 CineWave Server ${PORT} portunda aktivdir`));
