@@ -16,7 +16,7 @@ COPY package*.json ./
 
 # 6. Yalnız lazım olan (production) kitabxanaları quraşdırırıq
 # npm install yerinə npm ci (clean install) istifadə etmək daha stabil build verir
-RUN npm ci --only=production
+RUN npm install --only=production
 
 # 7. Kodları kopyalayırıq
 COPY . .
