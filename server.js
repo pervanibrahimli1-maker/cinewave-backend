@@ -10,16 +10,16 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000; // Render üçün 10000 daha yaxşıdır
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 
-// === MONGODB CONNECTION ===
+// MongoDB
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log('MongoDB Hazırdır.'))
-    .catch(err => console.error('MongoDB Bağlantı Xətası:', err));
+    .catch(err => console.error('MongoDB Xətası:', err));
 
-// === USER MODEL ===
+// Model
 const User = mongoose.model('User', new mongoose.Schema({
     fullName: { type: String, required: true },
     email: { type: String, unique: true, required: true },
@@ -28,7 +28,7 @@ const User = mongoose.model('User', new mongoose.Schema({
     watchlist: [{ type: Object }] 
 }));
 
-// === TMDB PROXY ===
+// TMDB Fetcher
 async function fetchTMDB(path, params = {}) {
     const url = `${TMDB_BASE_URL}${path}?api_key=${TMDB_API_KEY}&language=az-AZ&${new URLSearchParams(params)}`;
     const response = await fetch(url);
@@ -43,7 +43,7 @@ app.post('/api/auth/register', async (req, res) => {
         const user = new User({ fullName, email, username, password: hashed });
         await user.save();
         res.status(201).json({ success: true });
-    } catch (err) { res.status(400).json({ success: false, error: "Qeydiyyat alınmadı" }); }
+    } catch (err) { res.status(400).json({ success: false, error: "Qeydiyyat xətası" }); }
 });
 
 app.post('/api/auth/login', async (req, res) => {
@@ -51,14 +51,15 @@ app.post('/api/auth/login', async (req, res) => {
         const { email, password } = req.body;
         const user = await User.findOne({ email });
         if (!user || !await bcrypt.compare(password, user.password)) 
-            return res.status(400).json({ success: false, error: "Məlumatlar səhvdir" });
+            return res.status(400).json({ success: false, error: "Email və ya şifrə səhvdir" });
 
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'secret');
         res.json({ success: true, token, user: { username: user.username, email: user.email } });
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
-// === MOVIE ROUTES ===
+// === API ROUTES (Ardıcıllıq önəmlidir!) ===
+
 app.get('/api/movies/popular', async (req, res) => {
     const data = await fetchTMDB('/movie/popular');
     res.json(data.results || []);
@@ -69,20 +70,19 @@ app.get('/api/movies/now_playing', async (req, res) => {
     res.json(data.results || []);
 });
 
-// DETALLAR: Aktyorlar, Bənzər filmlər və Videolar daxil olmaqla
-app.get('/api/:type/:id', async (req, res) => {
-    const { type, id } = req.params;
-    const details = await fetchTMDB(`/${type}/${id}`);
-    const credits = await fetchTMDB(`/${type}/${id}/credits`);
-    const similar = await fetchTMDB(`/${type}/${id}/similar`);
-    const videos = await fetchTMDB(`/${type}/${id}/videos`);
-    
-    res.json({
-        ...details,
-        cast: credits.cast ? credits.cast.slice(0, 10) : [],
-        similar: similar.results ? similar.results.slice(0, 8) : [],
-        video: videos.results ? videos.results.find(v => v.type === 'Trailer') : null
-    });
+app.get('/api/movies/top_rated', async (req, res) => {
+    const data = await fetchTMDB('/movie/top_rated');
+    res.json(data.results || []);
+});
+
+app.get('/api/tv/popular', async (req, res) => {
+    const data = await fetchTMDB('/tv/popular');
+    res.json(data.results || []);
+});
+
+app.get('/api/tv/on_the_air', async (req, res) => {
+    const data = await fetchTMDB('/tv/on_the_air');
+    res.json(data.results || []);
 });
 
 app.get('/api/genres/movie/list', async (req, res) => {
@@ -95,15 +95,33 @@ app.get('/api/genres/tv/list', async (req, res) => {
     res.json(data.genres || []);
 });
 
+app.get('/api/discover/genre', async (req, res) => {
+    const { genreId, type } = req.query;
+    const data = await fetchTMDB(`/discover/${type || 'movie'}`, { with_genres: genreId });
+    res.json(data.results || []);
+});
+
 app.get('/api/search', async (req, res) => {
     const data = await fetchTMDB('/search/multi', { query: req.query.query });
     res.json(data.results || []);
 });
 
-app.get('/api/discover/genre', async (req, res) => {
-    const { genreId, type } = req.query;
-    const data = await fetchTMDB(`/discover/${type || 'movie'}`, { with_genres: genreId });
-    res.json(data.results || []);
+// BU EN SONDA OLMALIDIR (Toqquşma olmasın deyə)
+app.get('/api/details/:type/:id', async (req, res) => {
+    const { type, id } = req.params;
+    try {
+        const details = await fetchTMDB(`/${type}/${id}`);
+        const credits = await fetchTMDB(`/${type}/${id}/credits`);
+        const similar = await fetchTMDB(`/${type}/${id}/similar`);
+        const videos = await fetchTMDB(`/${type}/${id}/videos`);
+        
+        res.json({
+            ...details,
+            cast: credits.cast ? credits.cast.slice(0, 10) : [],
+            similar: similar.results ? similar.results.slice(0, 8) : [],
+            video: videos.results ? (videos.results.find(v => v.type === 'Trailer') || videos.results[0]) : null
+        });
+    } catch (e) { res.status(404).json({ error: "Tapılmadı" }); }
 });
 
 app.listen(PORT, () => console.log(`Server ${PORT} portunda aktivdir`));
