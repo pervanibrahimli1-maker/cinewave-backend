@@ -75,30 +75,51 @@ app.post('/api/auth/login', async (req, res) => {
 });
 
 // === MOVIE & TV ROUTES ===
-// results massivini qaytarırıq ki, front-end-də xəta olmasın
 app.get('/api/movies/popular', async (req, res) => {
     const data = await fetchTMDB('/movie/popular');
-    res.json(data.results);
+    res.json(data.results || []); // Burada .results mütləqdir!
 });
 
 app.get('/api/movies/now_playing', async (req, res) => {
     const data = await fetchTMDB('/movie/now_playing');
-    res.json(data.results);
+    res.json(data.results || []);
 });
 
 app.get('/api/movies/top_rated', async (req, res) => {
     const data = await fetchTMDB('/movie/top_rated');
-    res.json(data.results);
+    res.json(data.results || []);
 });
 
 app.get('/api/tv/popular', async (req, res) => {
     const data = await fetchTMDB('/tv/popular');
-    res.json(data.results);
+    res.json(data.results || []);
 });
 
 app.get('/api/tv/on_the_air', async (req, res) => {
     const data = await fetchTMDB('/tv/on_the_air');
-    res.json(data.results);
+    res.json(data.results || []);
+});
+
+app.get('/api/search', async (req, res) => {
+    const data = await fetchTMDB('/search/multi', { query: req.query.query });
+    res.json(data.results || []);
+});
+
+// Kateqoriyalar üçün bu endpointləri də server.js-ə əlavə etdiyindən əmin ol:
+app.get('/api/genres/movie/list', async (req, res) => {
+    const data = await fetchTMDB('/genre/movie/list');
+    res.json(data.genres || []);
+});
+
+app.get('/api/genres/tv/list', async (req, res) => {
+    const data = await fetchTMDB('/genre/tv/list');
+    res.json(data.genres || []);
+});
+
+app.get('/api/discover/genre', async (req, res) => {
+    const { genreId, type } = req.query;
+    const data = await fetchTMDB(`/discover/${type || 'movie'}`, { with_genres: genreId });
+    res.json(data.results || []);
 });
 
 // Detallı məlumat (Obyekt qaytarır)
