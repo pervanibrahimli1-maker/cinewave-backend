@@ -13,7 +13,7 @@ const app = express();
 // CORS siyasəti: Frontend-in origin-i buraya əlavə edilməlidir
 // InfinityFree domeninizin URL-ini aşağıdakı "origin" dəyəri ilə əvəz edin
 const corsOptions = {
-    origin: process.env.FRONTEND_URL || 'htts://watchmovie.ct.ws', // Məsələn: 'https://sizin-infinityfree-domaininiz.com'
+    origin: process.env.FRONTEND_URL || 'https://watchmovie.ct.ws', // Məsələn: 'https://sizin-infinityfree-domaininiz.com'
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
     optionsSuccessStatus: 204
