@@ -6,35 +6,33 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-dotenv.config(); // .env faylını yükləyir (lokal istifadə üçün)
+dotenv.config();
 
 const app = express();
 
-// --- Başlanğıc Konfiqurasiyaları ---
 const PORT = process.env.PORT || 10000;
-const JWT_SECRET = process.env.JWT_SECRET; // Render-də təyin olunmalıdır
-const TMDB_API_KEY = process.env.TMDB_API_KEY; // Render-də təyin olunmalıdır
+const JWT_SECRET = process.env.JWT_SECRET;
+const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
+// Tərcümə API Key-i (əgər gələcəkdə istifadə etsəniz Render-də təyin edin)
+const TRANSLATION_API_KEY = process.env.TRANSLATION_API_KEY; 
 
-// CORS siyasəti: Frontend-in origin-i Render-də FRONTEND_URL olaraq təyin edilməlidir
 const corsOptions = {
-    origin: process.env.FRONTEND_URL, // Məsələn: 'https://watchmovie.ct.ws'
+    origin: process.env.FRONTEND_URL,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
-    optionsSuccessStatus: 204 // Preflight sorğuları üçün 204 statusu
+    optionsSuccessStatus: 204
 };
 app.use(cors(corsOptions));
-app.use(express.json()); // JSON formatında gələn body-ləri parse etmək üçün
+app.use(express.json());
 
-// --- MongoDB Bağlantısı ---
-mongoose.connect(process.env.MONGODB_URI) // Render-də təyin olunmalıdır
+mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log('✅ MongoDB Hazırdır.'))
     .catch(err => {
         console.error('❌ MongoDB bağlantı xətası:', err.message);
-        process.exit(1); // Bağlantı xətası olarsa serveri dayandırın
+        process.exit(1);
     });
 
-// --- MongoDB İstifadəçi Modeli ---
 const User = mongoose.model('User', new mongoose.Schema({
     fullName: String,
     email: { type: String, unique: true, required: true },
@@ -43,14 +41,15 @@ const User = mongoose.model('User', new mongoose.Schema({
     watchlist: [{ id: Number, title: String, poster_path: String, movie_type: String }]
 }, { timestamps: true }));
 
-// --- Köməkçi Funksiya: TMDB API zəngi ---
+// --- YENİLƏNDİ: TMDB API zəngi (ingilis dili ilə) ---
 async function fetchTMDB(path, params = {}) {
     if (!TMDB_API_KEY) {
         console.error('TMDB_API_KEY ətraf mühit dəyişəni təyin edilməyib.');
         return null;
     }
 
-    const queryParams = new URLSearchParams({ api_key: TMDB_API_KEY, ...params, language: 'az-AZ' });
+    // Dili 'en-US' olaraq təyin edirik ki, tərcümə üçün ingiliscə mətn alaq
+    const queryParams = new URLSearchParams({ api_key: TMDB_API_KEY, ...params, language: 'en-US' }); 
     try {
         const response = await fetch(`${TMDB_BASE_URL}${path}?${queryParams}`);
         
@@ -66,7 +65,38 @@ async function fetchTMDB(path, params = {}) {
     }
 }
 
-// --- Autentifikasiya Middleware-i ---
+// --- YENİ FUNGSIYA: Mətn tərcüməsi (Yer tutucu/Alternativ) ---
+async function translateText(text, targetLang = 'az') {
+    if (!text) return text;
+
+    // --- BURADA ƏSL TƏRCÜMƏ API ÇAĞIRIŞI OLACAQ (məsələn, Google Cloud Translation API) ---
+    // Bu kod yalnız bir yer tutucudur və real tərcümə etmir.
+    // Siz TRANSLATION_API_KEY-i Render-də təyin etməli və real API ilə əvəz etməlisiniz.
+    
+    // Nümunə: Google Cloud Translation API istifadəsi (əsl kod deyil, konseptualdır)
+    // if (TRANSLATION_API_KEY) {
+    //     try {
+    //         const translateResponse = await fetch(`https://translation.googleapis.com/language/translate/v2?key=${TRANSLATION_API_KEY}`, {
+    //             method: 'POST',
+    //             headers: { 'Content-Type': 'application/json' },
+    //             body: JSON.stringify({ q: text, target: targetLang, source: 'en' })
+    //         });
+    //         const translateData = await translateResponse.json();
+    //         if (translateData.data && translateData.data.translations && translateData.data.translations.length > 0) {
+    //             return translateData.data.translations[0].translatedText;
+    //         }
+    //     } catch (translateError) {
+    //         console.error("Real tərcümə API zamanı xəta:", translateError.message);
+    //     }
+    // } else {
+    //     console.warn("TRANSLATION_API_KEY təyin edilməyib. Tərcümə API-si istifadə olunmur.");
+    // }
+
+    // Tərcümə API-si olmadan, müvəqqəti olaraq sadəcə ingiliscə mətni prefix ilə qaytarırıq.
+    return `[AZ Tərcümə Cəhdi]: ${text}`; 
+}
+
+
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1];
@@ -78,7 +108,7 @@ const authenticateToken = (req, res, next) => {
             console.error("JWT doğrulama xətası:", err.message);
             return res.status(403).json({ error: "Yanlış və ya vaxtı keçmiş token." });
         }
-        req.user = user; // İstifadəçi məlumatlarını req obyektinə əlavə edir
+        req.user = user;
         next();
     });
 };
@@ -87,7 +117,6 @@ const authenticateToken = (req, res, next) => {
 // --- API Routelar ---
 // =============================================================
 
-// --- AUTHENTIFICATION ---
 app.post('/api/auth/register', async (req, res) => {
     try {
         const { fullName, email, username, password } = req.body;
@@ -99,7 +128,7 @@ app.post('/api/auth/register', async (req, res) => {
         await user.save();
         res.status(201).json({ success: true, message: "Uğurla qeydiyyatdan keçdiniz!" });
     } catch (err) {
-        if (err.code === 11000) { // Duplicate key error
+        if (err.code === 11000) {
             return res.status(400).json({ success: false, error: "Email və ya istifadəçi adı artıq mövcuddur!" });
         }
         console.error("Qeydiyyat xətası:", err.message);
@@ -131,7 +160,6 @@ app.post('/api/auth/login', async (req, res) => {
     }
 });
 
-// --- CONTENT (TMDB-dən Məlumat Çəkmə) ---
 app.get('/api/home', async (req, res) => {
     const popularMovies = await fetchTMDB('/movie/popular');
     const popularTV = await fetchTMDB('/tv/popular');
@@ -141,8 +169,19 @@ app.get('/api/home', async (req, res) => {
     }
 
     const featured = popularMovies.results ? popularMovies.results[0] : null;
+
+    // YENİLƏNDİ: Featured filmin təsvirini tərcümə etməyə cəhd edir
+    let translatedFeaturedOverview = featured?.overview;
+    if (featured?.overview) {
+        translatedFeaturedOverview = await translateText(featured.overview, 'az');
+    }
+
     res.json({
-        featured: featured ? { ...featured, meta: `IMDb ${featured.vote_average?.toFixed(1) || '0.0'} | ${(featured.release_date || '').split('-')[0]}` } : null,
+        featured: featured ? { 
+            ...featured, 
+            overview: translatedFeaturedOverview, // Tərcümə olunmuş təsviri əlavə edir
+            meta: `IMDb ${featured.vote_average?.toFixed(1) || '0.0'} | ${(featured.release_date || '').split('-')[0]}` 
+        } : null,
         popularMovies: popularMovies.results || [],
         popularTV: popularTV.results || []
     });
@@ -153,6 +192,7 @@ app.get('/api/genres/:type/list', async (req, res) => {
     if (!data) {
         return res.status(500).json({ error: "TMDB-dən kateqoriya məlumatı alınarkən xəta baş verdi." });
     }
+    // TMDB-dən gələn cavabda 'name' sahəsi null olsa belə, gələcəkdə tərcümə olunmuş adlar ola bilər
     res.json(data.genres || []);
 });
 
@@ -165,10 +205,14 @@ app.get('/api/search', async (req, res) => {
     if (!data) {
         return res.status(500).json({ error: "TMDB-dən axtarış nəticələri alınarkən xəta baş verdi." });
     }
+    // Axtarış nəticələrindəki təsvirləri də tərcümə etmək istəsəniz, burada map edə bilərsiniz
+    // məsələn: data.results = await Promise.all(data.results.map(async item => {
+    //     if (item.overview) item.overview = await translateText(item.overview, 'az');
+    //     return item;
+    // }));
     res.json(data.results || []);
 });
 
-// Janr id-yə görə kəşf (Discover by genre ID)
 app.get('/api/discover/:type', async (req, res) => {
     const { type } = req.params;
     const { with_genres } = req.query;
@@ -177,14 +221,14 @@ app.get('/api/discover/:type', async (req, res) => {
         return res.status(400).json({ error: "Tip və janr ID tələb olunur." });
     }
 
-    const data = await fetchTMDB(`/${type}/popular`, { with_genres: with_genres }); // TMDB discover API çağırılır
+    const data = await fetchTMDB(`/${type}/popular`, { with_genres: with_genres });
     if (!data) {
         return res.status(500).json({ error: `TMDB-dən janr (${with_genres}) üzrə məlumat alınarkən xəta baş verdi.` });
     }
     res.json(data.results || []);
 });
 
-
+// --- YENİLƏNDİ: Detallar endpointi (təsvir tərcüməsi ilə) ---
 app.get('/api/details/:type/:id', async (req, res) => {
     const { type, id } = req.params;
     if (!type || !id) {
@@ -201,14 +245,21 @@ app.get('/api/details/:type/:id', async (req, res) => {
             return res.status(404).json({ error: "Detallar tapılmadı və ya xəta baş verdi." });
         }
 
-        res.json({ ...details, cast: credits?.cast || [], similar: similar?.results || [] });
+        // Təsviri tərcümə etməyə cəhd edir
+        const translatedOverview = await translateText(details.overview, 'az');
+        
+        res.json({ 
+            ...details, 
+            overview: translatedOverview, // Tərcümə olunmuş təsviri istifadə edir
+            cast: credits?.cast || [], 
+            similar: similar?.results || [] 
+        });
     } catch (e) {
         console.error("Detallar alınarkən xəta:", e.message);
         res.status(500).json({ error: "Daxili server xətası." });
     }
 });
 
-// Additional content routes for movies.html and series.html
 app.get('/api/movies/popular', async (req, res) => {
     const data = await fetchTMDB('/movie/popular');
     if (!data) return res.status(500).json({ error: "Populyar filmlər yüklənə bilmədi." });
@@ -228,13 +279,11 @@ app.get('/api/tv/popular', async (req, res) => {
 });
 
 app.get('/api/tv/on_the_air', async (req, res) => {
-    const data = await fetchTMDB('/tv/on_the_air'); // Yaxud /tv/airing_today
+    const data = await fetchTMDB('/tv/on_the_air');
     if (!data) return res.status(500).json({ error: "İndi yayımlanan seriallar yüklənə bilmədi." });
     res.json(data.results || []);
 });
 
-
-// --- WATCHLIST ---
 app.post('/api/watchlist/add', authenticateToken, async (req, res) => {
     try {
         const { id, title, poster_path, movie_type } = req.body;
@@ -247,11 +296,11 @@ app.post('/api/watchlist/add', authenticateToken, async (req, res) => {
             return res.status(404).json({ error: "İstifadəçi tapılmadı." });
         }
 
-        if (user.watchlist.some(m => m.id === id && m.movie_type === movie_type)) {
+        if (user.watchlist.some(m => m.id == id && m.movie_type == movie_type)) { // == istifadə etdim ki, nömrə və string müqayisə olunsun
             return res.status(400).json({ error: "Film/serial artıq izləmə siyahınızdadır." });
         }
 
-        user.watchlist.push({ id, title, poster_path, movie_type });
+        user.watchlist.push({ id: Number(id), title, poster_path, movie_type }); // ID-ni Number-ə çevirir
         await user.save();
         res.json({ success: true, message: "İzləmə siyahısına əlavə edildi." });
     } catch (e) {
@@ -290,5 +339,4 @@ app.delete('/api/watchlist/remove/:id/:type', authenticateToken, async (req, res
     }
 });
 
-// --- Serveri Başlat ---
 app.listen(PORT, () => console.log(`🚀 Server ${PORT} portunda işləyir.`));
