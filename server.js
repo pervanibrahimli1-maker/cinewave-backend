@@ -87,6 +87,27 @@ const authenticateToken = (req, res, next) => {
 
 // ======================= ROUTELAR =======================
 
+// server.js faylınıza əlavə edin (ROUTE hissəsində):
+
+app.delete('/api/watchlist/remove/:id/:type', authenticateToken, async (req, res) => {
+    try {
+        const { id, type } = req.params; // ID və tipi URL params-dan alın
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ error: "İstifadəçi tapılmadı." });
+        }
+
+        // İzləmə siyahısından uyğun elementi filtr edin (həm ID, həm də tipə görə)
+        user.watchlist = user.watchlist.filter(item => !(item.id == id && item.movie_type == type));
+        await user.save();
+        res.json({ success: true, message: "İzləmə siyahısından silindi." });
+    } catch (e) {
+        console.error("İzləmə siyahısından silinərkən xəta:", e.message);
+        res.status(500).json({ error: "Daxili server xətası." });
+    }
+});
+
+
 // AUTH
 app.post('/api/auth/register', async (req, res) => {
     try {
