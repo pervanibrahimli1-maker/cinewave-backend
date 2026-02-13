@@ -93,7 +93,7 @@ async function translateText(text, targetLang = 'az') {
     // }
 
     // Tərcümə API-si olmadan, müvəqqəti olaraq sadəcə ingiliscə mətni prefix ilə qaytarırıq.
-    return `[AZ Tərcümə Cəhdi]: ${text}`; 
+    return `${text}`; 
 }
 
 
@@ -229,21 +229,23 @@ app.get('/api/discover/:type', async (req, res) => {
 });
 
 // --- YENİLƏNDİ: Detallar endpointi (təsvir tərcüməsi ilə) ---
-app.get('/api/details/:type/:id', async (req, res) => {
-    const { type, id } = req.params;
-    if (!type || !id) {
-        return res.status(400).json({ error: "Tip və ID tələb olunur." });
-    }
+app.delete('/api/watchlist/remove/:id/:type', authenticateToken, async (req, res) => {
     try {
-        const [details, credits, similar] = await Promise.all([
-            fetchTMDB(`/${type}/${id}`),
-            fetchTMDB(`/${type}/${id}/credits`),
-            fetchTMDB(`/${type}/${id}/similar`)
-        ]);
-
-        if (!details) {
-            return res.status(404).json({ error: "Detallar tapılmadı və ya xəta baş verdi." });
+        const { id, type } = req.params;
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ error: "İstifadəçi tapılmadı." });
         }
+
+        // Dəyişiklik burada: id-ni Number-ə çevirərək dəqiq müqayisə aparırıq
+        user.watchlist = user.watchlist.filter(item => !(item.id === Number(id) && item.movie_type === type));
+        await user.save();
+        res.json({ success: true, message: "İzləmə siyahısından silindi." });
+    } catch (e) {
+        console.error("İzləmə siyahısından silinərkən xəta:", e.message);
+        res.status(500).json({ error: "Daxili server xətası." });
+    }
+});
 
         // Təsviri tərcümə etməyə cəhd edir
         const translatedOverview = await translateText(details.overview, 'az');
