@@ -14,16 +14,26 @@ const PORT = process.env.PORT || 10000;
 const JWT_SECRET = process.env.JWT_SECRET;
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
-// Tərcümə API Key-i (əgər gələcəkdə istifadə etsəniz Render-də təyin edin)
 const TRANSLATION_API_KEY = process.env.TRANSLATION_API_KEY; 
 
+// ========== CORS KONFİQURASİYASI (DÜZƏLDİLDİ) ==========
 const corsOptions = {
-    origin: process.env.FRONTEND_URL,
+    origin: function (origin, callback) {
+        // Bütün origin-lərə icazə ver (development üçün)
+        // Production-da məhdudlaşdırmaq olar
+        callback(null, true);
+    },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
-    optionsSuccessStatus: 204
+    optionsSuccessStatus: 204,
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
+
 app.use(cors(corsOptions));
+
+// Preflight requests üçün
+app.options('*', cors(corsOptions));
+
 app.use(express.json());
 
 mongoose.connect(process.env.MONGODB_URI)
@@ -41,14 +51,13 @@ const User = mongoose.model('User', new mongoose.Schema({
     watchlist: [{ id: Number, title: String, poster_path: String, movie_type: String }]
 }, { timestamps: true }));
 
-// --- YENİLƏNDİ: TMDB API zəngi (ingilis dili ilə) ---
+// --- TMDB API zənciri ---
 async function fetchTMDB(path, params = {}) {
     if (!TMDB_API_KEY) {
-        console.error('TMDB_API_KEY ətraf mühit dəyişəni təyin edilməyib.');
+        console.error('TMDB_API_KEY mühit dəyişəni təyin edilməyib.');
         return null;
     }
 
-    // Dili 'en-US' olaraq təyin edirik ki, tərcümə üçün ingiliscə mətn alaq
     const queryParams = new URLSearchParams({ api_key: TMDB_API_KEY, ...params, language: 'en-US' }); 
     try {
         const response = await fetch(`${TMDB_BASE_URL}${path}?${queryParams}`);
@@ -65,37 +74,11 @@ async function fetchTMDB(path, params = {}) {
     }
 }
 
-// --- YENİ FUNGSIYA: Mətn tərcüməsi (Yer tutucu/Alternativ) ---
+// --- Tərcümə funksiyası ---
 async function translateText(text, targetLang = 'az') {
     if (!text) return text;
-
-    // --- BURADA ƏSL TƏRCÜMƏ API ÇAĞIRIŞI OLACAQ (məsələn, Google Cloud Translation API) ---
-    // Bu kod yalnız bir yer tutucudur və real tərcümə etmir.
-    // Siz TRANSLATION_API_KEY-i Render-də təyin etməli və real API ilə əvəz etməlisiniz.
-    
-    // Nümunə: Google Cloud Translation API istifadəsi (əsl kod deyil, konseptualdır)
-    // if (TRANSLATION_API_KEY) {
-    //     try {
-    //         const translateResponse = await fetch(`https://translation.googleapis.com/language/translate/v2?key=${TRANSLATION_API_KEY}`, {
-    //             method: 'POST',
-    //             headers: { 'Content-Type': 'application/json' },
-    //             body: JSON.stringify({ q: text, target: targetLang, source: 'en' })
-    //         });
-    //         const translateData = await translateResponse.json();
-    //         if (translateData.data && translateData.data.translations && translateData.data.translations.length > 0) {
-    //             return translateData.data.translations[0].translatedText;
-    //         }
-    //     } catch (translateError) {
-    //         console.error("Real tərcümə API zamanı xəta:", translateError.message);
-    //     }
-    // } else {
-    //     console.warn("TRANSLATION_API_KEY təyin edilməyib. Tərcümə API-si istifadə olunmur.");
-    // }
-
-    // Tərcümə API-si olmadan, müvəqqəti olaraq sadəcə ingiliscə mətni prefix ilə qaytarırıq.
     return `${text}`; 
 }
-
 
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers.authorization;
@@ -114,7 +97,7 @@ const authenticateToken = (req, res, next) => {
 };
 
 // =============================================================
-// --- API Routelar ---
+// --- API Routelar (DƏYİŞMƏYİB) ---
 // =============================================================
 
 app.post('/api/auth/register', async (req, res) => {
@@ -170,7 +153,6 @@ app.get('/api/home', async (req, res) => {
 
     const featured = popularMovies.results ? popularMovies.results[0] : null;
 
-    // YENİLƏNDİ: Featured filmin təsvirini tərcümə etməyə cəhd edir
     let translatedFeaturedOverview = featured?.overview;
     if (featured?.overview) {
         translatedFeaturedOverview = await translateText(featured.overview, 'az');
@@ -179,7 +161,7 @@ app.get('/api/home', async (req, res) => {
     res.json({
         featured: featured ? { 
             ...featured, 
-            overview: translatedFeaturedOverview, // Tərcümə olunmuş təsviri əlavə edir
+            overview: translatedFeaturedOverview,
             meta: `IMDb ${featured.vote_average?.toFixed(1) || '0.0'} | ${(featured.release_date || '').split('-')[0]}` 
         } : null,
         popularMovies: popularMovies.results || [],
@@ -192,7 +174,6 @@ app.get('/api/genres/:type/list', async (req, res) => {
     if (!data) {
         return res.status(500).json({ error: "TMDB-dən kateqoriya məlumatı alınarkən xəta baş verdi." });
     }
-    // TMDB-dən gələn cavabda 'name' sahəsi null olsa belə, gələcəkdə tərcümə olunmuş adlar ola bilər
     res.json(data.genres || []);
 });
 
@@ -205,11 +186,6 @@ app.get('/api/search', async (req, res) => {
     if (!data) {
         return res.status(500).json({ error: "TMDB-dən axtarış nəticələri alınarkən xəta baş verdi." });
     }
-    // Axtarış nəticələrindəki təsvirləri də tərcümə etmək istəsəniz, burada map edə bilərsiniz
-    // məsələn: data.results = await Promise.all(data.results.map(async item => {
-    //     if (item.overview) item.overview = await translateText(item.overview, 'az');
-    //     return item;
-    // }));
     res.json(data.results || []);
 });
 
@@ -228,7 +204,6 @@ app.get('/api/discover/:type', async (req, res) => {
     res.json(data.results || []);
 });
 
-// --- YENİLƏNDİ: Detallar endpointi (təsvir tərcüməsi ilə) ---
 app.get('/api/details/:type/:id', async (req, res) => {
     const { type, id } = req.params;
     if (!type || !id) {
@@ -245,12 +220,11 @@ app.get('/api/details/:type/:id', async (req, res) => {
             return res.status(404).json({ error: "Detallar tapılmadı və ya xəta baş verdi." });
         }
 
-        // Təsviri tərcümə etməyə cəhd edir
         const translatedOverview = await translateText(details.overview, 'az');
         
         res.json({ 
             ...details, 
-            overview: translatedOverview, // Tərcümə olunmuş təsviri istifadə edir
+            overview: translatedOverview,
             cast: credits?.cast || [], 
             similar: similar?.results || [] 
         });
@@ -296,12 +270,11 @@ app.post('/api/watchlist/add', authenticateToken, async (req, res) => {
             return res.status(404).json({ error: "İstifadəçi tapılmadı." });
         }
 
-        // Təkrarlanan filmlərin yoxlanılması üçün ID-ni Number-ə çeviririk
         if (user.watchlist.some(m => m.id === Number(id) && m.movie_type === movie_type)) { 
             return res.status(400).json({ error: "Film/serial artıq izləmə siyahınızdadır." });
         }
 
-        user.watchlist.push({ id: Number(id), title, poster_path, movie_type }); // ID-ni Number-ə çevirir
+        user.watchlist.push({ id: Number(id), title, poster_path, movie_type });
         await user.save();
         res.json({ success: true, message: "İzləmə siyahısına əlavə edildi." });
     } catch (e) {
@@ -331,7 +304,6 @@ app.delete('/api/watchlist/remove/:id/:type', authenticateToken, async (req, res
             return res.status(404).json({ error: "İstifadəçi tapılmadı." });
         }
 
-        // Dəyişiklik burada: id-ni Number-ə çevirərək dəqiq müqayisə aparırıq
         user.watchlist = user.watchlist.filter(item => !(item.id === Number(id) && item.movie_type === type));
         await user.save();
         res.json({ success: true, message: "İzləmə siyahısından silindi." });
