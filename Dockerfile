@@ -1,31 +1,39 @@
-# 1. Yüngül Alpine versiyası
-FROM node:18-alpine
+# 1. Ən stabil və təhlükəsiz Node.js versiyası
+FROM node:20-alpine
 
-# 2. Əgər bcryptjs istifadə edirsənsə, python/make/g++ lazım deyil. 
-# Amma gələcəkdə native kitabxanalar əlavə etsən deyə saxlamaq olar.
-RUN apk add --no-cache python3 make g++
+# 2. Lazımi sistem alətlərini quraşdırırıq (Native modullar üçün)
+# Sonda cache təmizlənir ki, hackerlər üçün iz qalmasın
+RUN apk add --no-cache python3 make g++ && \
+    rm -rf /var/cache/apk/*
 
-# 3. İş qovluğu
+# 3. Serverin iş qovluğunu yaradırıq
 WORKDIR /app
 
-# 4. NODE_ENV-ni production olaraq təyin edirik
+# 4. Production mühitini aktiv edirik
 ENV NODE_ENV=production
 
-# 5. Paket fayllarını kopyalayırıq
+# 5. Kitabxanaların siyahısını (JSON fayllarını) kopyalayırıq
+# Bu addım cache-dən istifadə edərək build müddətini sürətləndirir
 COPY package*.json ./
 
-# 6. Yalnız lazım olan (production) kitabxanaları quraşdırırıq
-# npm install yerinə npm ci (clean install) istifadə etmək daha stabil build verir
-RUN npm install --only=production
+# 6. Kitabxanaları quraşdırırıq
+# npm install yerinə 'npm ci' istifadə edirik (daha təhlükəsiz və stabil build üçün)
+RUN npm ci --only=production && \
+    npm cache clean --force
 
-# 7. Kodları kopyalayırıq
+# 7. Bütün kodları və digər JSON fayllarını qovluğa kopyalayırıq
 COPY . .
 
-# 8. Təhlükəsizlik
+# 8. TƏHLÜKƏSİZLİK ADDIMI: 
+# Faylların sahibliyini 'node' istifadəçisinə veririk (Root səlahiyyətini ləğv etmək üçün)
+RUN chown -R node:node /app
+
+# 9. Təhlükəsiz istifadəçiyə keçid edirik
+# Hack olunsan belə, hacker sistem fayllarına toxuna bilməyəcək
 USER node
 
-# 9. Render adətən dinamik PORT təyin edir, amma 10000 standartdır
+# 10. Render-in standart portunu açırıq
 EXPOSE 10000
 
-# 10. Serveri başladırıq
+# 11. Serveri başladırıq
 CMD ["node", "server.js"]
