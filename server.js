@@ -234,6 +234,21 @@ app.get('/api/details/:type/:id', async (req, res) => {
     }
 });
 
+// --- Serialın konkret sezonunun bölümlərini çəkmək üçün route ---
+app.get('/api/details/tv/:id/season/:season_number', async (req, res) => {
+    const { id, season_number } = req.params;
+    
+    // TMDB-dən həmin sezonun detallarını (bölümlərini) çəkirik
+    const data = await fetchTMDB(`/tv/${id}/season/${season_number}`);
+    
+    if (!data) {
+        return res.status(404).json({ error: "Sezon məlumatları tapılmadı." });
+    }
+    
+    // Bölümləri geri qaytarırıq
+    res.json(data);
+});
+
 app.get('/api/movies/popular', async (req, res) => {
     const data = await fetchTMDB('/movie/popular');
     if (!data) return res.status(500).json({ error: "Populyar filmlər yüklənə bilmədi." });
