@@ -1,4 +1,4 @@
-// server.js - CineWave Ultimate Secure Backend (FULL)
+// server.js - CineWave Ultimate Secure Backend (FULL FIXED)
 const express = require('express');
 const translate = require('google-translate-api-x');
 const cors = require('cors');
@@ -24,7 +24,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 
-// 1. TƏHLÜKƏSİZLİK ZİREHİ (PENTESTERLƏR ÜÇÜN)
+// 1. TƏHLÜKƏSİZLİK ZİREHİ
 app.use(helmet({ 
     contentSecurityPolicy: false, 
     crossOriginEmbedderPolicy: false 
@@ -53,7 +53,7 @@ const User = mongoose.model('User', new mongoose.Schema({
 
 const View = mongoose.model('View', new mongoose.Schema({
     movieId: { type: String, required: true, unique: true },
-    viewers: [String] // Hashed IP və ya User ID siyahısı
+    viewers: [String]
 }));
 
 // 3. YARDIMÇI FUNKSİYALAR
@@ -104,8 +104,6 @@ app.post('/api/views/increment/:id', async (req, res) => {
     try {
         const movieId = req.params.id;
         let viewerId;
-        
-        // İstifadəçi daxil olubsa ID-si, yoxsa IP-sinin Hash-i
         if (req.headers.authorization) {
             try {
                 const token = req.headers.authorization.split(' ')[1];
@@ -160,46 +158,44 @@ app.get('/api/search', async (req, res) => {
     res.json(data || { results: [], total_pages: 1 });
 });
 
+// --- FİLM DETALLARI (TƏRCÜMƏ VƏ BAXIŞ İLƏ BİRLİKDƏ) ---
 app.get('/api/details/:type/:id', async (req, res) => {
     const { type, id } = req.params;
-    const API_KEY = process.env.TMDB_API_KEY; // .env-dən açarı götürürük
-
+    
     try {
-        // 1. TMDB-dən ingilis dilində məlumatı çəkirik
-        const response = await fetch(
-            `https://api.themoviedb.org/3/${type}/${id}?api_key=${API_KEY}&append_to_response=credits,similar&language=en-US`
-        );
-        const data = await response.json();
+        // 1. TMDB-dən və Verilənlər bazasından məlumatları eyni anda çək
+        const [mainData, credits, similar, views] = await Promise.all([
+            fetchTMDB(`/${type}/${id}`),
+            fetchTMDB(`/${type}/${id}/credits`),
+            fetchTMDB(`/${type}/${id}/similar`),
+            View.findOne({ movieId: id })
+        ]);
 
-        // 2. Əgər overview (aciqlama) varsa, onu Azərbaycan dilinə tərcümə edirik
-        if (data && data.overview) {
+        if (!mainData) return res.status(404).json({ error: "Tapılmadı" });
+
+        // 2. Overview varsa Azərbaycan dilinə tərcümə et
+        if (mainData.overview) {
             try {
-                // Tərcümə prosesi
-                const translated = await translate(data.overview, { to: 'az' });
-                data.overview = translated.text; 
+                const translated = await translate(mainData.overview, { to: 'az' });
+                mainData.overview = translated.text;
             } catch (transErr) {
                 console.error("Tərcümə xətası:", transErr);
-                // Xəta olsa heç nə etmirik, ingiliscə qalsın deyə
             }
         }
 
-        // 3. Tərcümə olunmuş datanı Frontend-ə göndəririk
-        res.json(data);
+        // 3. Bütün məlumatları birləşdir və göndər
+        res.json({
+            ...mainData,
+            cast: credits?.cast?.slice(0, 15) || [],
+            similar: similar?.results?.slice(0, 12) || [],
+            viewCount: views ? views.viewers.length : 0,
+            success: true
+        });
 
     } catch (error) {
-        console.error("Server xətası:", error);
-        res.status(500).json({ error: "Məlumat gətirilərkən xəta oldu" });
+        console.error("Detalları gətirərkən xəta:", error);
+        res.status(500).json({ error: "Server xətası" });
     }
-});
-    const { type, id } = req.params;
-    const [d, c, s, v] = await Promise.all([
-        fetchTMDB(`/${type}/${id}`), 
-        fetchTMDB(`/${type}/${id}/credits`), 
-        fetchTMDB(`/${type}/${id}/similar`),
-        View.findOne({ movieId: id })
-    ]);
-    if (!d) return res.status(404).json({ error: "Tapılmadı" });
-    res.json({ ...d, cast: c?.cast || [], similar: s?.results || [], viewCount: v ? v.viewers.length : 0 });
 });
 
 app.get('/api/details/tv/:id/season/:num', async (req, res) => {
