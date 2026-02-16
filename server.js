@@ -1,5 +1,6 @@
 // server.js - CineWave Ultimate Secure Backend (FULL)
 const express = require('express');
+const translate = require('google-translate-api-x');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
@@ -160,6 +161,36 @@ app.get('/api/search', async (req, res) => {
 });
 
 app.get('/api/details/:type/:id', async (req, res) => {
+    const { type, id } = req.params;
+    const API_KEY = process.env.TMDB_API_KEY; // .env-dən açarı götürürük
+
+    try {
+        // 1. TMDB-dən ingilis dilində məlumatı çəkirik
+        const response = await fetch(
+            `https://api.themoviedb.org/3/${type}/${id}?api_key=${API_KEY}&append_to_response=credits,similar&language=en-US`
+        );
+        const data = await response.json();
+
+        // 2. Əgər overview (aciqlama) varsa, onu Azərbaycan dilinə tərcümə edirik
+        if (data && data.overview) {
+            try {
+                // Tərcümə prosesi
+                const translated = await translate(data.overview, { to: 'az' });
+                data.overview = translated.text; 
+            } catch (transErr) {
+                console.error("Tərcümə xətası:", transErr);
+                // Xəta olsa heç nə etmirik, ingiliscə qalsın deyə
+            }
+        }
+
+        // 3. Tərcümə olunmuş datanı Frontend-ə göndəririk
+        res.json(data);
+
+    } catch (error) {
+        console.error("Server xətası:", error);
+        res.status(500).json({ error: "Məlumat gətirilərkən xəta oldu" });
+    }
+});
     const { type, id } = req.params;
     const [d, c, s, v] = await Promise.all([
         fetchTMDB(`/${type}/${id}`), 
