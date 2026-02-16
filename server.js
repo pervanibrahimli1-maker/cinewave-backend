@@ -132,6 +132,27 @@ app.get('/api/details/tv/:id/season/:num', async (req, res) => {
     res.json(d || { episodes: [] });
 });
 
+
+app.get('/api/discover/:type', async (req, res) => {
+    const { type } = req.params;
+    const { with_genres, year, page } = req.query;
+    
+    let params = { 
+        with_genres: with_genres || '', 
+        page: page || 1, 
+        sort_by: 'popularity.desc' 
+    };
+
+    if (year) {
+        if (type === 'movie') params.primary_release_year = year;
+        else params.first_air_date_year = year;
+    }
+
+    const data = await fetchTMDB(`/discover/${type}`, params);
+    res.json(data || { results: [], total_pages: 1 });
+});
+
+
 app.post('/api/views/increment/:id', async (req, res) => {
     try {
         const movieId = req.params.id;
