@@ -175,6 +175,31 @@ app.post('/api/watchlist/add', authMiddleware, async (req, res) => {
     user.watchlist.push(req.body); await user.save(); res.json({ success: true });
 });
 
+// BÜTÜN SİYAHINI TƏMİZLƏMƏK (DELETE /api/watchlist/clear)
+app.delete('/api/watchlist/clear', authMiddleware, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        user.watchlist = [];
+        await user.save();
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: "Server xətası" });
+    }
+});
+
+// TƏK FİLMİ SİLMƏK (DELETE /api/watchlist/remove/:id/:type)
+app.delete('/api/watchlist/remove/:id/:type', authMiddleware, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        const { id, type } = req.params;
+        user.watchlist = user.watchlist.filter(i => !(i.id == id && i.movie_type == type));
+        await user.save();
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: "Server xətası" });
+    }
+});
+
 // Digər API-lar...
 app.get('/api/search', async (req, res) => { res.json(await fetchTMDB('/search/multi', { query: req.query.query, page: req.query.page || 1 })); });
 app.get('/api/movies/popular', async (req, res) => { res.json(await fetchTMDB('/movie/popular', { page: req.query.page || 1 })); });
