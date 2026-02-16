@@ -107,23 +107,33 @@ app.get('/api/home', async (req, res) => {
     } catch (e) { res.status(500).json({ error: "Home xətası" }); }
 });
 
+// server.js daxilində tap və bu hissəni dəyiş:
 app.get('/api/details/:type/:id', async (req, res) => {
     const { type, id } = req.params;
     try {
-        const [mainData, credits, similar, views] = await Promise.all([
+        const [mainData, credits, recommendations, views] = await Promise.all([
             fetchTMDB(`/${type}/${id}`),
             fetchTMDB(`/${type}/${id}/credits`),
-            fetchTMDB(`/${type}/${id}/similar`),
+            fetchTMDB(`/${type}/${id}/recommendations`), // <--- BURANI DƏYİŞDİK (similar idi)
             View.findOne({ movieId: id })
         ]);
+
         if (!mainData) return res.status(404).json({ error: "Tapılmadı" });
+
         if (mainData.overview) {
             try {
                 const tr = await translate(mainData.overview, { to: 'az' });
                 mainData.overview = tr.text;
             } catch (te) { console.log("Translation failed"); }
         }
-        res.json({ ...mainData, cast: credits?.cast?.slice(0, 15) || [], similar: similar?.results?.slice(0, 12) || [], viewCount: views ? views.viewers.length : 0, success: true });
+
+        res.json({ 
+            ...mainData, 
+            cast: credits?.cast?.slice(0, 15) || [], 
+            similar: recommendations?.results?.slice(0, 12) || [], // Frontend-də adı 'similar' qalsın deyə dəyişmirik
+            viewCount: views ? views.viewers.length : 0, 
+            success: true 
+        });
     } catch (e) { res.status(500).json({ error: "Details xətası" }); }
 });
 
