@@ -98,6 +98,7 @@ app.post('/api/auth/login', async (req, res) => {
 // --- CONTENT ROUTELARI ---
 // --- CONTENT ROUTELARI ---
 // server.js - /api/home hissəsini bununla əvəz et
+// server.js daxilində /api/home hissəsini bu şəkildə yenilə
 app.get('/api/home', async (req, res) => {
     try {
         const [movies, tv] = await Promise.all([
@@ -107,13 +108,16 @@ app.get('/api/home', async (req, res) => {
 
         let featured = movies?.results[0] || null;
 
-        // ÖNƏ ÇIXAN FİLMİN TƏRCÜMƏSİ BURADADIR
-        if (featured && featured.overview) {
-            try {
-                const tr = await translate(featured.overview, { to: 'az' });
-                featured.overview = tr.text;
-            } catch (te) { 
-                console.log("Featured translation failed, original kept."); 
+        if (featured) {
+            // Baxış sayını bazadan tapırıq
+            const views = await View.findOne({ movieId: featured.id.toString() });
+            featured.viewCount = views ? views.viewers.length : 0;
+
+            if (featured.overview) {
+                try {
+                    const tr = await translate(featured.overview, { to: 'az' });
+                    featured.overview = tr.text;
+                } catch (te) { console.log("Translation failed"); }
             }
         }
 
@@ -122,9 +126,7 @@ app.get('/api/home', async (req, res) => {
             popularMovies: movies?.results || [],
             popularTV: tv?.results || []
         });
-    } catch (e) { 
-        res.status(500).json({ error: "Home xətası" }); 
-    }
+    } catch (e) { res.status(500).json({ error: "Home xətası" }); }
 });
 
 // server.js daxilində tap və bu hissəni dəyiş:
