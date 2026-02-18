@@ -96,15 +96,38 @@ app.post('/api/auth/login', async (req, res) => {
 });
 
 // --- CONTENT ROUTELARI ---
+// --- CONTENT ROUTELARI ---
 app.get('/api/home', async (req, res) => {
     try {
-        const [movies, tv] = await Promise.all([fetchTMDB('/movie/popular'), fetchTMDB('/tv/popular')]);
+        const [movies, tv] = await Promise.all([
+            fetchTMDB('/movie/popular'), 
+            fetchTMDB('/tv/popular')
+        ]);
+
+        let featured = movies?.results[0] || null;
+
+        // Əgər önə çıxan film varsa, onun təsvirini tərcümə et
+        if (featured && featured.overview) {
+            try {
+                const tr = await translate(featured.overview, { to: 'az' });
+                featured.overview = tr.text;
+            } catch (te) { 
+                console.log("Featured translation failed"); 
+            }
+            
+            // Əlavə meta məlumatları
+            featured.meta = featured.vote_average?.toFixed(1);
+            featured.year = (featured.release_date || '').split('-')[0];
+        }
+
         res.json({
-            featured: movies?.results[0] ? { ...movies.results[0], meta: movies.results[0].vote_average?.toFixed(1), year: (movies.results[0].release_date || '').split('-')[0] } : null,
+            featured: featured,
             popularMovies: movies?.results || [],
             popularTV: tv?.results || []
         });
-    } catch (e) { res.status(500).json({ error: "Home xətası" }); }
+    } catch (e) { 
+        res.status(500).json({ error: "Home xətası" }); 
+    }
 });
 
 // server.js daxilində tap və bu hissəni dəyiş:
