@@ -97,6 +97,7 @@ app.post('/api/auth/login', async (req, res) => {
 
 // --- CONTENT ROUTELARI ---
 // --- CONTENT ROUTELARI ---
+// server.js - /api/home hissəsini bununla əvəz et
 app.get('/api/home', async (req, res) => {
     try {
         const [movies, tv] = await Promise.all([
@@ -106,18 +107,14 @@ app.get('/api/home', async (req, res) => {
 
         let featured = movies?.results[0] || null;
 
-        // Əgər önə çıxan film varsa, onun təsvirini tərcümə et
+        // ÖNƏ ÇIXAN FİLMİN TƏRCÜMƏSİ BURADADIR
         if (featured && featured.overview) {
             try {
                 const tr = await translate(featured.overview, { to: 'az' });
                 featured.overview = tr.text;
             } catch (te) { 
-                console.log("Featured translation failed"); 
+                console.log("Featured translation failed, original kept."); 
             }
-            
-            // Əlavə meta məlumatları
-            featured.meta = featured.vote_average?.toFixed(1);
-            featured.year = (featured.release_date || '').split('-')[0];
         }
 
         res.json({
