@@ -519,3 +519,6 @@ function initAIChat() {
 
 // Səhifə yüklənəndə çat funksiyasını işə sal
 document.addEventListener('DOMContentLoaded', initAIChat);
+
+
+module.exports = app;
