@@ -1,7 +1,8 @@
 {
   "version": 2,
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "server.js" },
-    { "source": "/movie/:type/:id/:slug", "destination": "/movie-details.html" }
+    { "source": "/api/(.*)", "destination": "/api/server.js" },
+    { "source": "/movie/:type/:id/:slug", "destination": "/movie-details.html" },
+    { "source": "/(.*)", "destination": "/$1" }
   ]
 }
