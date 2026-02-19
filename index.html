@@ -155,7 +155,27 @@
             </div>
         </div>
     </div>
-    
+
+<!-- AI Chat UI -->
+<div id="ai-chat-wrapper">
+    <div id="chat-window" class="chat-window">
+        <div class="chat-header">
+            <span>CineWave AI Köməkçi</span>
+            <button id="close-chat"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="chat-messages" class="chat-messages">
+            <div class="ai-msg">Salam! Mən CineWave AI. Bu gün hansı janrda film axtarırsınız? 😊</div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" placeholder="Məs: Qorxulu film təklif et...">
+            <button id="send-chat"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+    <button id="chat-trigger" class="chat-trigger">
+        <i class="fas fa-robot"></i>
+    </button>
+</div>
+	
 <script src="/script.js"></script>
 </body>
 </html>
