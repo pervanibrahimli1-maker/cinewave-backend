@@ -250,7 +250,6 @@ app.get('/api/person/:id/credits', async (req, res) => {
         // Aktyoru və filmlərini qaytarırıq (ilk 40 məşhur işi)
         const cast = data.cast
             .sort((a, b) => b.vote_count - a.vote_count)
-            .slice(0, 40);
             
         res.json({ cast });
     } catch (err) {
