@@ -2873,3 +2873,155 @@ body {
         color: #e0e0e0 !important;
     }
 }
+
+/* AI CHAT DESIGN */
+.chat-trigger {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: var(--primary);
+    border-radius: 50%;
+    color: white;
+    font-size: 24px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 5px 20px rgba(255, 77, 0, 0.4);
+    z-index: 2000;
+    transition: 0.3s;
+}
+
+.chat-trigger:hover { transform: scale(1.1); }
+
+.chat-window {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    width: 350px;
+    height: 450px;
+    background: #16181f;
+    border: 1px solid rgba(255, 77, 0, 0.3);
+    border-radius: 20px;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 2000;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+}
+
+.chat-header {
+    background: var(--primary);
+    padding: 15px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 14px;
+}
+
+.ai-msg, .user-msg {
+    padding: 10px 15px;
+    border-radius: 15px;
+    max-width: 80%;
+}
+
+.ai-msg { background: rgba(255, 255, 255, 0.05); color: #fff; align-self: flex-start; }
+.user-msg { background: var(--primary); color: white; align-self: flex-end; }
+
+.chat-input-area {
+    padding: 15px;
+    display: flex;
+    gap: 10px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+#chat-input {
+    flex: 1;
+    background: #0a0b10;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 10px;
+    outline: none;
+}
+
+#send-chat { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 10px; cursor: pointer; }
+
+@media (max-width: 480px) {
+    .chat-window { width: calc(100% - 40px); right: 20px; height: 400px; }
+}
+
+/* AI CHAT HINT BUBBLE */
+.chat-hint {
+    position: fixed;
+    bottom: 42px;
+    right: 100px; /* Robotun solunda dayanır */
+    background: white;
+    color: #0a0b10;
+    padding: 10px 18px;
+    border-radius: 12px 12px 0 12px;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    z-index: 1999;
+    opacity: 0;
+    transform: translateX(20px);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+/* Balonun yanındakı kiçik ox işarəsi */
+.chat-hint::after {
+    content: '';
+    position: absolute;
+    right: -8px;
+    bottom: 0;
+    border-top: 10px solid transparent;
+    border-left: 10px solid white;
+}
+
+.chat-hint.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* MOBİL UYĞUNLUQ (CSS) */
+@media (max-width: 768px) {
+    .chat-trigger {
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+    }
+
+    .chat-window {
+        width: calc(100% - 40px);
+        right: 20px;
+        bottom: 80px;
+        height: 60vh; /* Mobildə ekranın 60%-i qədər olsun */
+    }
+
+    .chat-hint {
+        bottom: 30px;
+        right: 80px;
+        font-size: 11px;
+        padding: 8px 12px;
+    }
+}
+
+/* Çox kiçik ekranlarda balonu gizlət ki, ekranı örtməsin */
+@media (max-width: 360px) {
+    .chat-hint { display: none; }
+}
