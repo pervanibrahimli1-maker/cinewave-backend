@@ -2844,3 +2844,32 @@ body {
         font-size: 12px;
     }
 }
+
+@media (max-width: 1024px) {
+    /* 1. Android/Samsung: Film adlarını MƏCBURİ görünən et */
+    .movie-info-overlay {
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: translateY(0) !important;
+        background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.5) 80%, transparent 100%) !important;
+        pointer-events: auto !important;
+    }
+    
+    .card-add-btn {
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+
+    /* 2. iPhone/iOS: Önə çıxan film təsviri (Description) düzəlişi */
+    .featured-description {
+        display: -webkit-box !important;
+        -webkit-line-clamp: 3 !important; /* Maksimum 3 sətir */
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+        height: auto !important;
+        max-height: 120px !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        color: #e0e0e0 !important;
+    }
+}
