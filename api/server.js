@@ -257,6 +257,29 @@ app.get('/api/person/:id/credits', async (req, res) => {
     }
 });
 
+// AI Söhbət Route-u
+app.post('/api/ai/chat', async (req, res) => {
+    try {
+        const { message } = req.body;
+        const apiKey = process.env.GEMINI_API_KEY;
+
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{ text: `Sən CineWave saytının film mütəxəssisisən. İstifadəçilərə maraqlı film və seriallar təklif edirsən. Cavabların qısa, mehriban və Azərbaycan dilində olsun. İstifadəçi sualı: ${message}` }]
+                }]
+            })
+        });
+
+        const data = await response.json();
+        const aiResponse = data.candidates[0].content.parts[0].text;
+        res.json({ reply: aiResponse });
+    } catch (err) {
+        res.status(500).json({ error: "AI cavab verə bilmədi." });
+    }
+});
 
 app.get('/movie/:type/:id/:slug?', async (req, res) => {
   const { type, id } = req.params;
