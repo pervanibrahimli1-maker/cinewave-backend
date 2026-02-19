@@ -269,6 +269,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (e.target.id === 'logout-link') { localStorage.clear(); location.href = '/index.html'; }
     });
 
+    // Aktyor səhifəsi yüklənəndə
+const actorGrid = document.getElementById('actor-movies-grid');
+if (actorGrid) {
+    const pathParts = window.location.pathname.split('/');
+    const actorId = pathParts[pathParts.indexOf('actor') + 1];
+    
+    if (actorId) {
+        actorGrid.innerHTML = '<div class="spinner"></div>';
+        apiCall(`person/${actorId}/credits`).then(data => {
+            if (data && data.cast) {
+                renderItems('actor-movies-grid', data.cast);
+                // Başlığı aktyorun adı ilə dəyişmək istəsən:
+                // document.getElementById('actor-name-title').innerText = "Aktyorun Rol Aldığı Filmlər";
+            }
+        });
+    }
+}
+
     const detBox = document.getElementById('details-content');
     if (detBox) {
         // CLEAN URL OXUMA MƏNTİQİ
@@ -313,7 +331,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                             </div>
                             <h3 style="margin-top:20px;">Heyət</h3>
                             <div class="cast-row" style="display:flex; overflow-x:auto; gap:15px; padding:10px 0;">
-                                ${m.cast?.slice(0,12).map(c => `<div style="flex:0 0 80px; text-align:center;"><img src="${c.profile_path ? CONFIG.IMG+c.profile_path : 'https://via.placeholder.com/80'}" style="width:70px; height:70px; border-radius:50%; object-fit:cover; border: 2px solid var(--primary);"><p style="font-size:10px; margin-top:5px; color:white;">${c.name}</p></div>`).join('')}
+                                ${m.cast?.slice(0,12).map(c => `
+    <div onclick="location.href='/actor/${c.id}/${slugify(c.name)}'" 
+         style="flex:0 0 80px; text-align:center; cursor:pointer;">
+        <img src="${c.profile_path ? CONFIG.IMG+c.profile_path : 'https://via.placeholder.com/80'}" 
+             style="width:70px; height:70px; border-radius:50%; object-fit:cover; border: 2px solid var(--primary);">
+        <p style="font-size:10px; margin-top:5px; color:white;">${c.name}</p>
+    </div>`).join('')}
                             </div>
                         </div>
                     </section>
