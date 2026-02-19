@@ -2,20 +2,6 @@
   "name": "cinewave-backend",
   "version": "1.0.0",
   "description": "CineWave project backend with TMDB API and MongoDB Authentication.",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  },
-  "keywords": [
-    "nodejs",
-    "express",
-    "tmdb",
-    "mongodb",
-    "auth",
-    "backend"
-  ],
-  "author": "CineWave Team",
-  "license": "MIT",
   "dependencies": {
     "google-translate-api-x": "^10.6.0",
     "bcryptjs": "^2.4.3",
