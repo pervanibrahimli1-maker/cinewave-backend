@@ -334,7 +334,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const name = escapeHTML(m.title || m.name);
                 
                 // SEO ÜÇÜN DİNAMİK META TEQLƏR
-                document.title = `${name} - CineWave Filmi Full HD İzlə`;
+                document.title = `CineWave | ${name}`;
                 let metaDesc = document.querySelector('meta[name="description"]');
                 if (!metaDesc) { metaDesc = document.createElement('meta'); metaDesc.name = "description"; document.head.appendChild(metaDesc); }
                 metaDesc.content = `${name} filmini CineWave-də HD keyfiyyətdə izləyin. ${m.overview ? m.overview.substring(0, 150) : ''}`;
