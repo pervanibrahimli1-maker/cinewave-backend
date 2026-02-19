@@ -224,7 +224,11 @@ function setupInstantSearch() {
     input.addEventListener('input', (e) => {
         const query = e.target.value.trim();
         clearTimeout(debounceTimer);
-        if (query.length < 2) { results.innerHTML = '<p style="text-align:center;color:gray;padding:20px;">Yazmağa başlayın...</p>'; return; }
+        
+        if (query.length < 2) { 
+            results.innerHTML = '<p style="text-align:center;color:gray;padding:20px;">Kəşf etmək üçün yazmağa başlayın...</p>'; 
+            return; 
+        }
         
         debounceTimer = setTimeout(async () => {
             results.innerHTML = '<div class="spinner" style="margin:20px auto; width:30px; height:30px;"></div>';
@@ -235,19 +239,19 @@ function setupInstantSearch() {
                     const name = m.title || m.name;
                     const type = m.media_type || (m.title ? 'movie' : 'tv');
                     const year = (m.release_date || m.first_air_date || '').split('-')[0] || 'N/A';
-                    const rating = m.vote_average ? m.vote_average.toFixed(1) : '0';
+                    const rating = (m.vote_average && m.vote_average > 0) ? m.vote_average.toFixed(1) : "N/A";
                     const typeLabel = type === 'movie' ? 'Film' : 'Serial';
                     const cleanURL = `/movie/${type}/${m.id}/${slugify(name)}`;
                     
                     return `
                     <div class="search-item" onclick="location.href='${cleanURL}'">
-                        <img src="${m.poster_path ? CONFIG.IMG+m.poster_path : 'https://via.placeholder.com/50x75'}">
+                        <img src="${m.poster_path ? CONFIG.IMG + m.poster_path : 'https://via.placeholder.com/50x75'}" alt="${escapeHTML(name)}">
                         <div class="search-info">
                             <h4>${escapeHTML(name)}</h4>
                             <div class="search-meta">
-                                <span class="search-type-tag">${typeLabel}</span>
-                                <span>${year}</span>
-                                <span class="search-rating">⭐ ${rating}</span>
+                                <span class="search-type-tag" style="background: ${type === 'movie' ? '#ff4d00' : '#00d4ff'}">${typeLabel}</span>
+                                <span class="search-year">${year}</span>
+                                <span class="search-rating"><i class="fas fa-star"></i> ${rating}</span>
                             </div>
                         </div>
                     </div>`;
