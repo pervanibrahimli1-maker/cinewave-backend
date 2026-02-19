@@ -452,49 +452,52 @@ window.toggleGenre = (id, el) => { const idx = filterState.genres.indexOf(id); i
 window.toggleYear = (y, el) => { document.querySelectorAll('.year-tag').forEach(t => t.classList.remove('active')); if(filterState.year === y) { filterState.year = ""; } else { filterState.year = y; el.classList.add('active'); } };
 
 // AI Chat Logikası
-const chatTrigger = document.getElementById('chat-trigger');
-const chatWindow = document.getElementById('chat-window');
-const chatHint = document.getElementById('chat-hint');
-const closeChat = document.getElementById('close-chat');
-const sendChat = document.getElementById('send-chat');
-const chatInput = document.getElementById('chat-input');
-const chatMessages = document.getElementById('chat-messages');
+// --- AI CHAT LOGİKASI (YEKUN VƏ TƏMİZ VERSİYA) ---
+function initAIChat() {
+    const trigger = document.getElementById('chat-trigger');
+    const windowEl = document.getElementById('chat-window');
+    const hint = document.getElementById('chat-hint');
+    const closeBtn = document.getElementById('close-chat');
+    const sendBtn = document.getElementById('send-chat');
+    const input = document.getElementById('chat-input');
+    const msgBox = document.getElementById('chat-messages');
 
-if (chatTrigger) {
+    if (!trigger) return; // Əgər HTML-də yoxdursa işləməsin
+
     // 3 saniyə sonra balonu göstər
     setTimeout(() => {
-        if (chatWindow.style.display !== 'flex') chatHint.classList.add('show');
+        if (windowEl.style.display !== 'flex' && hint) hint.classList.add('show');
     }, 3000);
 
-    // Çat pəncərəsini aç/bağla
-    chatTrigger.onclick = () => {
-        const isShowing = chatWindow.style.display === 'flex';
-        chatWindow.style.display = isShowing ? 'none' : 'flex';
-        chatHint.classList.remove('show');
-        if(!isShowing) chatInput.focus();
+    // Aç/Bağla
+    trigger.onclick = () => {
+        const isShowing = windowEl.style.display === 'flex';
+        windowEl.style.display = isShowing ? 'none' : 'flex';
+        if(hint) hint.classList.remove('show');
+        if(!isShowing) input.focus();
     };
 
-    closeChat.onclick = () => chatWindow.style.display = 'none';
+    if(closeBtn) closeBtn.onclick = () => windowEl.style.display = 'none';
 
     const addMsg = (text, type) => {
         const div = document.createElement('div');
         div.className = type === 'user' ? 'user-msg' : 'ai-msg';
         div.innerText = text;
-        chatMessages.appendChild(div);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+        msgBox.appendChild(div);
+        msgBox.scrollTop = msgBox.scrollHeight;
     };
 
     const handleSend = async () => {
-        const msg = chatInput.value.trim();
+        const msg = input.value.trim();
         if (!msg) return;
         
         addMsg(msg, 'user');
-        chatInput.value = '';
+        input.value = '';
         
         const loadingDiv = document.createElement('div');
         loadingDiv.className = 'ai-msg';
         loadingDiv.innerText = 'Düşünürəm... 🤔';
-        chatMessages.appendChild(loadingDiv);
+        msgBox.appendChild(loadingDiv);
 
         try {
             const res = await fetch('/api/ai/chat', {
@@ -504,12 +507,15 @@ if (chatTrigger) {
             });
             const data = await res.json();
             loadingDiv.remove();
-            addMsg(data.reply || "Bağışlayın, cavab verə bilmirəm.", 'ai');
+            addMsg(data.reply || "Xəta oldu.", 'ai');
         } catch (e) {
-            loadingDiv.innerText = "Xəta baş verdi. Yenidən yoxlayın.";
+            loadingDiv.innerText = "Xəta baş verdi.";
         }
     };
 
-    sendChat.onclick = handleSend;
-    chatInput.onkeypress = (e) => { if (e.key === 'Enter') handleSend(); };
+    if(sendBtn) sendBtn.onclick = handleSend;
+    if(input) input.onkeypress = (e) => { if (e.key === 'Enter') handleSend(); };
 }
+
+// Səhifə yüklənəndə çat funksiyasını işə sal
+document.addEventListener('DOMContentLoaded', initAIChat);
