@@ -1,13 +1,11 @@
 {
   "version": 2,
+  "public": true,
+  "cleanUrls": true,
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/server.js" },
     { "source": "/movie/:type/:id/:slug", "destination": "/movie-details.html" },
     { "source": "/actor/:id/:slug", "destination": "/actor.html" },
     { "source": "/(.*)", "destination": "/$1" }
-  ],
-  "routes": [
-    { "handle": "filesystem" },
-    { "src": "/.*", "status": 404, "dest": "/404.html" }
   ]
 }
