@@ -388,7 +388,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     window.changeSeason = (btn, n) => { document.querySelectorAll('.season-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); loadEp(n); };
                     loadEp(1);
                 }
-                document.getElementById('play-btn').onclick = () => { if(mType === 'movie') { document.getElementById('video-iframe').src = `https://vidsrc.to/embed/movie/${mId}`; document.getElementById('player-container').style.display = 'flex'; } else window.scrollTo({ top: document.getElementById('tv-controls').offsetTop - 100, behavior: 'smooth' }); };
+                document.getElementById('play-btn').onclick = () => { if(mType === 'movie') { document.getElementById('video-iframe').src = `https://vidsrc.me/embed/movie/${mId}`; document.getElementById('player-container').style.display = 'flex'; } else window.scrollTo({ top: document.getElementById('tv-controls').offsetTop - 100, behavior: 'smooth' }); };
                 document.getElementById('add-watchlist-btn').onclick = () => window.addToWatchlist(m.id, name, m.poster_path, mType);
                 document.getElementById('next-ep-go').onclick = () => window.playNow(currentTVState.season, currentTVState.episode + 1, run);
             }
