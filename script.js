@@ -501,3 +501,28 @@ if (chatTrigger) {
     sendChat.onclick = handleSend;
     chatInput.onkeypress = (e) => { if (e.key === 'Enter') handleSend(); };
 }
+
+// AI Chat Logikası (Yenilənmiş)
+const chatTrigger = document.getElementById('chat-trigger');
+const chatHint = document.getElementById('chat-hint');
+const chatWindow = document.getElementById('chat-window');
+
+if (chatTrigger) {
+    // Sayta girəndə 3 saniyə sonra balonu göstər
+    setTimeout(() => {
+        if (chatWindow.style.display !== 'flex') {
+            chatHint.classList.add('show');
+        }
+    }, 3000);
+
+    // Robota basanda
+    chatTrigger.onclick = () => {
+        const isShowing = chatWindow.style.display === 'flex';
+        chatWindow.style.display = isShowing ? 'none' : 'flex';
+        
+        // Çat açılanda balonu həmişəlik gizlət
+        chatHint.classList.remove('show');
+    };
+    
+    // ... digər sendChat və closeChat kodları bura ...
+}
