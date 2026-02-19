@@ -2701,37 +2701,4 @@ body {
     outline-offset: 3px;
 }
 
-/* ============================================= */
-/* HAMBURGER MENU & NAVBAR FORCE FIX            */
-/* ============================================= */
 
-@media (max-width: 768px) {
-    /* Desktop menyusunu tamamilə söndür */
-    .main-nav {
-        display: none !important;
-    }
-
-    /* Hamburger ikonunu məcburi görünən et */
-    .hamburger-menu {
-        display: flex !important; /* Gizli qalmasın */
-        visibility: visible !important;
-        opacity: 1 !important;
-        z-index: 9999 !important; /* Ən üst təbəqədə olsun */
-    }
-
-    /* Mobile Nav-ı önə çıxar */
-    .mobile-nav {
-        z-index: 9998 !important;
-        background: rgba(10, 11, 16, 0.98) !important;
-        display: block !important;
-    }
-
-    /* Navbar içindəki elementlərin sırasını düzəlt */
-    .main-header {
-        padding: 0 15px !important;
-    }
-
-    .header-right {
-        gap: 12px !important;
-    }
-}
