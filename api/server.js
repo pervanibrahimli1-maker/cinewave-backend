@@ -268,7 +268,7 @@ app.post('/api/ai/chat', async (req, res) => {
         }
 
         // Gemini 2.0 Flash modelindən istifadə edirik
-        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
         const response = await fetch(url, {
             method: 'POST',
