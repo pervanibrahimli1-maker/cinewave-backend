@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineWave | İzləmə Siyahım</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="icon" type="image/png" href="logo.png">
+    <style>
+        /* Bu stil blokunu style.css faylına da köçürə bilərsiniz, əgər istəsəniz. */
+        .watchlist-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .clear-all-btn {
+            background: rgba(255, 77, 0, 0.1);
+            border: 1px solid rgba(255, 77, 0, 0.3);
+            color: #ff4d00;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .clear-all-btn:hover {
+            background: rgba(255, 77, 0, 0.2);
+        }
+        
+        .empty-watchlist {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .empty-watchlist i {
+            font-size: 64px;
+            color: var(--gray);
+            margin-bottom: 20px;
+        }
+        .empty-message { /* script.js tərəfindən istifadə olunan klass */
+            text-align: center;
+            color: var(--gray);
+            font-size: 1.1rem;
+            padding: 40px 0;
+            grid-column: 1 / -1; /* Bütün sütunları tutur */
+        }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-left">
+            <div class="logo"><a href="index.html">CineWave</a></div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="index.html">Əsas Səhifə</a></li>
+                    <li><a href="movies.html">Filmlər</a></li>
+                    <li><a href="series.html">Seriallar</a></li>
+                    <li><a href="genres.html">Kateqoriyalar</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="header-right">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Film, serial axtar..." id="search-input">
+            </div>
+            <div class="auth-buttons" id="auth-buttons">
+                <!-- script.js tərəfindən doldurulacaq (Giriş/Qeydiyyat və ya Profil Menüsü) -->
+                <a href="login.html" class="btn auth-btn login-btn">Giriş</a>
+                <a href="register.html" class="btn auth-btn register-btn">Qeydiyyat</a>
+            </div>
+            <div class="hamburger-menu" id="hamburger-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+        
+        <!-- MOBİL NAV -->
+        <nav class="mobile-nav" id="mobile-nav">
+            <ul>
+                <li><a href="index.html">Əsas Səhifə</a></li>
+                <li><a href="movies.html">Filmlər</a></li>
+                <li><a href="series.html">Seriallar</a></li>
+                <li><a href="genres.html">Kateqoriyalar</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main class="container">
+        <div class="watchlist-header">
+            <h1 class="page-title">İzləmə Siyahım</h1>
+            <button class="clear-all-btn" id="clearAllBtn">
+ 			   <i class="fas fa-trash"></i> Hamısını Təmizlə
+			</button>
+        </div>
+        
+        <div id="watchlistContainer" class="movie-row">
+            <!-- script.js tərəfindən doldurulacaq -->
+            <div class="loading-placeholder">
+                <div class="spinner"></div>
+                <p>İzləmə siyahısı yüklənir...</p>
+            </div>
+        </div>
+    </main>
+    
+<footer class="main-footer">
+    <div class="footer-content">
+        <div class="footer-section footer-about">
+            <h3>CINEWAVE</h3>
+            <p>Filmlərin və serialların sonsuz dünyasına qapı. Ən yeni və populyar məzmunu CineWave ilə kəşf edin. Hər zövqə uyğun kateqoriyalarla mükəmməl əyləncə təmin edirik.</p>
+        </div>
+        <div class="footer-section footer-links">
+            <h4>Tez Keçidlər</h4>
+            <ul>
+                <li><a href="index.html">Əsas Səhifə</a></li>
+                <li><a href="movies.html">Filmlər</a></li>
+                <li><a href="series.html">Seriallar</a></li>
+                <li><a href="genres.html">Kateqoriyalar</a></li>
+                <li><a href="watchlist.html">İzləmə Siyahım</a></li>
+            </ul>
+        </div>
+        <div class="footer-section footer-support">
+            <h4>Dəstək</h4>
+            <ul>
+                <li><a href="#">Yardım Mərkəzi</a></li>
+                <li><a href="#">Əlaqə</a></li>
+                <li><a href="#">Geri Bildirim</a></li>
+                <li><a href="#">Tez-tez Verilən Suallar</a></li>
+            </ul>
+        </div>
+        <div class="footer-section footer-legal">
+            <h4>Hüquqi</h4>
+            <ul>
+                <li><a href="#">Gizlilik Siyasəti</a></li>
+                <li><a href="#">İstifadə Şərtləri</a></li>
+                <li><a href="#">Cookie Siyasəti</a></li>
+            </ul>
+        </div>
+        <div class="footer-section footer-social">
+            <h4>Bizi İzləyin</h4>
+            <div class="social-icons">
+                <a href="https://facebook.com" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="https://instagram.com" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="https://twitter.com" target="_blank" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
+                <a href="https://youtube.com" target="_blank" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                <a href="https://tiktok.com" target="_blank" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2026 CineWave. Bütün hüquqlar qorunur.</p>
+    </div>
+</footer>
+
+        <!-- CANLI AXTARIŞ MODALI (Bura əlavə edildi) -->
+    <div id="search-modal" class="search-modal">
+        <div class="search-modal-content">
+            <div class="search-header">
+                <i class="fas fa-search search-main-icon"></i>
+                <input type="text" id="instant-search-input" placeholder="Film və ya serialın adını yazın..." autocomplete="off">
+                <button id="close-search" class="close-search-btn"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="instant-results" class="instant-results">
+                <div class="search-placeholder">
+                    <i class="fas fa-film"></i>
+                    <p>Kəşf etmək üçün yazmağa başlayın...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- script.js faylını ən sonda və yalnız bir dəfə yükləyin -->
+    <script src="script.js"></script>
+</body>
+</html>

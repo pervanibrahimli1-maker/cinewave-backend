@@ -1,0 +1,2702 @@
+/* ============================================= */
+/* CINEWAVE - PREMIUM CINEMATIC DESIGN          */
+/* TAM VERSİYA - BÜTÜN CİHAZLAR ÜÇÜN OPTİMAL    */
+/* ============================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+:root {
+    --primary: #ff4d00;
+    --primary-dark: #cc3d00;
+    --primary-light: #ff7733;
+    --secondary: #00d4ff;
+    --bg: #0a0b10;
+    --card-bg: #16181f;
+    --text: #ffffff;
+    --gray: #a0a0a0;
+    --glass: rgba(22, 24, 31, 0.8);
+}
+
+/* ========== GLOBAL STILLƏR ========== */
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+/* ========== HEADER ========== */
+.main-header {
+    height: 80px;
+    background: rgba(10, 11, 16, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 4%;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 3000;
+    border-bottom: 1px solid rgba(255, 77, 0, 0.2);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.logo a {
+    font-size: 28px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #ff4d00, #ffaa00);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.main-nav ul {
+    display: flex;
+    list-style: none;
+    gap: 8px;
+}
+
+.main-nav a {
+    color: var(--gray);
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+.main-nav a:hover {
+    color: white;
+    background: rgba(255, 77, 0, 0.1);
+}
+
+.main-nav a.active {
+    color: white;
+    background: var(--primary);
+    box-shadow: 0 4px 10px rgba(255, 77, 0, 0.3);
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Search Box */
+.search-box {
+    position: relative;
+    width: 220px;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 10px 15px 10px 40px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 77, 0, 0.2);
+    border-radius: 30px;
+    color: white;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 15px rgba(255, 77, 0, 0.3);
+}
+
+.search-box .fa-search {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--primary);
+    font-size: 15px;
+}
+
+/* Auth Buttons */
+.auth-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.auth-btn {
+    padding: 8px 18px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all 0.3s;
+}
+
+.login-btn {
+    background: transparent;
+    color: white;
+    border: 1px solid rgba(255, 77, 0, 0.3);
+}
+
+.login-btn:hover {
+    background: rgba(255, 77, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.register-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+}
+
+.register-btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 77, 0, 0.4);
+}
+
+/* User Profile */
+.user-profile-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.user-profile {
+    width: 42px;
+    height: 42px;
+    background: var(--primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 800;
+    cursor: pointer;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s;
+}
+
+.user-profile:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(255, 77, 0, 0.5);
+}
+
+.profile-dropdown {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    background: rgba(22, 24, 31, 0.98);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 77, 0, 0.3);
+    border-radius: 10px;
+    padding: 10px;
+    min-width: 200px;
+    display: none;
+    z-index: 3001;
+}
+
+.profile-dropdown.show {
+    display: block;
+}
+
+.profile-dropdown a {
+    display: block;
+    padding: 10px 15px;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: all 0.3s;
+}
+
+.profile-dropdown a:hover {
+    background: rgba(255, 77, 0, 0.2);
+}
+
+/* Hamburger Menu */
+.hamburger-menu {
+    display: none;
+    width: 42px;
+    height: 42px;
+    background: rgba(255, 77, 0, 0.1);
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 1px solid rgba(255, 77, 0, 0.3);
+    transition: all 0.3s;
+}
+
+.hamburger-menu:hover {
+    background: var(--primary);
+    transform: rotate(180deg);
+}
+
+.hamburger-menu i {
+    color: white;
+    font-size: 18px;
+}
+
+/* Mobile Navigation */
+.mobile-nav {
+    display: block;
+    position: fixed;
+    top: 80px;
+    right: -100%;
+    width: 280px;
+    height: calc(100vh - 80px);
+    background: rgba(10, 11, 16, 0.98);
+    backdrop-filter: blur(20px);
+    padding: 30px 20px;
+    transition: right 0.3s;
+    z-index: 2999;
+    border-left: 1px solid rgba(255, 77, 0, 0.2);
+}
+
+.mobile-nav.active {
+    right: 0;
+}
+
+.mobile-nav ul {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    list-style: none;
+}
+
+.mobile-nav a {
+    color: white;
+    font-size: 16px;
+    padding: 15px 20px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    text-decoration: none;
+    display: block;
+    transition: all 0.3s;
+    border: 1px solid rgba(255, 77, 0, 0.1);
+}
+
+.mobile-nav a:hover,
+.mobile-nav a.active {
+    background: var(--primary);
+    transform: translateX(-5px);
+}
+
+/* ========== MAIN CONTENT ========== */
+.container {
+    padding-top: 100px;
+    padding-left: 4%;
+    padding-right: 4%;
+    max-width: 1400px;
+    margin: 0 auto;
+    min-height: 100vh;
+}
+
+.page-title {
+    font-size: 2.8rem;
+    margin-bottom: 30px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 900;
+    text-align: center;
+}
+
+.movie-category {
+    margin-bottom: 50px;
+}
+
+.movie-category h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    padding-left: 15px;
+    border-left: 5px solid var(--primary);
+    color: white;
+}
+
+/* ========== FEATURED MOVIE ========== */
+.featured-movie {
+    position: relative;
+    min-height: 550px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    border-radius: 30px;
+    overflow: hidden;
+    margin-bottom: 50px;
+    padding: 60px;
+    border: 1px solid rgba(255, 77, 0, 0.3);
+    background-size: cover !important;
+    background-position: center top !important;
+    box-shadow: inset 100px 0 150px rgba(0,0,0,0.9), inset 0 0 100px rgba(0,0,0,0.5);
+}
+
+.featured-content {
+    flex: 1;
+    max-width: 750px;
+    z-index: 10;
+}
+
+.featured-tag {
+    display: inline-block;
+    color: var(--primary);
+    background: rgba(255, 77, 0, 0.15);
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border: 1px solid rgba(255, 77, 0, 0.3);
+    margin-bottom: 20px;
+}
+
+.featured-content h1 {
+    font-size: 3.8rem !important;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1.1;
+    margin-bottom: 10px;
+    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+}
+
+.feat-premium-meta {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 15px 0 25px;
+}
+
+.feat-star-rating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: #ffc107;
+    filter: drop-shadow(0 0 10px rgba(255, 193, 7, 0.4));
+}
+
+.feat-star-rating i {
+    font-size: 2rem;
+}
+
+.feat-year {
+    color: var(--gray);
+    font-size: 1.2rem;
+    font-weight: 600;
+    padding-left: 10px;
+    border-left: 2px solid rgba(255,255,255,0.2);
+}
+
+.featured-description {
+    font-size: 1.1rem;
+    color: #e0e0e0;
+    line-height: 1.6;
+    max-width: 600px;
+    margin-bottom: 35px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.featured-actions {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.featured-poster {
+    display: none !important;
+}
+
+/* ========== BUTTONS ========== */
+.btn {
+    padding: 12px 28px;
+    border-radius: 50px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    border: none;
+}
+
+.primary-btn {
+    background: var(--primary) !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(255, 77, 0, 0.4);
+}
+
+.primary-btn:hover {
+    background: white !important;
+    color: var(--primary) !important;
+    transform: translateY(-3px);
+}
+
+.secondary-btn {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    backdrop-filter: blur(5px);
+}
+
+.secondary-btn:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    transform: translateY(-3px);
+}
+
+/* ========== MOVIE CARDS ========== */
+/* Əsas Grid Sistemi */
+.movie-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 25px;
+    padding: 20px 0 40px;
+}
+
+/* Film Kartı */
+.movie-item {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #16181f;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+}
+
+.movie-item:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(255, 77, 0, 0.2);
+}
+
+.movie-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s ease;
+}
+
+.movie-item:hover img {
+    transform: scale(1.1);
+}
+
+.movie-info-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 60%, transparent 100%);
+    padding: 20px 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.movie-item:hover .movie-info-overlay {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.movie-info-overlay h3 {
+    font-size: 15px;
+    color: white;
+    margin-bottom: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.movie-meta {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #ffc107;
+    font-size: 13px;
+}
+
+.card-add-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 38px;
+    height: 38px;
+    background: var(--primary);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+.movie-item:hover .card-add-btn {
+    opacity: 1;
+}
+
+.card-add-btn:hover {
+    transform: scale(1.1);
+    background: white;
+    color: var(--primary);
+}
+
+.imdb-tag {
+    background: #f5c518;
+    color: black;
+    font-weight: 900;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    display: inline-block;
+}
+
+/* YALNIZ Detallar səhifəsindəki Oxşar Filmlər sağa-sola sürüşsün */
+#similar-grid {
+    display: flex !important;
+    overflow-x: auto !important;
+    gap: 20px;
+    padding-bottom: 20px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary) transparent;
+}
+
+/* Sürüşən hissədəki filmlərin ölçüsü sabit qalsın */
+#similar-grid .movie-item {
+    flex: 0 0 200px !important;
+    width: 200px !important;
+}
+
+/* Scrollbar dizaynı (Yalnız detallar səhifəsi üçün) */
+#similar-grid::-webkit-scrollbar {
+    height: 6px;
+    display: block !important; /* Scrollbar-ı burada görünən edirik */
+}
+#similar-grid::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+#similar-grid::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 10px;
+}
+
+/* ========== FILTER SECTION ========== */
+.filter-section {
+    background: #12141a;
+    padding: 30px;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 77, 0, 0.2);
+    margin-bottom: 40px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+}
+
+.filter-group {
+    margin-bottom: 25px;
+}
+
+.filter-label {
+    display: block;
+    color: #ffffff;
+    font-size: 15px;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+    opacity: 0.9;
+}
+
+/* İllər sırası - Sətir 431 */
+.years-row {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding: 10px 5px 20px;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Scrollbar dizaynı */
+.years-row::-webkit-scrollbar {
+    height: 4px;
+}
+.years-row::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+.years-row::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 10px;
+}
+
+/* İl düymələri - Sətir 452 */
+.year-tag {
+    flex: 0 0 auto;
+    padding: 10px 25px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 77, 0, 0.2);
+    color: var(--gray);
+    border-radius: 50px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 14px;
+}
+
+.year-tag:hover {
+    background: rgba(255, 77, 0, 0.1);
+    border-color: var(--primary);
+    color: white;
+    transform: translateY(-3px);
+}
+
+.year-tag.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+    box-shadow: 0 0 20px rgba(255, 77, 0, 0.4);
+    transform: translateY(-3px) scale(1.05);
+}
+
+#movie-genres, #tv-genres {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 5px 0;
+}
+
+.genre-tag {
+    background: #1e2128;
+    color: #e0e0e0;
+    padding: 10px 22px;
+    border-radius: 40px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid rgba(255, 77, 0, 0.2);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+    display: inline-block;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.genre-tag:hover {
+    background: rgba(255, 77, 0, 0.25);
+    border-color: rgba(255, 77, 0, 0.5);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(255, 77, 0, 0.3);
+}
+
+.genre-tag.active {
+    background: #ff4d00;
+    color: white;
+    border-color: #ff4d00;
+    font-weight: 600;
+    box-shadow: 0 8px 22px rgba(255, 77, 0, 0.5);
+}
+
+.apply-filter-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+#filter-type {
+    background: #1e2128;
+    color: white;
+    padding: 12px 25px;
+    border: 1px solid rgba(255, 77, 0, 0.4);
+    border-radius: 40px;
+    cursor: pointer;
+    font-weight: 600;
+    outline: none;
+    font-size: 14px;
+    min-width: 160px;
+    text-align: center;
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ff4d00' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    padding-right: 40px;
+}
+
+#filter-type:hover {
+    border-color: rgba(255, 77, 0, 0.7);
+    background-color: #2a2d36;
+}
+
+/* ========== PAGINATION ========== */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 40px 0;
+    flex-wrap: wrap;
+}
+
+.page-btn {
+    padding: 10px 18px;
+    background: #1e2128;
+    border: 1px solid rgba(255, 77, 0, 0.3);
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.page-btn:hover:not(:disabled) {
+    background: #ff4d00;
+    border-color: #ff4d00;
+    transform: translateY(-2px);
+}
+
+.page-btn.active {
+    background: #ff4d00;
+    border-color: #ff4d00;
+    box-shadow: 0 4px 15px rgba(255, 77, 0, 0.4);
+}
+
+.page-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.page-info {
+    color: var(--gray);
+    font-size: 14px;
+    margin: 0 10px;
+}
+
+/* ========== DETAIL PAGE - TƏKMİLLƏŞDİRİLMİŞ ========== */
+.detail-hero {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 40px;
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 77, 0, 0.2);
+    padding: 40px;
+    border-radius: 25px;
+    margin: 30px 0 40px;
+}
+
+.detail-poster img {
+    width: 100%;
+    border-radius: 15px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8);
+}
+
+.detail-info {
+    min-width: 0;
+    width: 100%;
+    overflow: hidden;
+}
+
+.detail-info h1 {
+    font-size: 2.8rem;
+    margin-bottom: 15px;
+    color: white;
+    line-height: 1.2;
+}
+
+.detail-info p {
+    color: var(--gray);
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: 25px;
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+}
+
+/* Cast Section - YALNIZ BURADA ÜFÜQİ SCROLL */
+.cast-section {
+    margin-top: 30px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.cast-row {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding: 20px 5px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary) rgba(255, 255, 255, 0.1);
+    -webkit-overflow-scrolling: touch;
+}
+
+.cast-row::-webkit-scrollbar {
+    height: 5px;
+}
+
+.cast-row::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+.cast-row::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 10px;
+}
+
+.cast-item {
+    flex: 0 0 100px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.cast-item:hover {
+    transform: translateY(-5px);
+}
+
+.cast-item img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--primary);
+    margin-bottom: 10px;
+    box-shadow: 0 5px 15px rgba(255, 77, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.cast-item:hover img {
+    border-color: var(--secondary);
+    box-shadow: 0 8px 20px rgba(255, 77, 0, 0.5);
+}
+
+.cast-item p {
+    font-size: 12px;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+}
+
+/* SEARCH MODAL - KOMPAKT DİZAYN */
+/* --- SEARCH MODAL GLOBAL --- */
+.search-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 11, 16, 0.85); /* Arxa fon daha şəffaf */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 9999;
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 20px; /* Bütün tərəflərdən boşluq */
+}
+
+/* MODAL QUTUSU - RESPONSIVE ENLİK */
+.search-modal-content {
+    width: 100%;
+    max-width: 700px; /* Desktopda maksimum enlik */
+    background: #12141a;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 77, 0, 0.2);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+    margin-top: 50px; /* Yuxarıdan məsafə */
+    display: flex;
+    flex-direction: column;
+    max-height: 85vh; /* Ekranın 85%-dən çox olmasın */
+    overflow: hidden;
+}
+
+/* SEARCH HEADER */
+.search-header {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    gap: 15px;
+    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+#instant-search-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 18px;
+    outline: none;
+}
+
+/* NƏTİCƏLƏR SAHƏSİ - SCROLL */
+.instant-results {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+}
+
+/* --- MOBİL OPTİMİZASİYA (768px-dən aşağı) --- */
+@media (max-width: 768px) {
+    .search-modal {
+        padding: 10px; /* Mobildə kənarlardan az boşluq */
+    }
+
+    .search-modal-content {
+        margin-top: 20px; /* Mobildə daha yuxarıda dursun */
+        max-height: 90vh; /* Daha çox yer tutsun */
+        border-radius: 15px;
+    }
+
+    .search-header {
+        padding: 12px 15px;
+        gap: 10px;
+    }
+
+    #instant-search-input {
+        font-size: 16px; /* Yazı bir az kiçilsin */
+    }
+
+    .search-item {
+        padding: 8px;
+        gap: 12px;
+    }
+
+    .search-item img {
+        width: 45px; /* Mobildə şəkillər bir az kiçik */
+        height: 65px;
+    }
+
+    .search-info h4 {
+        font-size: 15px;
+    }
+
+    .close-search-btn {
+        width: 32px;
+        height: 32px;
+    }
+}
+
+/* --- ÇOX KİÇİK EKRANLAR (480px-dən aşağı) --- */
+@media (max-width: 480px) {
+    .search-modal-content {
+        margin-top: 10px;
+    }
+    
+    .search-header i.search-main-icon {
+        display: none; /* Çox kiçik ekranda ikon gizlənsin, yer qalsın */
+    }
+}
+
+
+/* X DÜYMƏSİNİN YENİ PREMİUM DİZAYNI */
+.close-search-btn {
+    background: rgba(255, 255, 255, 0.05); /* Arxa fonu bir az boz */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #a0a0a0;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%; /* Dairəvi */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+    line-height: 0;
+}
+
+.close-search-btn i {
+    font-size: 16px; /* İkonun ölçüsü */
+}
+
+.close-search-btn:hover {
+    background: var(--primary); /* Hover edəndə narıncı olsun */
+    color: white;
+    border-color: var(--primary);
+    transform: rotate(90deg); /* Modern effekt: 90 dərəcə dönsün */
+}
+
+/* SÜRÜŞMƏ (SCROLL) PROBLEMİNİN HƏLLİ */
+.instant-results {
+    flex: 1;
+    overflow-y: auto; /* Sürüşməni aktiv edirik */
+    padding: 15px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary) transparent;
+}
+
+/* Scrollbar dizaynı */
+.instant-results::-webkit-scrollbar {
+    width: 6px;
+}
+.instant-results::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 10px;
+}
+
+.search-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    border-radius: 12px;
+    transition: 0.2s;
+    cursor: pointer;
+    margin-bottom: 8px;
+}
+
+.search-item:hover {
+    background: rgba(255, 77, 0, 0.1);
+}
+
+.search-item img {
+    width: 50px;
+    height: 75px;
+    object-fit: cover;
+    border-radius: 6px;
+    background: #222; /* Şəkil yüklənməsə qara görünsün */
+}
+
+.search-info h4 {
+    font-size: 16px;
+    color: white;
+    margin-bottom: 4px;
+}
+
+/* ========== PLAYER ========== */
+.player-container {
+    display: flex;
+    background: #000;
+    border-radius: 15px;
+    overflow: hidden;
+    position: relative;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid var(--primary);
+}
+
+.iframe-wrapper {
+    flex: 1;
+    position: relative;
+    padding-top: 56.25%;
+    transition: all 0.6s ease;
+}
+
+.iframe-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.netflix-panel {
+    width: 0;
+    opacity: 0;
+    background: #16181f;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    transition: all 0.6s ease;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.player-container.show-next .iframe-wrapper {
+    flex: 0.7;
+}
+
+.player-container.show-next .netflix-panel {
+    width: 30%;
+    opacity: 1;
+    padding: 20px;
+    border-left: 2px solid var(--primary);
+}
+
+.next-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+/* ========== SEASONS & EPISODES ========== */
+.seasons-wrapper {
+    margin-top: 40px;
+    background: var(--card-bg);
+    padding: 25px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 77, 0, 0.2);
+}
+
+.season-tabs {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+    scrollbar-width: none;
+}
+
+.season-btn {
+    padding: 10px 25px;
+    background: #1e2128;
+    border: 1px solid rgba(255, 77, 0, 0.3);
+    color: white;
+    border-radius: 30px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.3s;
+}
+
+.season-btn.active {
+    background: #ff4d00;
+    border-color: #ff4d00;
+}
+
+.episode-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 15px;
+}
+
+.episode-card {
+    background: #1e2128;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.episode-card:hover {
+    background: rgba(255, 77, 0, 0.15);
+    border-color: var(--primary);
+}
+
+.episode-card.active {
+    background: rgba(255, 77, 0, 0.25);
+    border: 1px solid var(--primary);
+}
+
+/* ========== NOTIFICATION ========== */
+.notification {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    padding: 16px 24px;
+    background: #1e2128;
+    backdrop-filter: blur(15px);
+    border-radius: 12px;
+    z-index: 9999;
+    transform: translateX(120%);
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    border: 1px solid rgba(255, 77, 0, 0.3);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+}
+
+.notification.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.notification.success {
+    border-left: 5px solid #2ecc71;
+}
+
+.notification.error {
+    border-left: 5px solid #e74c3c;
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-weight: 600;
+    color: white;
+}
+
+/* ========== WATCHLIST PAGE ========== */
+.watchlist-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.clear-all-btn {
+    background: #1e2128;
+    border: 1px solid rgba(255, 77, 0, 0.3);
+    color: #ff4d00;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.clear-all-btn:hover {
+    background: rgba(255, 77, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.empty-watchlist {
+    text-align: center;
+    padding: 60px 20px;
+    background: #12141a;
+    border-radius: 20px;
+}
+
+.empty-watchlist i {
+    font-size: 64px;
+    color: var(--gray);
+    margin-bottom: 20px;
+}
+
+.remove-btn {
+    background: #ff4d00;
+    border: none;
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    font-weight: bold;
+    font-size: 13px;
+    margin-top: 10px;
+    transition: 0.3s;
+}
+
+.remove-btn:hover {
+    background: white;
+    color: #ff4d00;
+}
+
+/* ========== FOOTER ========== */
+/* FOOTER TƏKMİLLƏŞDİRİLMİŞ */
+.main-footer {
+    background: #07080b;
+    padding: 60px 4% 20px;
+    border-top: 1px solid rgba(255, 77, 0, 0.1);
+    margin-top: 80px;
+}
+
+.footer-content {
+    display: grid;
+    /* Desktopda 4 sütun, mobildə avtomatik 1-2 sütun */
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 40px;
+    margin-bottom: 50px;
+}
+
+.footer-section h3, .footer-section h4 {
+    color: var(--primary);
+    margin-bottom: 20px;
+    font-size: 18px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.footer-section p {
+    color: var(--gray);
+    line-height: 1.6;
+    font-size: 14px;
+}
+
+.footer-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-section ul li {
+    margin-bottom: 12px;
+}
+
+.footer-section ul li a {
+    color: var(--gray);
+    text-decoration: none;
+    transition: 0.3s;
+    font-size: 14px;
+}
+
+.footer-section ul li a:hover {
+    color: var(--primary);
+    padding-left: 5px;
+}
+
+.social-icons {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.social-icons a {
+    width: 38px;
+    height: 38px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    transition: 0.3s;
+    border: 1px solid rgba(255, 77, 0, 0.1);
+}
+
+.social-icons a:hover {
+    background: var(--primary);
+    transform: translateY(-5px);
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: 30px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    color: #555;
+    font-size: 13px;
+}
+
+/* ========== LOADING & EMPTY STATES ========== */
+.loading-placeholder {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    background: #12141a;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 77, 0, 0.1);
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(255, 77, 0, 0.1);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.empty-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--gray);
+    font-size: 1.1rem;
+    padding: 60px 20px;
+    background: #12141a;
+    border-radius: 20px;
+}
+
+/* ========== MOBİL OPTİMİZASİYA (ƏLAVƏ VƏ T�KMİLLƏŞDİRİLMİŞ) ========== */
+
+/* Ümumi mobil düzəlişlər */
+@media (max-width: 768px) {
+    
+    .imdb-tag {
+        display: inline-block !important;
+        background: #f5c518 !important; /* TMDb standart sarı rəng */
+        color: black !important;
+        font-weight: 900 !important;
+        padding: 2px 5px !important;
+        border-radius: 4px !important;
+        font-size: 8px !important;
+        line-height: 1 !important;
+        vertical-align: middle !important;
+    }
+
+    /* Önə çıxan filmdəki meta məlumatlar (reytinq, il, baxış) */
+    .feat-meta-mobile {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 10px;
+        font-size: 12px;
+    }
+    
+    /* Sağ tərəfdəki elementləri yan-yana düzürük */
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 8px; /* Elementlər arası məsafə */
+        position: relative;
+    }
+
+    /* Axtarış qutusunun mobildəki vəziyyəti */
+    .search-box {
+        position: relative;
+        width: 36px;
+        height: 36px;
+        background: transparent;
+        border: none;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end; /* Sağa söykəyirik ki, sola doğru açılsın */
+    }
+
+    .search-box .fa-search {
+        position: relative;
+        left: 0;
+        top: 0;
+        transform: none;
+        width: 36px;
+        height: 36px;
+        background: rgba(255, 77, 0, 0.1);
+        border: 1px solid rgba(255, 77, 0, 0.3);
+        border-radius: 50%;
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 5;
+    }
+
+    .search-box input {
+        position: absolute;
+        right: 0; /* Sağdan sola doğru açılacaq */
+        width: 0;
+        opacity: 0;
+        padding: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        background: #16181f;
+        border-radius: 20px;
+        height: 36px;
+        z-index: 4;
+    }
+
+    /* Axtarış aktiv olanda */
+    .search-box.active {
+        width: 180px; /* Açılanda tutacağı sahə */
+    }
+
+    .search-box.active input {
+        width: 100%;
+        opacity: 1;
+        visibility: visible;
+        padding: 0 40px 0 15px; /* İkonun altında qalmasın deyə sağdan boşluq */
+        border: 1px solid var(--primary);
+    }
+
+    
+    /* 1. Desktop menyusunu mobildə gizlət */
+    .main-nav {
+        display: none; 
+    }
+
+    /* 2. Hamburger ikonunu mobildə görünən et */
+    .hamburger-menu {
+        display: flex !important; /* Bu mütləq olmalıdır */
+    }
+
+    /* 3. Axtarış qutusunu və auth düymələrini sığışdır */
+    .header-right {
+        gap: 10px;
+    }
+
+    
+    /* Header optimizasiyası */
+    .main-header {
+        height: 60px;
+        padding: 0 12px;
+    }
+    
+    .logo a {
+        font-size: 22px;
+    }
+    
+    /* Axtarış qutusu mobil təkmilləşdirmə */
+
+    
+    /* Auth butonları mobil */
+    .auth-buttons {
+        gap: 4px;
+    }
+    
+    .auth-btn {
+        padding: 5px 10px;
+        font-size: 11px;
+        border-radius: 20px;
+    }
+    
+    .login-btn {
+        background: rgba(255, 77, 0, 0.1);
+        border: 1px solid rgba(255, 77, 0, 0.3);
+    }
+    
+    .register-btn {
+        padding: 5px 10px;
+    }
+    
+    /* Profil ikonu mobil */
+    .user-profile {
+        width: 32px;
+        height: 32px;
+        font-size: 13px;
+    }
+    
+    .profile-dropdown {
+        top: 40px;
+        min-width: 160px;
+    }
+    
+    .profile-dropdown a {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+    
+    /* Hamburger menyu */
+    .hamburger-menu {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .hamburger-menu i {
+        font-size: 16px;
+    }
+    
+    .mobile-nav {
+        top: 60px;
+        width: 100%;
+        padding: 20px 15px;
+    }
+    
+    .mobile-nav a {
+        padding: 12px 15px;
+        font-size: 15px;
+    }
+    
+    /* Container padding */
+    .container {
+        padding-top: 80px;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    
+    /* Səhifə başlığı */
+    .page-title {
+        font-size: 2rem;
+        margin-bottom: 20px;
+    }
+    
+    /* Featured film mobil */
+    .featured-movie {
+        min-height: 380px;
+        padding: 20px !important;
+        border-radius: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .featured-tag {
+        font-size: 10px;
+        padding: 4px 12px;
+        margin-bottom: 12px;
+    }
+    
+    .featured-content h1 {
+        font-size: 1.8rem !important;
+        margin-bottom: 8px;
+    }
+    
+    .feat-star-rating {
+        font-size: 1.2rem;
+        gap: 3px;
+    }
+    
+    .feat-year {
+        font-size: 0.9rem;
+        padding-left: 6px;
+    }
+    
+    .featured-description {
+        font-size: 0.85rem;
+        margin-bottom: 20px;
+        -webkit-line-clamp: 4;
+    }
+    
+    .featured-actions {
+        gap: 10px;
+    }
+    
+    .btn {
+        padding: 8px 16px;
+        font-size: 12px;
+    }
+    
+    /* Kateqoriya başlıqları */
+    .movie-category h2 {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+        padding-left: 10px;
+    }
+    
+    /* Film kartları grid */
+    .movie-row {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 9px;
+        padding: 10px 0 20px;
+    }
+    
+    /* Film kartı ölçüləri */
+    .movie-item {
+        border-radius: 10px;
+    }
+    
+    .movie-info-overlay {
+        padding: 8px 6px;
+    }
+    
+    .movie-info-overlay h3 {
+        font-size: 11px;
+        margin-bottom: 2px;
+    }
+    
+    .movie-meta {
+        font-size: 9px;
+        gap: 3px;
+    }
+    
+    .imdb-tag {
+        font-size: 7px;
+        padding: 1px 3px;
+    }
+    
+    .card-add-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+        top: 6px;
+        right: 6px;
+    }
+    
+    /* Filter bölməsi mobil */
+    .filter-section {
+        padding: 20px 15px;
+        border-radius: 18px;
+        margin-bottom: 25px;
+    }
+    
+    .filter-group {
+        margin-bottom: 18px;
+    }
+    
+    .filter-label {
+        font-size: 13px;
+        margin-bottom: 10px;
+        letter-spacing: 1px;
+    }
+    
+    #filter-type {
+        padding: 10px 20px;
+        font-size: 13px;
+        min-width: 140px;
+        background-position: right 12px center;
+    }
+    
+    .years-row {
+        gap: 8px;
+        padding: 5px 0 15px;
+    }
+    
+    .year-tag {
+        padding: 8px 18px;
+        font-size: 12px;
+    }
+    
+    .genre-tag {
+        padding: 8px 16px;
+        font-size: 12px;
+    }
+    
+    .apply-filter-container {
+        margin-top: 15px;
+    }
+    
+    /* Detail səhifə mobil */
+.detail-hero {
+        grid-template-columns: 1fr !important; /* Mobildə yan-yana yox, alt-alta olsun */
+        padding: 20px !important;
+        text-align: center;
+        gap: 20px !important;
+    }
+
+    .detail-poster {
+        width: 60% !important;
+        max-width: 220px !important;
+        margin: 0 auto;
+        box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+    }
+
+    .detail-info {
+        text-align: left; /* Yazılar sola söykənsin */
+    }
+
+    .detail-info h1 {
+        font-size: 1.8rem !important;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    .featured-actions {
+        flex-direction: column; /* Düymələr alt-alta */
+        gap: 12px;
+    }
+
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Cast (Heyət) Sürüşməsi */
+    .cast-row {
+        gap: 10px;
+    }
+    
+    /* Watchlist Silmə Düyməsi (Şəkildə görünmürdü, əlavə edildi) */
+    .remove-btn {
+        background: #ff4d00;
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 8px;
+        width: 100%;
+        margin-top: 10px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    
+    .detail-info p {
+        font-size: 0.9rem;
+        line-height: 1.5;
+        margin-bottom: 15px;
+    }
+    
+    .cast-item {
+        flex: 0 0 70px;
+    }
+    
+    .cast-item img {
+        width: 55px;
+        height: 55px;
+    }
+    
+    .cast-item p {
+        font-size: 10px;
+    }
+    
+    /* Sezon və bölümlər mobil */
+    .seasons-wrapper {
+        padding: 15px;
+        border-radius: 18px;
+    }
+    
+    .season-tabs {
+        gap: 8px;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+    }
+    
+    .season-btn {
+        padding: 8px 16px;
+        font-size: 12px;
+    }
+    
+    .episode-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    
+    .episode-card {
+        padding: 10px;
+    }
+    
+    .episode-card h4 {
+        font-size: 12px;
+    }
+    
+    /* Player mobil */
+    .player-container {
+        border-radius: 12px;
+    }
+    
+    .player-container.show-next .netflix-panel {
+        height: 120px;
+        padding: 15px;
+    }
+    
+    .netflix-panel h3 {
+        font-size: 14px;
+    }
+    
+    .netflix-panel h2 {
+        font-size: 16px;
+    }
+    
+    .next-btn {
+        padding: 8px 20px;
+        font-size: 13px;
+        margin-top: 12px;
+    }
+    
+    /* Watchlist səhifə mobil */
+    .watchlist-header {
+        flex-direction: row;
+        align-items: center;
+        margin-bottom: 20px;
+        gap: 10px;
+    }
+    
+    .watchlist-header .page-title {
+        font-size: 1.5rem;
+        margin-bottom: 0;
+    }
+    
+    .clear-all-btn {
+        padding: 8px 12px;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+    
+    .clear-all-btn i {
+        font-size: 12px;
+    }
+    
+    .empty-watchlist {
+        padding: 40px 15px;
+    }
+    
+    .empty-watchlist i {
+        font-size: 48px;
+    }
+    
+    .empty-watchlist h2 {
+        font-size: 1.2rem;
+    }
+    
+    .empty-watchlist p {
+        font-size: 0.9rem;
+    }
+    
+    /* Footer mobil */
+
+    .footer-content {
+        /* Mobildə məcburi 2 sütun edirik */
+        grid-template-columns: repeat(2, 1fr) !important; 
+        gap: 30px 15px; /* Yuxarı-aşağı 30px, sağ-sol 15px boşluq */
+    }
+
+    /* "CineWave" haqqında olan hissə uzun olduğu üçün tam eni tutsun */
+    .footer-section:first-child {
+        grid-column: span 2;
+        text-align: center; /* Haqqında hissəsini mərkəzə alaq */
+        margin-bottom: 10px;
+    }
+
+    /* Başlıqları bir az kiçildək ki sığsınlar */
+    .footer-section h3, .footer-section h4 {
+        font-size: 16px;
+        margin-bottom: 12px;
+    }
+
+    /* Sosial ikonları mərkəzə yığaq */
+    .footer-section:last-child {
+        grid-column: span 2;
+        text-align: center;
+    }
+
+    .social-icons {
+        justify-content: center;
+        margin-top: 15px;
+    }
+
+    .footer-section ul li a {
+        font-size: 13px; /* Linkləri bir az kiçildək */
+    }
+
+    
+    /* Loading və empty state */
+    .loading-placeholder {
+        padding: 30px 15px;
+    }
+    
+    .spinner {
+        width: 40px;
+        height: 40px;
+        margin-bottom: 15px;
+    }
+    
+    .empty-message {
+        padding: 30px 15px;
+        font-size: 0.95rem;
+    }
+    
+    /* Pagination mobil */
+    .pagination-container {
+        margin: 25px 0;
+    }
+    
+    .page-btn {
+        padding: 8px 14px;
+        font-size: 12px;
+    }
+    
+    .page-info {
+        font-size: 12px;
+        margin: 0 5px;
+    }
+    
+    /* Notification mobil */
+    .notification {
+        top: 80px;
+        right: 10px;
+        left: 10px;
+        padding: 12px 16px;
+        max-width: none;
+    }
+    
+    .notification-content {
+        font-size: 13px;
+        gap: 10px;
+    }
+    
+    /* Axtarış nəticələri səhifəsi */
+    #search-title {
+        font-size: 1.3rem;
+        margin-bottom: 15px;
+    }
+}
+
+/* Çox kiçik telefonlar üçün (iPhone SE, 360px) */
+@media (max-width: 360px) {
+    .logo a {
+        font-size: 18px;
+    }
+    
+.featured-description {
+		overflow: hidden;
+    	-webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+}
+    
+    .auth-btn {
+        padding: 4px 8px;
+        font-size: 10px;
+    }
+    
+    .register-btn {
+        padding: 4px 8px;
+    }
+    
+    .user-profile {
+        width: 28px;
+        height: 28px;
+        font-size: 11px;
+    }
+    
+    .movie-row {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    
+    .featured-content h1 {
+        font-size: 1.5rem !important;
+    }
+    
+    .detail-poster {
+        width: 60%;
+    }
+    
+    .detail-info h1 {
+        font-size: 1.2rem;
+    }
+    
+    .episode-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .watchlist-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .clear-all-btn {
+        width: 100%;
+        text-align: center;
+    }
+    
+    .filter-group {
+        margin-bottom: 15px;
+    }
+    
+    #filter-type {
+        width: 100%;
+    }
+    
+    .year-tag {
+        padding: 6px 12px;
+        font-size: 11px;
+    }
+    
+    .genre-tag {
+        padding: 6px 12px;
+        font-size: 11px;
+    }
+}
+
+/* Orta ölçülü telefonlar (375px - 428px) */
+@media (min-width: 361px) and (max-width: 428px) {
+    .movie-row {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+        .featured-description {
+        font-size: 0.85rem;
+        margin-bottom: 20px;
+        -webkit-line-clamp: 3;
+    }
+    
+    .featured-content h1 {
+        font-size: 1.6rem !important;
+    }
+    
+    .detail-poster {
+        width: 55%;
+    }
+}
+
+/* Üfüqi rejim (landscape) mobil */
+@media (max-width: 900px) and (orientation: landscape) {
+    .featured-movie {
+        min-height: 300px;
+    }
+    
+    .featured-content h1 {
+        font-size: 1.5rem !important;
+    }
+    
+    .detail-hero {
+        grid-template-columns: 200px 1fr;
+    }
+    
+    .detail-poster {
+        width: 100%;
+    }
+    
+    .movie-row {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Touch cihazlar üçün hover effektlərinin idarəsi */
+@media (hover: none) and (pointer: coarse) {
+    .movie-info-overlay {
+        opacity: 1;
+        transform: translateY(0);
+        background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 50%, transparent 100%);
+    }
+    
+    .card-add-btn {
+        opacity: 1;
+    }
+    
+    .movie-item:hover {
+        transform: none;
+    }
+    
+    .movie-item:hover img {
+        transform: none;
+    }
+    
+    .btn:hover {
+        transform: none;
+    }
+    
+    .genre-tag:hover, .year-tag:hover {
+        transform: none;
+    }
+}
+
+/* ========== LARGE DESKTOP (1440px - 1920px) ========== */
+@media screen and (min-width: 1441px) and (max-width: 1920px) {
+    .container {
+        max-width: 1600px;
+    }
+    
+    .main-header {
+        height: 90px;
+    }
+    
+    .logo a {
+        font-size: 32px;
+    }
+    
+    .main-nav a {
+        font-size: 16px;
+        padding: 10px 20px;
+    }
+    
+    .search-box {
+        width: 280px;
+    }
+    
+    .auth-btn {
+        padding: 10px 22px;
+        font-size: 15px;
+    }
+    
+    .user-profile {
+        width: 48px;
+        height: 48px;
+        font-size: 18px;
+    }
+    
+    .movie-row {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 30px;
+    }
+    
+    .featured-movie {
+        min-height: 650px;
+    }
+    
+    .featured-content h1 {
+        font-size: 4rem !important;
+    }
+    
+    .detail-hero {
+        grid-template-columns: 350px 1fr;
+    }
+    
+    .cast-item {
+        flex: 0 0 120px;
+    }
+    
+    .cast-item img {
+        width: 90px;
+        height: 90px;
+    }
+    
+    .cast-item p {
+        font-size: 14px;
+    }
+}
+
+/* ========== 4K / ULTRA LARGE SCREENS (1921px - 2560px) ========== */
+@media screen and (min-width: 1921px) and (max-width: 2560px) {
+    .container {
+        max-width: 2000px;
+        padding-left: 5%;
+        padding-right: 5%;
+    }
+    
+    .main-header {
+        height: 100px;
+        padding: 0 5%;
+    }
+    
+    .logo a {
+        font-size: 40px;
+    }
+    
+    .main-nav a {
+        font-size: 18px;
+        padding: 12px 24px;
+    }
+    
+    .search-box {
+        width: 350px;
+    }
+    
+    .search-box input {
+        padding: 14px 20px 14px 50px;
+        font-size: 16px;
+    }
+    
+    .search-box .fa-search {
+        font-size: 18px;
+    }
+    
+    .auth-btn {
+        padding: 12px 28px;
+        font-size: 16px;
+    }
+    
+    .user-profile {
+        width: 55px;
+        height: 55px;
+        font-size: 20px;
+    }
+    
+    .profile-dropdown {
+        top: 65px;
+        min-width: 250px;
+    }
+    
+    .profile-dropdown a {
+        padding: 12px 20px;
+        font-size: 16px;
+    }
+    
+    .hamburger-menu {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .movie-row {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 35px;
+    }
+    
+    .movie-item {
+        border-radius: 20px;
+    }
+    
+    .movie-info-overlay h3 {
+        font-size: 18px;
+    }
+    
+    .movie-meta {
+        font-size: 15px;
+    }
+    
+    .card-add-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+    }
+    
+    .imdb-tag {
+        font-size: 13px;
+        padding: 3px 8px;
+    }
+    
+    .featured-movie {
+        min-height: 800px;
+        padding: 80px !important;
+    }
+    
+    .featured-tag {
+        font-size: 14px;
+        padding: 10px 24px;
+    }
+    
+    .featured-content h1 {
+        font-size: 5rem !important;
+    }
+    
+    .feat-star-rating {
+        font-size: 2.2rem;
+    }
+    
+    .feat-year {
+        font-size: 1.4rem;
+    }
+    
+    .featured-description {
+        font-size: 1.3rem;
+        max-width: 700px;
+        -webkit-line-clamp: 4;
+    }
+    
+    .btn {
+        padding: 16px 35px;
+        font-size: 16px;
+    }
+    
+    .page-title {
+        font-size: 3.5rem;
+    }
+    
+    .movie-category h2 {
+        font-size: 2.5rem;
+    }
+    
+    .filter-section {
+        padding: 40px;
+    }
+    
+    .filter-label {
+        font-size: 18px;
+    }
+    
+    .year-tag, .genre-tag {
+        padding: 12px 28px;
+        font-size: 16px;
+    }
+    
+    #filter-type {
+        padding: 14px 30px;
+        font-size: 16px;
+        min-width: 200px;
+    }
+    
+    .detail-hero {
+        grid-template-columns: 400px 1fr;
+        gap: 60px;
+        padding: 50px;
+    }
+    
+    .detail-info h1 {
+        font-size: 3.5rem;
+    }
+    
+    .detail-info p {
+        font-size: 1.2rem;
+        line-height: 1.8;
+    }
+    
+    .cast-item {
+        flex: 0 0 140px;
+    }
+    
+    .cast-item img {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .cast-item p {
+        font-size: 14px;
+    }
+    
+    .season-btn {
+        padding: 14px 32px;
+        font-size: 16px;
+    }
+    
+    .episode-card {
+        padding: 20px;
+    }
+    
+    .episode-card h4 {
+        font-size: 16px;
+    }
+    
+    .footer-content {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+    
+    .footer-section h3 {
+        font-size: 24px;
+    }
+    
+    .footer-section h4 {
+        font-size: 18px;
+    }
+    
+    .footer-section a {
+        font-size: 16px;
+    }
+    
+    .social-icons a {
+        width: 50px;
+        height: 50px;
+        font-size: 22px;
+    }
+}
+
+/* ========== SMART TV / CINEMA SCREENS (2560px and above) ========== */
+@media screen and (min-width: 2561px) {
+    .container {
+        max-width: 3000px;
+        padding-left: 6%;
+        padding-right: 6%;
+    }
+    
+    .main-header {
+        height: 120px;
+    }
+    
+    .logo a {
+        font-size: 48px;
+    }
+    
+    .main-nav a {
+        font-size: 22px;
+        padding: 15px 30px;
+    }
+    
+    .search-box {
+        width: 450px;
+    }
+    
+    .search-box input {
+        padding: 18px 25px 18px 60px;
+        font-size: 20px;
+    }
+    
+    .search-box .fa-search {
+        font-size: 22px;
+        left: 20px;
+    }
+    
+    .auth-btn {
+        padding: 15px 35px;
+        font-size: 20px;
+    }
+    
+    .user-profile {
+        width: 70px;
+        height: 70px;
+        font-size: 26px;
+    }
+    
+    .profile-dropdown {
+        top: 80px;
+        min-width: 300px;
+    }
+    
+    .profile-dropdown a {
+        padding: 15px 25px;
+        font-size: 18px;
+    }
+    
+    .hamburger-menu {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .hamburger-menu i {
+        font-size: 26px;
+    }
+    
+    .mobile-nav {
+        top: 120px;
+        width: 400px;
+    }
+    
+    .mobile-nav a {
+        font-size: 22px;
+        padding: 20px 30px;
+    }
+    
+    .movie-row {
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 45px;
+    }
+    
+    .movie-item {
+        border-radius: 25px;
+    }
+    
+    .movie-info-overlay h3 {
+        font-size: 22px;
+    }
+    
+    .movie-meta {
+        font-size: 18px;
+        gap: 8px;
+    }
+    
+    .card-add-btn {
+        width: 55px;
+        height: 55px;
+        font-size: 24px;
+    }
+    
+    .imdb-tag {
+        font-size: 16px;
+        padding: 4px 12px;
+    }
+    
+    .featured-movie {
+        min-height: 1000px;
+        padding: 100px !important;
+    }
+    
+    .featured-tag {
+        font-size: 18px;
+        padding: 12px 30px;
+    }
+    
+    .featured-content h1 {
+        font-size: 7rem !important;
+    }
+    
+    .feat-star-rating {
+        font-size: 2.8rem;
+    }
+    
+    .feat-year {
+        font-size: 1.8rem;
+    }
+    
+    .featured-description {
+        font-size: 1.6rem;
+        max-width: 900px;
+        line-height: 1.8;
+        -webkit-line-clamp: 4;
+    }
+    
+    .btn {
+        padding: 20px 45px;
+        font-size: 20px;
+    }
+    
+    .page-title {
+        font-size: 5rem;
+    }
+    
+    .movie-category h2 {
+        font-size: 3.2rem;
+    }
+    
+    .filter-section {
+        padding: 50px;
+    }
+    
+    .filter-label {
+        font-size: 22px;
+    }
+    
+    .year-tag, .genre-tag {
+        padding: 15px 35px;
+        font-size: 20px;
+    }
+    
+    #filter-type {
+        padding: 18px 40px;
+        font-size: 20px;
+        min-width: 250px;
+    }
+    
+    .detail-hero {
+        grid-template-columns: 500px 1fr;
+        gap: 80px;
+        padding: 70px;
+    }
+    
+    .detail-info h1 {
+        font-size: 4.5rem;
+    }
+    
+    .detail-info p {
+        font-size: 1.5rem;
+        line-height: 2;
+    }
+    
+    .cast-item {
+        flex: 0 0 180px;
+    }
+    
+    .cast-item img {
+        width: 130px;
+        height: 130px;
+    }
+    
+    .cast-item p {
+        font-size: 18px;
+    }
+    
+    .seasons-wrapper {
+        padding: 40px;
+    }
+    
+    .season-btn {
+        padding: 16px 40px;
+        font-size: 18px;
+    }
+    
+    .episode-grid {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+    }
+    
+    .episode-card {
+        padding: 25px;
+    }
+    
+    .episode-card h4 {
+        font-size: 18px;
+    }
+    
+    .footer-content {
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 60px;
+    }
+    
+    .footer-section h3 {
+        font-size: 28px;
+    }
+    
+    .footer-section h4 {
+        font-size: 22px;
+    }
+    
+    .footer-section a {
+        font-size: 18px;
+    }
+    
+    .social-icons a {
+        width: 60px;
+        height: 60px;
+        font-size: 26px;
+    }
+}
+
+/* ========== TV OPTİMİZASYONU - HOVER FOCUS ========== */
+@media (hover: hover) and (pointer: fine) {
+    .movie-item:hover {
+        transform: translateY(-15px);
+    }
+    
+    .btn:hover {
+        transform: translateY(-3px);
+    }
+    
+    .genre-tag:hover, .year-tag:hover {
+        transform: translateY(-3px) scale(1.05);
+    }
+}
+
+.movie-item:focus-visible,
+.btn:focus-visible,
+.genre-tag:focus-visible,
+.year-tag:focus-visible {
+    outline: 3px solid var(--primary);
+    outline-offset: 3px;
+}
