@@ -454,13 +454,26 @@ window.toggleYear = (y, el) => { document.querySelectorAll('.year-tag').forEach(
 // AI Chat Logikası
 const chatTrigger = document.getElementById('chat-trigger');
 const chatWindow = document.getElementById('chat-window');
+const chatHint = document.getElementById('chat-hint');
 const closeChat = document.getElementById('close-chat');
 const sendChat = document.getElementById('send-chat');
 const chatInput = document.getElementById('chat-input');
 const chatMessages = document.getElementById('chat-messages');
 
 if (chatTrigger) {
-    chatTrigger.onclick = () => chatWindow.style.display = chatWindow.style.display === 'flex' ? 'none' : 'flex';
+    // 3 saniyə sonra balonu göstər
+    setTimeout(() => {
+        if (chatWindow.style.display !== 'flex') chatHint.classList.add('show');
+    }, 3000);
+
+    // Çat pəncərəsini aç/bağla
+    chatTrigger.onclick = () => {
+        const isShowing = chatWindow.style.display === 'flex';
+        chatWindow.style.display = isShowing ? 'none' : 'flex';
+        chatHint.classList.remove('show');
+        if(!isShowing) chatInput.focus();
+    };
+
     closeChat.onclick = () => chatWindow.style.display = 'none';
 
     const addMsg = (text, type) => {
@@ -478,7 +491,6 @@ if (chatTrigger) {
         addMsg(msg, 'user');
         chatInput.value = '';
         
-        // Loading effekti
         const loadingDiv = document.createElement('div');
         loadingDiv.className = 'ai-msg';
         loadingDiv.innerText = 'Düşünürəm... 🤔';
@@ -492,37 +504,12 @@ if (chatTrigger) {
             });
             const data = await res.json();
             loadingDiv.remove();
-            addMsg(data.reply, 'ai');
+            addMsg(data.reply || "Bağışlayın, cavab verə bilmirəm.", 'ai');
         } catch (e) {
-            loadingDiv.innerText = "Xəta baş verdi, yenidən yoxlayın.";
+            loadingDiv.innerText = "Xəta baş verdi. Yenidən yoxlayın.";
         }
     };
 
     sendChat.onclick = handleSend;
     chatInput.onkeypress = (e) => { if (e.key === 'Enter') handleSend(); };
-}
-
-// AI Chat Logikası (Yenilənmiş)
-const chatTrigger = document.getElementById('chat-trigger');
-const chatHint = document.getElementById('chat-hint');
-const chatWindow = document.getElementById('chat-window');
-
-if (chatTrigger) {
-    // Sayta girəndə 3 saniyə sonra balonu göstər
-    setTimeout(() => {
-        if (chatWindow.style.display !== 'flex') {
-            chatHint.classList.add('show');
-        }
-    }, 3000);
-
-    // Robota basanda
-    chatTrigger.onclick = () => {
-        const isShowing = chatWindow.style.display === 'flex';
-        chatWindow.style.display = isShowing ? 'none' : 'flex';
-        
-        // Çat açılanda balonu həmişəlik gizlət
-        chatHint.classList.remove('show');
-    };
-    
-    // ... digər sendChat və closeChat kodları bura ...
 }
