@@ -232,6 +232,61 @@ app.delete('/api/watchlist/remove/:id/:type', authMiddleware, async (req, res) =
     }
 });
 
+function slugify(text) {
+  return text.toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-')
+    .trim();
+}
+
+app.get('/movie/:type/:id/:slug?', async (req, res) => {
+  const { type, id } = req.params;
+
+  try {
+    const response = await fetch(
+      `https://api.themoviedb.org/3/${type}/${id}?api_key=${process.env.TMDB_API_KEY}&language=az`
+    );
+
+    const movie = await response.json();
+
+    if (!movie || movie.status_code) {
+      return res.status(404).send("Tapılmadı");
+    }
+
+    const title = movie.title || movie.name;
+    const overview = movie.overview || "Təsvir yoxdur";
+    const year = (movie.release_date || movie.first_air_date || "").split("-")[0];
+
+    res.send(`
+      <!DOCTYPE html>
+      <html lang="az">
+      <head>
+        <meta charset="UTF-8">
+        <title>${title} (${year}) - CineWave</title>
+        <meta name="description" content="${overview.substring(0,160)}">
+        <meta property="og:title" content="${title}">
+        <meta property="og:description" content="${overview.substring(0,200)}">
+        <meta property="og:image" content="https://image.tmdb.org/t/p/w500${movie.poster_path}">
+        <link rel="canonical" href="https://cinewave.ct.ws/movie/${type}/${id}/${slugify(title)}">
+      </head>
+      <body>
+        <h1>${title} (${year})</h1>
+        <p>${overview}</p>
+
+        <script>
+          window.location.replace("/movie-details.html?id=${id}&type=${type}");
+        </script>
+      </body>
+      </html>
+    `);
+
+  } catch (err) {
+    res.status(500).send("Xəta baş verdi");
+  }
+});
+
+
 // Digər API-lar...
 app.get('/api/search', async (req, res) => { res.json(await fetchTMDB('/search/multi', { query: req.query.query, page: req.query.page || 1 })); });
 app.get('/api/movies/popular', async (req, res) => { res.json(await fetchTMDB('/movie/popular', { page: req.query.page || 1 })); });
