@@ -450,3 +450,54 @@ window.loadActorPage = (page) => {
 // --- 10. FILTR VƏ JANR LOGİKASI ---
 window.toggleGenre = (id, el) => { const idx = filterState.genres.indexOf(id); if (idx > -1) { filterState.genres.splice(idx, 1); el.classList.remove('active'); } else { filterState.genres.push(id); el.classList.add('active'); } };
 window.toggleYear = (y, el) => { document.querySelectorAll('.year-tag').forEach(t => t.classList.remove('active')); if(filterState.year === y) { filterState.year = ""; } else { filterState.year = y; el.classList.add('active'); } };
+
+// AI Chat Logikası
+const chatTrigger = document.getElementById('chat-trigger');
+const chatWindow = document.getElementById('chat-window');
+const closeChat = document.getElementById('close-chat');
+const sendChat = document.getElementById('send-chat');
+const chatInput = document.getElementById('chat-input');
+const chatMessages = document.getElementById('chat-messages');
+
+if (chatTrigger) {
+    chatTrigger.onclick = () => chatWindow.style.display = chatWindow.style.display === 'flex' ? 'none' : 'flex';
+    closeChat.onclick = () => chatWindow.style.display = 'none';
+
+    const addMsg = (text, type) => {
+        const div = document.createElement('div');
+        div.className = type === 'user' ? 'user-msg' : 'ai-msg';
+        div.innerText = text;
+        chatMessages.appendChild(div);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    };
+
+    const handleSend = async () => {
+        const msg = chatInput.value.trim();
+        if (!msg) return;
+        
+        addMsg(msg, 'user');
+        chatInput.value = '';
+        
+        // Loading effekti
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'ai-msg';
+        loadingDiv.innerText = 'Düşünürəm... 🤔';
+        chatMessages.appendChild(loadingDiv);
+
+        try {
+            const res = await fetch('/api/ai/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: msg })
+            });
+            const data = await res.json();
+            loadingDiv.remove();
+            addMsg(data.reply, 'ai');
+        } catch (e) {
+            loadingDiv.innerText = "Xəta baş verdi, yenidən yoxlayın.";
+        }
+    };
+
+    sendChat.onclick = handleSend;
+    chatInput.onkeypress = (e) => { if (e.key === 'Enter') handleSend(); };
+}
