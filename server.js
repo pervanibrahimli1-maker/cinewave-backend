@@ -294,3 +294,6 @@ app.get('/api/tv/popular', async (req, res) => { res.json(await fetchTMDB('/tv/p
 app.get('/api/genres/:type/list', async (req, res) => { const d = await fetchTMDB(`/genre/${req.params.type}/list`); res.json(d?.genres || []); });
 
 app.listen(PORT, () => console.log(`🚀 Server Running on ${PORT}`));
+
+
+module.exports = app;
