@@ -1,6 +1,6 @@
 // script.js - CineWave ULTIMATE MASTER VERSION (BÜTÜN FUNKSİYALAR BİRLƏŞDİRİLDİ)
 const CONFIG = {
-    API: 'https://cinewave-backend-hfrd.onrender.com/api', 
+    API: window.location.origin + '/api', 
     IMG: 'https://image.tmdb.org/t/p/w500',
     HD: 'https://image.tmdb.org/t/p/original'
 };
