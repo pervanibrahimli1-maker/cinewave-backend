@@ -240,6 +240,25 @@ function slugify(text) {
     .trim();
 }
 
+// Aktyorun filmlərini gətirmək
+app.get('/api/person/:id/credits', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const response = await fetch(`https://api.themoviedb.org/3/person/${id}/combined_credits?api_key=${process.env.TMDB_API_KEY}&language=az-AZ`);
+        const data = await response.json();
+        
+        // Aktyoru və filmlərini qaytarırıq (ilk 40 məşhur işi)
+        const cast = data.cast
+            .sort((a, b) => b.vote_count - a.vote_count)
+            .slice(0, 40);
+            
+        res.json({ cast });
+    } catch (err) {
+        res.status(500).json({ error: "Aktyor məlumatları gətirilə bilmədi" });
+    }
+});
+
+
 app.get('/movie/:type/:id/:slug?', async (req, res) => {
   const { type, id } = req.params;
 
