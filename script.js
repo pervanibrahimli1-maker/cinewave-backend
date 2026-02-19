@@ -220,25 +220,41 @@ function setupInstantSearch() {
     const input = document.getElementById('instant-search-input');
     const results = document.getElementById('instant-results');
     if (!input) return;
+    
     input.addEventListener('input', (e) => {
         const query = e.target.value.trim();
         clearTimeout(debounceTimer);
         if (query.length < 2) { results.innerHTML = '<p style="text-align:center;color:gray;padding:20px;">Yazmağa başlayın...</p>'; return; }
+        
         debounceTimer = setTimeout(async () => {
-            results.innerHTML = '<div class="spinner" style="margin:20px auto;"></div>';
+            results.innerHTML = '<div class="spinner" style="margin:20px auto; width:30px; height:30px;"></div>';
             const data = await apiCall(`search?query=${encodeURIComponent(query)}`);
+            
             if (data?.results?.length > 0) {
                 results.innerHTML = data.results.slice(0, 15).map(m => {
                     const name = m.title || m.name;
-                    const type = m.media_type || (m.title?'movie':'tv');
+                    const type = m.media_type || (m.title ? 'movie' : 'tv');
+                    const year = (m.release_date || m.first_air_date || '').split('-')[0] || 'N/A';
+                    const rating = m.vote_average ? m.vote_average.toFixed(1) : '0';
+                    const typeLabel = type === 'movie' ? 'Film' : 'Serial';
                     const cleanURL = `/movie/${type}/${m.id}/${slugify(name)}`;
+                    
                     return `
                     <div class="search-item" onclick="location.href='${cleanURL}'">
                         <img src="${m.poster_path ? CONFIG.IMG+m.poster_path : 'https://via.placeholder.com/50x75'}">
-                        <div class="search-info"><h4>${escapeHTML(name)}</h4></div>
+                        <div class="search-info">
+                            <h4>${escapeHTML(name)}</h4>
+                            <div class="search-meta">
+                                <span class="search-type-tag">${typeLabel}</span>
+                                <span>${year}</span>
+                                <span class="search-rating">⭐ ${rating}</span>
+                            </div>
+                        </div>
                     </div>`;
                 }).join('');
-            } else { results.innerHTML = '<p style="text-align:center; color:gray; padding:20px;">Heç nə tapılmadı.</p>'; }
+            } else { 
+                results.innerHTML = '<p style="text-align:center; color:gray; padding:20px;">Heç nə tapılmadı.</p>'; 
+            }
         }, 400);
     });
 }
