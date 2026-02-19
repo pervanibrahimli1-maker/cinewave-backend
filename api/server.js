@@ -259,26 +259,41 @@ app.get('/api/person/:id/credits', async (req, res) => {
 });
 
 // AI Söhbət Route-u
+// AI Söhbət Route-u
 app.post('/api/ai/chat', async (req, res) => {
     try {
         const { message } = req.body;
         const apiKey = process.env.GEMINI_API_KEY;
+
+        // API Key yoxdursa dərhal xəbərdarlıq etsin
+        if (!apiKey) {
+            console.error("XƏTA: GEMINI_API_KEY tapılmadı!");
+            return res.status(500).json({ reply: "Sistem xətası: API açarı quraşdırılmayıb." });
+        }
 
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contents: [{
-                    parts: [{ text: `Sən CineWave saytının film mütəxəssisisən. İstifadəçilərə maraqlı film və seriallar təklif edirsən. Cavabların qısa, mehriban və Azərbaycan dilində olsun. İstifadəçi sualı: ${message}` }]
+                    parts: [{ text: `Sən CineWave saytının film mütəxəssisisən. Azərbaycan dilində qısa, səmimi cavab ver. Sual: ${message}` }]
                 }]
             })
         });
 
         const data = await response.json();
-        const aiResponse = data.candidates[0].content.parts[0].text;
-        res.json({ reply: aiResponse });
+
+        // Gemini-dən gələn cavabı yoxla
+        if (data.candidates && data.candidates[0].content.parts[0].text) {
+            const aiResponse = data.candidates[0].content.parts[0].text;
+            res.json({ reply: aiResponse });
+        } else {
+            console.error("Gemini API Error:", data);
+            res.json({ reply: "Bağışlayın, hazırda cavab verə bilmirəm." });
+        }
     } catch (err) {
-        res.status(500).json({ error: "AI cavab verə bilmədi." });
+        console.error("Fatal AI Error:", err);
+        res.status(500).json({ reply: "AI ilə bağlantı qurula bilmədi." });
     }
 });
 
