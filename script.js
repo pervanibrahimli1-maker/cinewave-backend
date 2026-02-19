@@ -9,6 +9,7 @@ const CONFIG = {
 let currentTVState = { id: null, season: null, episode: null, allEpisodes: [], timer: null, timeLeft: 0 };
 let filterState = { genres: [], year: "", type: "movie" };
 let debounceTimer;
+let allActorCredits = []; // Aktyorun bütün filmlərini yadda saxlamaq üçün
 
 // --- 1. KÖMƏKÇİ FUNKSİYALAR ---
 function escapeHTML(str) {
@@ -270,22 +271,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // Aktyor səhifəsi yüklənəndə
-const actorGrid = document.getElementById('actor-movies-grid');
-if (actorGrid) {
-    const pathParts = window.location.pathname.split('/');
-    const actorId = pathParts[pathParts.indexOf('actor') + 1];
-    
-    if (actorId) {
-        actorGrid.innerHTML = '<div class="spinner"></div>';
-        apiCall(`person/${actorId}/credits`).then(data => {
-            if (data && data.cast) {
-                renderItems('actor-movies-grid', data.cast);
-                // Başlığı aktyorun adı ilə dəyişmək istəsən:
-                // document.getElementById('actor-name-title').innerText = "Aktyorun Rol Aldığı Filmlər";
-            }
-        });
+    const actorGrid = document.getElementById('actor-movies-grid');
+    if (actorGrid) {
+        const pathParts = window.location.pathname.split('/');
+        // URL-dən ID-ni götürürük: /actor/123/slug -> 123
+        const actorId = pathParts[pathParts.indexOf('actor') + 1];
+        
+        if (actorId) {
+            actorGrid.innerHTML = '<div class="spinner" style="grid-column: 1/-1; margin: 40px auto;"></div>';
+            apiCall(`person/${actorId}/credits`).then(data => {
+                if (data && data.cast) {
+                    allActorCredits = data.cast; // Bütün filmləri dəyişənə yığırıq
+                    window.loadActorPage(1); // İlk 18 filmi göstəririk
+                } else {
+                    actorGrid.innerHTML = '<p style="grid-column: 1/-1; text-align:center;">Məlumat tapılmadı.</p>';
+                }
+            });
+        }
     }
-}
 
     const detBox = document.getElementById('details-content');
     if (detBox) {
@@ -301,6 +304,8 @@ if (actorGrid) {
             mId = p.get('id');
         }
 
+        
+        
         if(mType && mId) {
             const m = await apiCall(`details/${mType}/${mId}`);
             if(m && m.success !== false) {
@@ -402,6 +407,24 @@ window.loadWatchlistPage = async () => {
         const cleanURL = `/movie/${i.movie_type}/${i.id}/${slugify(i.title)}`;
         return `<div class="movie-item"><img src="${CONFIG.IMG + i.poster_path}" alt="${escapeHTML(i.title)}" onclick="location.href='${cleanURL}'"><div class="movie-info-overlay"><h3>${escapeHTML(i.title)}</h3><button class="remove-btn" onclick="window.removeFromWatchlist(event, '${i.id}', '${i.movie_type}')"><i class="fas fa-trash"></i> Sil</button></div></div>`;
     }).join('');
+};
+
+// Aktyor filmlərini 18-18 səhifələyən funksiya
+window.loadActorPage = (page) => {
+    const itemsPerPage = 18;
+    const startIndex = (page - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    
+    // Yaddaşdakı 100+ filmdən yalnız lazımi 18-ni kəsirik
+    const pageItems = allActorCredits.slice(startIndex, endIndex);
+    const totalPages = Math.ceil(allActorCredits.length / itemsPerPage);
+    
+    // Mövcud render funksiyalarını istifadə edirik
+    renderItems('actor-movies-grid', pageItems);
+    renderPagination('actor-movies-grid', page, totalPages, 'loadActorPage');
+    
+    // Səhifə dəyişəndə yuxarı sürüşdür (istifadəçi rahatlığı üçün)
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 // --- 10. FILTR VƏ JANR LOGİKASI ---
