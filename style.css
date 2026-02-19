@@ -2702,3 +2702,79 @@ body {
 }
 
 
+/* ============================================= */
+/* YEKUN MOBİL VƏ AXTARIŞ DÜZƏLİŞİ (SON)        */
+/* ============================================= */
+
+@media (max-width: 1024px) {
+    /* 1. Android/Samsung: Film adlarını MƏCBURİ görünən et */
+    .movie-info-overlay {
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: translateY(0) !important;
+        background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.5) 80%, transparent 100%) !important;
+        pointer-events: auto !important;
+    }
+    
+    .card-add-btn {
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+
+    /* 2. iPhone/iOS: Önə çıxan film təsviri (Description) düzəlişi */
+    .featured-description {
+        display: -webkit-box !important;
+        -webkit-line-clamp: 3 !important; /* Maksimum 3 sətir */
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+        height: auto !important;
+        max-height: 120px !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        color: #e0e0e0 !important;
+    }
+}
+
+/* 3. AXTARIŞ NƏTİCƏLƏRİNİN PREMİUM MOBİL DİZAYNI */
+.search-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px !important;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.search-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.search-info h4 {
+    font-size: 15px !important;
+    color: white !important;
+    margin: 0 !important;
+}
+
+.search-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: #a0a0a0;
+}
+
+.search-type-tag {
+    background: #ff4d00;
+    color: white;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 9px;
+    text-transform: uppercase;
+}
+
+.search-rating {
+    color: #ffc107;
+    font-weight: bold;
+}
