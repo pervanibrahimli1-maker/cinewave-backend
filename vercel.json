@@ -3,6 +3,7 @@
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/server.js" },
     { "source": "/movie/:type/:id/:slug", "destination": "/movie-details.html" },
+    { "source": "/actor/:id/:slug", "destination": "/actor.html" },
     { "source": "/(.*)", "destination": "/$1" }
   ]
 }
