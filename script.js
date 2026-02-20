@@ -543,8 +543,6 @@ const lF = document.getElementById('login-form');
             // --- YENİ: Cloudflare kodunu formadan götürürük ---
             const formData = new FormData(lF);
             const data = Object.fromEntries(formData.entries());
-
-            // data obyektinin içində artıq 'cf-turnstile-response' kodu da var
             const res = await apiCall('auth/login', false, 'POST', data);
             
             if(res.success) { 
