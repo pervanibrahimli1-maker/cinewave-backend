@@ -37,8 +37,29 @@ app.use(hpp());
 app.use(express.json({ limit: '15kb' }));
 app.use(cors({ origin: true, credentials: true }));
 
-const generalLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 1000, message: { error: "Limit keçildi." } });
+// Ümumi sayt üçün limit (15 dəqiqədə maksimum 100 sorğu)
+const generalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 200, 
+    message: { error: "Çox sayda sorğu göndərildi. Bir az gözləyin." }
+});
 app.use('/api/', generalLimiter);
+
+// Giriş və Qeydiyyat üçün daha sərt limit (1 saatda cəmi 5 cəhd)
+const authLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    max: 10,
+    message: { error: "Çox sayda uğursuz cəhd. 1 saatdan sonra yenidən yoxlayın." }
+});
+app.use('/api/auth/', authLimiter);
+
+// AI Chat üçün limit (1 dəqiqədə maksimum 3 sual)
+const aiLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000,
+    max: 6,
+    message: { reply: "Saniyədə bir neçə sual verə bilməzsiniz. Bir az gözləyin." }
+});
+app.use('/api/ai/', aiLimiter);
 
 // 2. DATABASE MODELLƏRİ
 mongoose.connect(process.env.MONGODB_URI)
