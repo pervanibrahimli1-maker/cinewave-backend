@@ -102,6 +102,20 @@ const authMiddleware = (req, res, next) => {
 app.post('/api/auth/register', async (req, res) => {
     try {
         const { fullName, email, username, password } = req.body;
+
+        const turnstileToken = req.body['cf-turnstile-response'];
+        const secretKey = process.env.TURNSTILE_SECRET_KEY;
+
+        const verifyRes = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+            method: "POST",
+            body: `secret=${secretKey}&response=${turnstileToken}`,
+            headers: { "Content-Type": "application/x-www-form-urlencoded" }
+        });
+        const verifyData = await verifyRes.json();
+
+        if (!verifyData.success) {
+            return res.status(403).json({ error: "Zəhmət olmasa robot olmadığınızı təsdiqləyin." });
+        
         const exists = await User.findOne({ $or: [{ email: email.toLowerCase() }, { username }] });
         if (exists) return res.status(400).json({ error: "Email və ya istifadəçi adı artıq götürülüb." });
         const hashedPassword = await bcrypt.hash(password, 12);
@@ -112,6 +126,21 @@ app.post('/api/auth/register', async (req, res) => {
 });
 
 app.post('/api/auth/login', async (req, res) => {
+const turnstileToken = req.body['cf-turnstile-response'];
+    const secretKey = process.env.TURNSTILE_SECRET_KEY; // Vercel-ə əlavə etdiyin Secret Key
+
+    // 1. Robot yoxlanışı
+    const verifyRes = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+        method: "POST",
+        body: `secret=${secretKey}&response=${turnstileToken}`,
+        headers: { "Content-Type": "application/x-www-form-urlencoded" }
+    });
+    const verifyData = await verifyRes.json();
+
+    if (!verifyData.success) {
+        return res.status(403).json({ error: "Zəhmət olmasa robot olmadığınızı təsdiqləyin." });
+    }
+    
     try {
         const { email, password } = req.body;
         const user = await User.findOne({ email: email.toLowerCase() });
