@@ -468,7 +468,7 @@ function initAIChat() {
             hint.classList.add('show');
             setTimeout(() => { hint.classList.remove('show'); }, 4000);
         }
-    }, 3000);
+    }, 500);
 
     trigger.onclick = () => {
         const isShowing = windowEl.style.display === 'flex';
