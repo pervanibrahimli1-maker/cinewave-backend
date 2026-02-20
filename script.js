@@ -451,13 +451,50 @@ window.loadActorPage = (page) => {
 window.toggleGenre = (id, el) => { const idx = filterState.genres.indexOf(id); if (idx > -1) { filterState.genres.splice(idx, 1); el.classList.remove('active'); } else { filterState.genres.push(id); el.classList.add('active'); } };
 window.toggleYear = (y, el) => { document.querySelectorAll('.year-tag').forEach(t => t.classList.remove('active')); if(filterState.year === y) { filterState.year = ""; } else { filterState.year = y; el.classList.add('active'); } };
 
-const handleSend = async () => {
+function initAIChat() {
+    const trigger = document.getElementById('chat-trigger');
+    const windowEl = document.getElementById('chat-window');
+    const hint = document.getElementById('chat-hint');
+    const closeBtn = document.getElementById('close-chat');
+    const sendBtn = document.getElementById('send-chat');
+    const input = document.getElementById('chat-input');
+    const msgBox = document.getElementById('chat-messages');
+
+    if (!trigger || !windowEl) return;
+
+    // Balonun 3 saniyə sonra çıxıb 4 saniyə sonra itməsi
+    setTimeout(() => {
+        if (windowEl.style.display !== 'flex' && hint) {
+            hint.classList.add('show');
+            setTimeout(() => { hint.classList.remove('show'); }, 4000);
+        }
+    }, 3000);
+
+    trigger.onclick = () => {
+        const isShowing = windowEl.style.display === 'flex';
+        windowEl.style.display = isShowing ? 'none' : 'flex';
+        if (hint) hint.classList.remove('show');
+        if (!isShowing) input.focus();
+    };
+
+    if (closeBtn) closeBtn.onclick = () => windowEl.style.display = 'none';
+
+    const addMsg = (text, type) => {
+        const div = document.createElement('div');
+        div.className = type === 'user' ? 'user-msg' : 'ai-msg';
+        div.innerText = text;
+        msgBox.appendChild(div);
+        msgBox.scrollTop = msgBox.scrollHeight;
+    };
+
+    // --- HANDLE SEND (BU FUNKSİYA initAIChat-ın DAXİLİNDƏ OLMALIDIR) ---
+    const handleSend = async () => {
         const msg = input.value.trim();
         if (!msg) return;
-        
+
         addMsg(msg, 'user');
         input.value = '';
-        
+
         const loadingDiv = document.createElement('div');
         loadingDiv.className = 'ai-msg';
         loadingDiv.innerText = 'Düşünürəm... 🤔';
@@ -467,34 +504,36 @@ const handleSend = async () => {
             const res = await fetch('/api/ai/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: msg }) 
+                body: JSON.stringify({ message: msg })
             });
             const data = await res.json();
             loadingDiv.remove();
 
-            // --- YENİ: Limit dolubsa düymə çıxar və girişi bağla ---
             if (data.limitReached) {
                 addMsg(data.reply, 'ai');
-                input.disabled = true; // Yazmağı bağla
-                sendBtn.disabled = true; // Düyməni bağla
+                input.disabled = true;
+                sendBtn.disabled = true;
                 input.placeholder = "Limit bitdi.";
 
                 const refreshBtn = document.createElement('button');
                 refreshBtn.innerText = "Yenidən Başla 🔄";
                 refreshBtn.className = "btn primary-btn";
-                refreshBtn.style.width = "100%";
                 refreshBtn.style.marginTop = "10px";
                 refreshBtn.onclick = () => location.reload();
                 msgBox.appendChild(refreshBtn);
-                msgBox.scrollTop = msgBox.scrollHeight;
                 return;
             }
 
             addMsg(data.reply || "Xəta oldu.", 'ai');
+
         } catch (e) {
             loadingDiv.innerText = "Xəta baş verdi.";
         }
     };
+
+    if (sendBtn) sendBtn.onclick = handleSend;
+    if (input) input.onkeypress = (e) => { if (e.key === 'Enter') handleSend(); };
+}
 
 
 
