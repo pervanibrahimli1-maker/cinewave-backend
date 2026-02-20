@@ -13,6 +13,8 @@ const xssClean = require('xss-clean');
 const hpp = require('hpp');
 const crypto = require('crypto');
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+const chatMemory = {};
+const MAX_MESSAGES = 6;
 
 dotenv.config();
 const app = express();
@@ -262,33 +264,79 @@ app.get('/api/person/:id/credits', async (req, res) => {
 // --- AI CHAT ROUTE (MÜKƏMMƏLLƏŞDİRİLMİŞ) ---
 app.post('/api/ai/chat', async (req, res) => {
     try {
-        const { message } = req.body;
-        const apiKey = process.env.GEMINI_API_KEY;
+        const { message, userId } = req.body;
+        const apiKey = process.env.HF_API_KEY;
 
-        if (!apiKey) return res.status(500).json({ reply: "Sistem: API açarı tapılmadı." });
-
-        // URL-i v1beta-dan v1-ə dəyişdik (Gemini 1.5 Flash üçün mütləqdir)
-        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: `Sən CineWave film saytının AI köməkçisisən. İstifadəçilərlə Azərbaycan dilində danış. Qısa və maraqlı film təklifləri ver. Sual: ${message}` }] }]
-            })
-        });
-
-        const data = await response.json();
-
-        if (data.candidates && data.candidates[0].content) {
-            res.json({ reply: data.candidates[0].content.parts[0].text });
-        } else {
-            console.error("Gemini API Error Response:", JSON.stringify(data));
-            res.json({ reply: "Bağışlayın, hazırda bu suala cavab verə bilmirəm." });
+        if (!apiKey) {
+            return res.status(500).json({ reply: "HF API açarı tapılmadı." });
         }
+
+        if (!userId) {
+            return res.status(400).json({ reply: "Session tapılmadı." });
+        }
+
+        if (!chatMemory[userId]) {
+            chatMemory[userId] = [];
+        }
+
+        // 🔥 LIMIT
+        if (chatMemory[userId].length >= MAX_MESSAGES) {
+            return res.status(429).json({
+                limitReached: true,
+                reply: "Sual limiti bitdi. Davam etmək üçün səhifəni yeniləyin."
+            });
+        }
+
+        chatMemory[userId].push({ role: "user", content: message });
+
+        const conversation = chatMemory[userId]
+            .map(m => `${m.role}: ${m.content}`)
+            .join("\n");
+
+        const prompt = `
+Sən CineWave AI köməkçisisən.
+Azərbaycan dilində danış.
+Qısa və maraqlı film tövsiyəsi ver.
+
+Söhbət:
+${conversation}
+
+Cavab:
+`;
+
+        const hfResponse = await fetch(
+            "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2",
+            {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${apiKey}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    inputs: prompt,
+                    parameters: {
+                        max_new_tokens: 200,
+                        temperature: 0.7
+                    }
+                })
+            }
+        );
+
+        const hfData = await hfResponse.json();
+
+        let aiReply = "Cavab tapılmadı.";
+
+        if (Array.isArray(hfData) && hfData[0]?.generated_text) {
+            aiReply = hfData[0].generated_text;
+        }
+
+        chatMemory[userId].push({ role: "assistant", content: aiReply });
+
+        res.json({ reply: aiReply });
+
     } catch (err) {
-        console.error("AI Route Error:", err);
-        res.status(500).json({ reply: "Bağlantı xətası baş verdi." });
+        console.error("AI ERROR:", err);
+        res.status(500).json({ reply: "Server xətası baş verdi." });
     }
 });
 // --- DİGƏR ROUTELAR ---
