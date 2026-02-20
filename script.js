@@ -540,15 +540,39 @@ const lF = document.getElementById('login-form');
         lF.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // --- YENİ: Cloudflare kodunu formadan götürürük ---
+            // 1. Düyməni dondururuq (ikiqat klik olmasın deyə)
+            const btn = lF.querySelector('button[type="submit"]');
+            if(btn.disabled) return;
+            btn.disabled = true;
+            const originalBtnText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Yoxlanılır...';
+
             const formData = new FormData(lF);
             const data = Object.fromEntries(formData.entries());
+
+            // 2. Backend-ə sorğu göndəririk
             const res = await apiCall('auth/login', false, 'POST', data);
             
             if(res.success) { 
+                // 3. UĞURLU BİLDİRİŞ (Bunu istəyirdin)
+                showNotification("Giriş uğurlu oldu! Yönləndirilirsiniz...", "success");
+
                 localStorage.setItem('cinewave_token', res.token); 
                 localStorage.setItem('cinewave_user', JSON.stringify(res.user)); 
-                location.href = '/index.html'; 
+                
+                // 4. Yazını görmək üçün 1.5 saniyə gözləyib sonra ana səhifəyə atırıq
+                setTimeout(() => {
+                    location.href = '/index.html'; 
+                }, 1500);
+
+            } else {
+                // 5. Xəta olsa düyməni bərpa edirik
+                showNotification(res.error || "Giriş alınmadı", "error");
+                btn.disabled = false;
+                btn.innerHTML = originalBtnText;
+                
+                // Cloudflare widgetini sıfırlayırıq ki, təzədən yoxlasın
+                if(window.turnstile) turnstile.reset();
             }
         });
     }
@@ -558,19 +582,45 @@ const rF = document.getElementById('register-form');
         rF.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            if(e.target.password.value !== e.target.confirmPassword.value) {
+            // 1. Şifrələrin eyniliyini yoxlayırıq
+            const password = rF.querySelector('input[name="password"]').value;
+            const confirmPassword = rF.querySelector('input[name="confirmPassword"]').value;
+            
+            if(password !== confirmPassword) {
                 return showNotification("Şifrələr eyni deyil!", "error");
             }
 
-            // --- YENİ: Cloudflare kodunu formadan götürürük ---
+            // 2. Düyməni dondururuq (ikiqat klik və botların qarşısını almaq üçün)
+            const btn = rF.querySelector('button[type="submit"]');
+            if(btn.disabled) return;
+            btn.disabled = true;
+            const originalBtnText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Hesab yaradılır...';
+
+            // 3. Məlumatları (o cümlədən Cloudflare kodunu) götürürük
             const formData = new FormData(rF);
             const data = Object.fromEntries(formData.entries());
 
+            // 4. Backend-ə göndəririk
             const res = await apiCall('auth/register', false, 'POST', data);
             
             if(res.success) { 
-                showNotification("Qeydiyyat uğurlu!", "success"); 
-                setTimeout(() => location.href = '/login.html', 1500); 
+                // 5. UĞURLU BİLDİRİŞ
+                showNotification("Qeydiyyat uğurlu oldu! Giriş səhifəsinə yönləndirilirsiniz...", "success");
+
+                // 6. 1.5 saniyə gözləyib Login səhifəsinə atırıq
+                setTimeout(() => {
+                    location.href = '/login.html'; 
+                }, 1500);
+
+            } else {
+                // 7. Xəta olsa düyməni bərpa edirik
+                showNotification(res.error || "Qeydiyyat alınmadı", "error");
+                btn.disabled = false;
+                btn.innerHTML = originalBtnText;
+                
+                // Robot yoxlanışını sıfırlayırıq ki, istifadəçi yenidən yoxlasın
+                if(window.turnstile) turnstile.reset();
             }
         });
     }
