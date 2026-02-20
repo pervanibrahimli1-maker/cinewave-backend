@@ -262,24 +262,19 @@ app.get('/api/person/:id/credits', async (req, res) => {
 
 
 // --- AI CHAT ROUTE (MÜKƏMMƏLLƏŞDİRİLMİŞ) ---
+// server.js-də AI chat üçün əlavə et
+const chatMemory = {};
+const MAX_MESSAGES = 6;
+
 app.post('/api/ai/chat', async (req, res) => {
     try {
         const { message, userId } = req.body;
-        const apiKey = process.env.HF_API_KEY;
 
-        if (!apiKey) {
-            return res.status(500).json({ reply: "HF API açarı tapılmadı." });
-        }
+        if (!userId) return res.status(400).json({ reply: "Session tapılmadı." });
 
-        if (!userId) {
-            return res.status(400).json({ reply: "Session tapılmadı." });
-        }
+        if (!chatMemory[userId]) chatMemory[userId] = [];
 
-        if (!chatMemory[userId]) {
-            chatMemory[userId] = [];
-        }
-
-        // 🔥 LIMIT
+        // 5-6 mesaj limiti
         if (chatMemory[userId].length >= MAX_MESSAGES) {
             return res.status(429).json({
                 limitReached: true,
@@ -304,31 +299,20 @@ ${conversation}
 Cavab:
 `;
 
-        const hfResponse = await fetch(
-            "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2",
-            {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${apiKey}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    inputs: prompt,
-                    parameters: {
-                        max_new_tokens: 200,
-                        temperature: 0.7
-                    }
-                })
-            }
-        );
+        // Groq API
+        const groqResponse = await fetch("https://api.groq.ai/v1/engines/text-embedding-3-large/completions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                prompt: prompt,
+                max_tokens: 200
+            })
+        });
 
-        const hfData = await hfResponse.json();
+        const groqData = await groqResponse.json();
 
         let aiReply = "Cavab tapılmadı.";
-
-        if (Array.isArray(hfData) && hfData[0]?.generated_text) {
-            aiReply = hfData[0].generated_text;
-        }
+        if (groqData?.choices?.[0]?.text) aiReply = groqData.choices[0].text;
 
         chatMemory[userId].push({ role: "assistant", content: aiReply });
 
