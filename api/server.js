@@ -21,6 +21,8 @@ const app = express();
 
 // Render üçün proksi etibarı
 app.set('trust proxy', 1); 
+app.use(express.static('public')); 
+
 
 const PORT = process.env.PORT || 10000;
 const JWT_SECRET = process.env.JWT_SECRET || 'gizli_açar_123';
