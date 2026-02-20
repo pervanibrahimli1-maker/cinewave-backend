@@ -258,16 +258,18 @@ app.get('/api/person/:id/credits', async (req, res) => {
     }
 });
 
+// AI Söhbət Route-u (Təkmilləşdirilmiş)
 app.post('/api/ai/chat', async (req, res) => {
     try {
         const { message } = req.body;
         const apiKey = process.env.GEMINI_API_KEY;
 
         if (!apiKey) {
-            return res.status(500).json({ reply: "Sistem xətası: API açarı tapılmadı." });
+            console.error("XƏTA: GEMINI_API_KEY tapılmadı!");
+            return res.status(500).json({ reply: "Sistem xətası: API açarı quraşdırılmayıb." });
         }
 
-        // STABİL V1 VERSİYASI VƏ 1.5 FLASH MODELİ
+        // Ən stabil URL və Model
         const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
         const response = await fetch(url, {
@@ -275,32 +277,26 @@ app.post('/api/ai/chat', async (req, res) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contents: [{
-                    parts: [{ text: `Sən CineWave film saytının ağıllı AI köməkçisisən. İstifadəçilərə Azərbaycan dilində, mehriban və səmimi cavablar ver. Onlara film və seriallar təklif et. İstifadəçi sualı: ${message}` }]
+                    parts: [{ text: `Sən CineWave film saytının ağıllı AI köməkçisisən. İstifadəçilərlə Azərbaycan dilində, mehriban və qısa danış. Sual: ${message}` }]
                 }]
             })
         });
 
         const data = await response.json();
 
-        // Google tərəfindən gələn hər hansı xətanı yoxla
-        if (data.error) {
-            console.error("Gemini V1 Error:", data.error.message);
-            return res.json({ reply: "Bağışlayın, hazırda cavab verə bilmirəm. Bir az sonra yenidən yoxlayın." });
-        }
-
-        // Cavabı qaytar
-        if (data.candidates && data.candidates[0].content.parts[0].text) {
-            const aiResponse = data.candidates[0].content.parts[0].text;
-            res.json({ reply: aiResponse });
+        // Gemini-dən gələn cavabı analiz et
+        if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts) {
+            const aiReply = data.candidates[0].content.parts[0].text;
+            res.json({ reply: aiReply });
         } else {
-            res.json({ reply: "Təəssüf ki, sualınıza uyğun cavab tapılmadı." });
+            console.error("Gemini API Error Detail:", JSON.stringify(data));
+            res.json({ reply: "Bağışlayın, hazırda cavab verə bilmirəm. Bir az sonra yenidən yoxlayın." });
         }
     } catch (err) {
         console.error("Fatal AI Error:", err);
-        res.status(500).json({ reply: "Bağlantı xətası baş verdi." });
+        res.status(500).json({ reply: "AI ilə bağlantı kəsildi." });
     }
 });
-
 app.get('/movie/:type/:id/:slug?', async (req, res) => {
   const { type, id } = req.params;
 
