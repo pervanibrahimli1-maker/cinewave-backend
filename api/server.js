@@ -258,58 +258,6 @@ app.get('/api/person/:id/credits', async (req, res) => {
     }
 });
 
-// AI Söhbət Route-u (Təkmilləşdirilmiş)// server.js - AI Fix Version
-const express = require('express');
-const translate = require('google-translate-api-x');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
-const mongoSanitize = require('express-mongo-sanitize');
-const xssClean = require('xss-clean');
-const hpp = require('hpp');
-const crypto = require('crypto');
-
-dotenv.config();
-const app = express();
-app.set('trust proxy', 1); 
-
-const PORT = process.env.PORT || 10000;
-const JWT_SECRET = process.env.JWT_SECRET || 'gizli_açar_123';
-const TMDB_API_KEY = process.env.TMDB_API_KEY;
-const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
-
-// TƏHLÜKƏSİZLİK
-app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
-app.use(mongoSanitize());
-app.use(xssClean());
-app.use(hpp());
-app.use(express.json());
-app.use(cors({ origin: true, credentials: true }));
-
-// DATABASE MODELLƏRİ
-mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('✅ MongoDB Connected.'))
-    .catch(error => console.error('❌ DB Error:', error));
-
-const User = mongoose.model('User', new mongoose.Schema({
-    fullName: String, email: { type: String, unique: true }, username: { type: String, unique: true },
-    password: String, watchlist: []
-}));
-
-const View = mongoose.model('View', new mongoose.Schema({ movieId: { type: String, unique: true }, viewers: [String] }));
-
-// TMDB FETCH
-async function fetchTMDB(path, params = {}) {
-    const query = new URLSearchParams({ api_key: TMDB_API_KEY, ...params, language: 'az-AZ' });
-    try {
-        const response = await fetch(`${TMDB_BASE_URL}${path}?${query}`);
-        return await response.json();
-    } catch (e) { return null; }
-}
 
 // --- AI CHAT ROUTE (MÜKƏMMƏLLƏŞDİRİLMİŞ) ---
 app.post('/api/ai/chat', async (req, res) => {
