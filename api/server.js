@@ -316,8 +316,7 @@ app.get('/api/details/:type/:id', async (req, res) => {
 
 app.get('/api/search', async (req, res) => { res.json(await fetchTMDB('/search/multi', { query: req.query.query })); });
 
-app.listen(PORT, () => console.log(`🚀 Server on ${PORT}`));
-module.exports = app;
+
 app.get('/movie/:type/:id/:slug?', async (req, res) => {
   const { type, id } = req.params;
 
@@ -365,11 +364,6 @@ app.get('/movie/:type/:id/:slug?', async (req, res) => {
 });
 
 
-// Digər API-lar...
-app.get('/api/search', async (req, res) => { res.json(await fetchTMDB('/search/multi', { query: req.query.query, page: req.query.page || 1 })); });
-app.get('/api/movies/popular', async (req, res) => { res.json(await fetchTMDB('/movie/popular', { page: req.query.page || 1 })); });
-app.get('/api/tv/popular', async (req, res) => { res.json(await fetchTMDB('/tv/popular', { page: req.query.page || 1 })); });
-app.get('/api/genres/:type/list', async (req, res) => { const d = await fetchTMDB(`/genre/${req.params.type}/list`); res.json(d?.genres || []); });
 
 app.listen(PORT, () => console.log(`🚀 Server Running on ${PORT}`));
 
