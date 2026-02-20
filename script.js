@@ -451,43 +451,7 @@ window.loadActorPage = (page) => {
 window.toggleGenre = (id, el) => { const idx = filterState.genres.indexOf(id); if (idx > -1) { filterState.genres.splice(idx, 1); el.classList.remove('active'); } else { filterState.genres.push(id); el.classList.add('active'); } };
 window.toggleYear = (y, el) => { document.querySelectorAll('.year-tag').forEach(t => t.classList.remove('active')); if(filterState.year === y) { filterState.year = ""; } else { filterState.year = y; el.classList.add('active'); } };
 
-// AI Chat Logikası
-// --- AI CHAT LOGİKASI (YEKUN VƏ TƏMİZ VERSİYA) ---
-function initAIChat() {
-    const trigger = document.getElementById('chat-trigger');
-    const windowEl = document.getElementById('chat-window');
-    const hint = document.getElementById('chat-hint');
-    const closeBtn = document.getElementById('close-chat');
-    const sendBtn = document.getElementById('send-chat');
-    const input = document.getElementById('chat-input');
-    const msgBox = document.getElementById('chat-messages');
-
-    if (!trigger) return; // Əgər HTML-də yoxdursa işləməsin
-
-    // 3 saniyə sonra balonu göstər
-    setTimeout(() => {
-        if (windowEl.style.display !== 'flex' && hint) hint.classList.add('show');
-    }, 3000);
-
-    // Aç/Bağla
-    trigger.onclick = () => {
-        const isShowing = windowEl.style.display === 'flex';
-        windowEl.style.display = isShowing ? 'none' : 'flex';
-        if(hint) hint.classList.remove('show');
-        if(!isShowing) input.focus();
-    };
-
-    if(closeBtn) closeBtn.onclick = () => windowEl.style.display = 'none';
-
-    const addMsg = (text, type) => {
-        const div = document.createElement('div');
-        div.className = type === 'user' ? 'user-msg' : 'ai-msg';
-        div.innerText = text;
-        msgBox.appendChild(div);
-        msgBox.scrollTop = msgBox.scrollHeight;
-    };
-
-    const handleSend = async () => {
+const handleSend = async () => {
         const msg = input.value.trim();
         if (!msg) return;
         
@@ -503,19 +467,36 @@ function initAIChat() {
             const res = await fetch('/api/ai/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: msg })
+                body: JSON.stringify({ message: msg }) 
             });
             const data = await res.json();
             loadingDiv.remove();
+
+            // --- YENİ: Limit dolubsa düymə çıxar və girişi bağla ---
+            if (data.limitReached) {
+                addMsg(data.reply, 'ai');
+                input.disabled = true; // Yazmağı bağla
+                sendBtn.disabled = true; // Düyməni bağla
+                input.placeholder = "Limit bitdi.";
+
+                const refreshBtn = document.createElement('button');
+                refreshBtn.innerText = "Yenidən Başla 🔄";
+                refreshBtn.className = "btn primary-btn";
+                refreshBtn.style.width = "100%";
+                refreshBtn.style.marginTop = "10px";
+                refreshBtn.onclick = () => location.reload();
+                msgBox.appendChild(refreshBtn);
+                msgBox.scrollTop = msgBox.scrollHeight;
+                return;
+            }
+
             addMsg(data.reply || "Xəta oldu.", 'ai');
         } catch (e) {
             loadingDiv.innerText = "Xəta baş verdi.";
         }
     };
 
-    if(sendBtn) sendBtn.onclick = handleSend;
-    if(input) input.onkeypress = (e) => { if (e.key === 'Enter') handleSend(); };
-}
+
 
 async function loadHomeData() {
     const d = await apiCall('home');
@@ -523,19 +504,26 @@ async function loadHomeData() {
         const h = d.featured;
         const name = h.title || h.name;
         const rating = h.vote_average ? h.vote_average.toFixed(1) : "N/A";
-        const year = (h.release_date || '').split('-')[0];
-        
+        const year = (h.release_date || h.first_air_date || '').split('-')[0];
+        const views = h.viewCount || 0;
+
         document.getElementById('featured-section').style.backgroundImage = `linear-gradient(90deg, #0a0b10 0%, rgba(10,11,16,0.8) 45%, rgba(10,11,16,0.1) 100%), url(${CONFIG.HD + h.backdrop_path})`;
         document.getElementById('featured-title').innerText = name;
+        
+        // DÜZGÜN STRUKTUR:
         document.getElementById('featured-desc').innerHTML = `
-            <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
-                <span class="imdb-tag">IMDb</span> <span style="color: #ffc107; font-weight: bold;">⭐ ${rating}</span>
+            <div class="feat-meta-mobile" style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <span class="imdb-tag">IMDb</span> 
+                <span style="color: #ffc107; font-weight: bold;">⭐ ${rating}</span>
                 <span style="color: #a0a0a0;">| ${year}</span>
-                <span style="color: var(--primary); font-weight: bold; background: rgba(255,77,0,0.1); padding: 2px 10px; border-radius: 8px;">
-                    <i class="fas fa-eye"></i> ${h.viewCount || 0} baxış
+                <span style="color: var(--primary); font-weight: bold;">
+                    <i class="fas fa-eye"></i> ${views} baxış
                 </span>
             </div>
-            <p>${h.overview || "Təsvir yoxdur."}</p>`;
+            <div class="desc-text" style="font-size: 0.95rem; line-height: 1.5; color: #ddd;">
+                ${h.overview || "Təsvir yoxdur."}
+            </div>
+        `;
         
         document.getElementById('hero-play-btn').onclick = () => location.href = `/movie/movie/${h.id}/${slugify(name)}`;
         document.getElementById('hero-add-btn').onclick = () => window.addToWatchlist(h.id, name, h.poster_path, 'movie');
