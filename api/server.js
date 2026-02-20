@@ -264,9 +264,6 @@ app.get('/api/person/:id/credits', async (req, res) => {
 
 
 // --- AI CHAT ROUTE (MÜKƏMMƏLLƏŞDİRİLMİŞ) ---
-// server.js-də AI chat üçün əlavə et
-const chatMemory = {};
-const MAX_MESSAGES = 6;
 
 app.post('/api/ai/chat', async (req, res) => {
     try {
