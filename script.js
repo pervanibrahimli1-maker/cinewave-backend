@@ -499,11 +499,42 @@ function initAIChat() {
     loadingDiv.innerText = 'Düşünürəm... 🤔';
     msgBox.appendChild(loadingDiv);
 
+    // Session ID
     let userId = sessionStorage.getItem("ai_session_id");
     if (!userId) {
         userId = crypto.randomUUID();
         sessionStorage.setItem("ai_session_id", userId);
     }
+
+    try {
+        const res = await fetch('/api/ai/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: msg, userId })
+        });
+
+        const data = await res.json();
+        loadingDiv.remove();
+
+        if (data.limitReached) {
+            addMsg(data.reply, 'ai');
+            input.disabled = true;
+            sendBtn.disabled = true;
+
+            const refreshBtn = document.createElement('button');
+            refreshBtn.innerText = "Səhifəni Yenilə";
+            refreshBtn.className = "btn primary-btn";
+            refreshBtn.onclick = () => location.reload();
+            msgBox.appendChild(refreshBtn);
+            return;
+        }
+
+        addMsg(data.reply || "Xəta oldu.", 'ai');
+
+    } catch (e) {
+        loadingDiv.innerText = "Xəta baş verdi.";
+    }
+};
 
     try {
         const res = await fetch('/api/ai/chat', {
