@@ -115,7 +115,7 @@ app.post('/api/auth/register', async (req, res) => {
 
         if (!verifyData.success) {
             return res.status(403).json({ error: "Zəhmət olmasa robot olmadığınızı təsdiqləyin." });
-        
+        }
         const exists = await User.findOne({ $or: [{ email: email.toLowerCase() }, { username }] });
         if (exists) return res.status(400).json({ error: "Email və ya istifadəçi adı artıq götürülüb." });
         const hashedPassword = await bcrypt.hash(password, 12);
@@ -126,30 +126,49 @@ app.post('/api/auth/register', async (req, res) => {
 });
 
 app.post('/api/auth/login', async (req, res) => {
-const turnstileToken = req.body['cf-turnstile-response'];
-    const secretKey = process.env.TURNSTILE_SECRET_KEY; // Vercel-ə əlavə etdiyin Secret Key
-
-    // 1. Robot yoxlanışı
-    const verifyRes = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
-        method: "POST",
-        body: `secret=${secretKey}&response=${turnstileToken}`,
-        headers: { "Content-Type": "application/x-www-form-urlencoded" }
-    });
-    const verifyData = await verifyRes.json();
-
-    if (!verifyData.success) {
-        return res.status(403).json({ error: "Zəhmət olmasa robot olmadığınızı təsdiqləyin." });
-    }
-    
     try {
         const { email, password } = req.body;
-        const user = await User.findOne({ email: email.toLowerCase() });
-        if (!user || !(await bcrypt.compare(password, user.password))) return res.status(400).json({ error: "Məlumatlar yanlışdır." });
-        const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '12h' });
-        res.json({ success: true, token, user: { fullName: user.fullName, username: user.username, email: user.email } });
-    } catch (e) { res.status(500).json({ error: "Giriş zamanı xəta." }); }
-});
+        const turnstileToken = req.body['cf-turnstile-response'];
+        const secretKey = process.env.TURNSTILE_SECRET_KEY;
 
+        // 1. Token yoxdursa dərhal rədd et
+        if (!turnstileToken) {
+            return res.status(400).json({ error: "Zəhmət olmasa robot olmadığınızı təsdiqləyin." });
+        }
+
+        // 2. Cloudflare yoxlanışı (Try daxilində ki, xəta olanda server çökməsin)
+        const verifyRes = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+            method: "POST",
+            body: `secret=${secretKey}&response=${turnstileToken}`,
+            headers: { "Content-Type": "application/x-www-form-urlencoded" }
+        });
+        const verifyData = await verifyRes.json();
+
+        if (!verifyData.success) {
+            return res.status(403).json({ error: "Robot yoxlanışı uğursuz oldu. Yenidən cəhd edin." });
+        }
+
+        // 3. Normal Login Logikası
+        const user = await User.findOne({ email: email.toLowerCase() });
+        
+        if (!user || !(await bcrypt.compare(password, user.password))) {
+            return res.status(400).json({ error: "Email və ya şifrə yanlışdır." });
+        }
+
+        // 4. Token yarat və göndər
+        const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '12h' });
+        
+        res.json({ 
+            success: true, 
+            token, 
+            user: { fullName: user.fullName, username: user.username, email: user.email } 
+        });
+
+    } catch (e) { 
+        console.error("Login Error:", e);
+        res.status(500).json({ error: "Giriş zamanı server xətası baş verdi." }); 
+    }
+});
 // --- CONTENT ROUTELARI ---
 // --- CONTENT ROUTELARI ---
 // server.js - /api/home hissəsini bununla əvəz et
