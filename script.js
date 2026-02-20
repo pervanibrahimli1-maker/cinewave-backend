@@ -488,30 +488,52 @@ function initAIChat() {
     };
 
     const handleSend = async () => {
-        const msg = input.value.trim();
-        if (!msg) return;
-        
-        addMsg(msg, 'user');
-        input.value = '';
-        
-        const loadingDiv = document.createElement('div');
-        loadingDiv.className = 'ai-msg';
-        loadingDiv.innerText = 'Düşünürəm... 🤔';
-        msgBox.appendChild(loadingDiv);
+    const msg = input.value.trim();
+    if (!msg) return;
 
-        try {
-            const res = await fetch('/api/ai/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: msg })
-            });
-            const data = await res.json();
-            loadingDiv.remove();
-            addMsg(data.reply || "Xəta oldu.", 'ai');
-        } catch (e) {
-            loadingDiv.innerText = "Xəta baş verdi.";
+    addMsg(msg, 'user');
+    input.value = '';
+
+    const loadingDiv = document.createElement('div');
+    loadingDiv.className = 'ai-msg';
+    loadingDiv.innerText = 'Düşünürəm... 🤔';
+    msgBox.appendChild(loadingDiv);
+
+    let userId = sessionStorage.getItem("ai_session_id");
+    if (!userId) {
+        userId = crypto.randomUUID();
+        sessionStorage.setItem("ai_session_id", userId);
+    }
+
+    try {
+        const res = await fetch('/api/ai/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: msg, userId })
+        });
+
+        const data = await res.json();
+        loadingDiv.remove();
+
+        if (data.limitReached) {
+            addMsg(data.reply, 'ai');
+            input.disabled = true;
+            sendBtn.disabled = true;
+
+            const refreshBtn = document.createElement('button');
+            refreshBtn.innerText = "Səhifəni Yenilə";
+            refreshBtn.className = "btn primary-btn";
+            refreshBtn.onclick = () => location.reload();
+            msgBox.appendChild(refreshBtn);
+            return;
         }
-    };
+
+        addMsg(data.reply || "Xəta oldu.", 'ai');
+
+    } catch (e) {
+        loadingDiv.innerText = "Xəta baş verdi.";
+    }
+};
 
     if(sendBtn) sendBtn.onclick = handleSend;
     if(input) input.onkeypress = (e) => { if (e.key === 'Enter') handleSend(); };
