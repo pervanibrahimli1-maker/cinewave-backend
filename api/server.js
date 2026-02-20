@@ -267,19 +267,14 @@ app.post('/api/ai/chat', async (req, res) => {
 
         if (!apiKey) return res.status(500).json({ reply: "Sistem: API açarı tapılmadı." });
 
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        // URL-i v1beta-dan v1-ə dəyişdik (Gemini 1.5 Flash üçün mütləqdir)
+        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
         const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                contents: [{ parts: [{ text: `Sən CineWave film saytının AI köməkçisisən. İstifadəçilərlə Azərbaycan dilində danış. Qısa və maraqlı film təklifləri ver. Sual: ${message}` }] }],
-                safetySettings: [ // Filtrləri yumşaldırıq ki, səhvən bloklamasın
-                    { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
-                    { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
-                    { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
-                    { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
-                ]
+                contents: [{ parts: [{ text: `Sən CineWave film saytının AI köməkçisisən. İstifadəçilərlə Azərbaycan dilində danış. Qısa və maraqlı film təklifləri ver. Sual: ${message}` }] }]
             })
         });
 
@@ -288,14 +283,14 @@ app.post('/api/ai/chat', async (req, res) => {
         if (data.candidates && data.candidates[0].content) {
             res.json({ reply: data.candidates[0].content.parts[0].text });
         } else {
-            console.error("AI DETAYLI XƏTA:", JSON.stringify(data));
-            res.json({ reply: "Bağışlayın, bu suala cavab verə bilmirəm. Başqa bir şey soruşun." });
+            console.error("Gemini API Error Response:", JSON.stringify(data));
+            res.json({ reply: "Bağışlayın, hazırda bu suala cavab verə bilmirəm." });
         }
     } catch (err) {
-        res.status(500).json({ reply: "Bağlantı xətası." });
+        console.error("AI Route Error:", err);
+        res.status(500).json({ reply: "Bağlantı xətası baş verdi." });
     }
 });
-
 // --- DİGƏR ROUTELAR ---
 app.get('/api/home', async (req, res) => {
     const [movies, tv] = await Promise.all([fetchTMDB('/movie/popular'), fetchTMDB('/tv/popular')]);
