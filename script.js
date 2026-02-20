@@ -535,7 +535,47 @@ function initAIChat() {
     if (input) input.onkeypress = (e) => { if (e.key === 'Enter') handleSend(); };
 }
 
+const lF = document.getElementById('login-form');
+    if(lF) {
+        lF.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // --- YENİ: Cloudflare kodunu formadan götürürük ---
+            const formData = new FormData(lF);
+            const data = Object.fromEntries(formData.entries());
 
+            // data obyektinin içində artıq 'cf-turnstile-response' kodu da var
+            const res = await apiCall('auth/login', false, 'POST', data);
+            
+            if(res.success) { 
+                localStorage.setItem('cinewave_token', res.token); 
+                localStorage.setItem('cinewave_user', JSON.stringify(res.user)); 
+                location.href = '/index.html'; 
+            }
+        });
+    }
+
+const rF = document.getElementById('register-form');
+    if(rF) {
+        rF.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if(e.target.password.value !== e.target.confirmPassword.value) {
+                return showNotification("Şifrələr eyni deyil!", "error");
+            }
+
+            // --- YENİ: Cloudflare kodunu formadan götürürük ---
+            const formData = new FormData(rF);
+            const data = Object.fromEntries(formData.entries());
+
+            const res = await apiCall('auth/register', false, 'POST', data);
+            
+            if(res.success) { 
+                showNotification("Qeydiyyat uğurlu!", "success"); 
+                setTimeout(() => location.href = '/login.html', 1500); 
+            }
+        });
+    }
 
 async function loadHomeData() {
     const d = await apiCall('home');
