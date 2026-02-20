@@ -267,59 +267,52 @@ app.get('/api/person/:id/credits', async (req, res) => {
 
 app.post('/api/ai/chat', async (req, res) => {
     try {
-        const { message, userId } = req.body;
+        const { message, userId = 'guest' } = req.body;
+        const groqApiKey = process.env.GROQ_API_KEY;
 
-        if (!userId) return res.status(400).json({ reply: "Session tapılmadı." });
+        if (!groqApiKey) return res.status(500).json({ reply: "Groq API açarı tapılmadı." });
 
+        // İstifadəçi üçün yaddaş yarat
         if (!chatMemory[userId]) chatMemory[userId] = [];
-
-        // 5-6 mesaj limiti
+        
+        // Limit yoxlanışı
         if (chatMemory[userId].length >= MAX_MESSAGES) {
-            return res.status(429).json({
-                limitReached: true,
-                reply: "Sual limiti bitdi. Davam etmək üçün səhifəni yeniləyin."
-            });
+            return res.json({ reply: "Sual limitiniz bitdi. Davam etmək üçün səhifəni yeniləyin." });
         }
 
+        // İstifadəçi mesajını yaddaşa əlavə et
         chatMemory[userId].push({ role: "user", content: message });
 
-        const conversation = chatMemory[userId]
-            .map(m => `${m.role}: ${m.content}`)
-            .join("\n");
-
-        const prompt = `
-Sən CineWave AI köməkçisisən.
-Azərbaycan dilində danış.
-Qısa və maraqlı film tövsiyəsi ver.
-
-Söhbət:
-${conversation}
-
-Cavab:
-`;
-
-        // Groq API
-        const groqResponse = await fetch("https://api.groq.ai/v1/engines/text-embedding-3-large/completions", {
+        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Authorization": `Bearer ${groqApiKey}`,
+                "Content-Type": "application/json"
+            },
             body: JSON.stringify({
-                prompt: prompt,
-                max_tokens: 200
+                model: "llama-3.3-70b-versatile", // Ən sürətli və ağıllı model
+                messages: [
+                    { 
+                        role: "system", 
+                        content: "Sən CineWave saytının professional film mütəxəssisisən. Azərbaycan dilində, səmimi və qısa cavablar ver. İstifadəçilərə maraqlı film və seriallar tövsiyə et." 
+                    },
+                    ...chatMemory[userId]
+                ],
+                max_tokens: 500
             })
         });
 
-        const groqData = await groqResponse.json();
+        const data = await response.json();
+        const aiReply = data.choices?.[0]?.message?.content || "Bağışlayın, hazırda cavab verə bilmirəm.";
 
-        let aiReply = "Cavab tapılmadı.";
-        if (groqData?.choices?.[0]?.text) aiReply = groqData.choices[0].text;
-
+        // AI cavabını yaddaşa əlavə et
         chatMemory[userId].push({ role: "assistant", content: aiReply });
 
         res.json({ reply: aiReply });
 
     } catch (err) {
-        console.error("AI ERROR:", err);
-        res.status(500).json({ reply: "Server xətası baş verdi." });
+        console.error("Groq AI Error:", err);
+        res.status(500).json({ reply: "AI ilə bağlantı kəsildi." });
     }
 });
 // --- DİGƏR ROUTELAR ---
