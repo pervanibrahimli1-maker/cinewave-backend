@@ -254,6 +254,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (data?.cast) { allActorCredits = data.cast; window.loadActorPage(1); }
     }
 
+    // DETALLAR SƏHİFƏSİ
     const detBox = document.getElementById('details-content');
     if (detBox) {
         const path = window.location.pathname.split('/');
@@ -264,10 +265,47 @@ document.addEventListener('DOMContentLoaded', async () => {
             if(m && m.success) {
                 const name = m.title || m.name;
                 document.title = `CineWave | ${name}`;
-                detBox.innerHTML = `<section class="detail-hero"><div class="detail-poster"><img src="${CONFIG.IMG+m.poster_path}"></div><div class="detail-info"><h1>${name}</h1><p>${m.overview}</p><button class="btn primary-btn" id="play-btn">İzlə</button><div class="cast-row" style="display:flex; overflow-x:auto; gap:15px; margin-top:20px;">${m.cast?.slice(0,12).map(c => `<div onclick="location.href='/actor/${c.id}/${slugify(c.name)}'" style="cursor:pointer; text-align:center;"><img src="${CONFIG.IMG+c.profile_path}" style="width:60px; height:60px; border-radius:50%; object-fit:cover; border:2px solid var(--primary);"><p style="font-size:10px; color:white;">${c.name}</p></div>`).join('')}</div></div></section><div id="player-container" style="display:none; margin-top:30px;"><iframe id="video-iframe" src="" allowfullscreen style="width:100%; height:500px; border:2px solid var(--primary); border-radius:15px;"></iframe></div>`;
+                
+                // HTML-i qururuq (Oxşar məzmunlar bloku ilə birlikdə)
+                detBox.innerHTML = `
+                    <section class="detail-hero">
+                        <div class="detail-poster"><img src="${CONFIG.IMG+m.poster_path}"></div>
+                        <div class="detail-info">
+                            <h1>${name}</h1>
+                            <div class="movie-meta">⭐ ${m.vote_average?.toFixed(1)}</div>
+                            <p>${m.overview}</p>
+                            <div class="featured-actions"><button class="btn primary-btn" id="play-btn">İzlə</button></div>
+                            <h3 style="margin-top:20px;">Heyət</h3>
+                            <div class="cast-row" style="display:flex; overflow-x:auto; gap:15px; padding-bottom:10px; margin-top:10px;">
+                                ${m.cast?.slice(0,12).map(c => `
+                                    <div onclick="location.href='/actor/${c.id}/${slugify(c.name)}'" style="cursor:pointer; text-align:center; flex:0 0 70px;">
+                                        <img src="${CONFIG.IMG+c.profile_path}" style="width:60px; height:60px; border-radius:50%; object-fit:cover; border:2px solid var(--primary);">
+                                        <p style="font-size:10px; color:white; margin-top:5px;">${c.name}</p>
+                                    </div>`).join('')}
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <div id="player-container" style="display:none; margin-top:30px;">
+                        <iframe id="video-iframe" src="" allowfullscreen style="width:100%; height:500px; border:2px solid var(--primary); border-radius:15px;"></iframe>
+                    </div>
+
+                    <!-- OXŞAR MƏZMUNLAR BÖLMƏSİ -->
+                    <h2 style="margin:40px 0 20px; border-left:5px solid var(--primary); padding-left:15px;">Oxşar Məzmunlar</h2>
+                    <div class="movie-row" id="similar-grid"></div>`;
+
+                // Oxşar filmləri render edirik
+                if (m.similar && m.similar.length > 0) {
+                    renderItems('similar-grid', m.similar, mType);
+                } else {
+                    document.getElementById('similar-grid').innerHTML = '<p style="color:gray;">Bənzər məzmun tapılmadı.</p>';
+                }
+
+                // İzlə düyməsi logikası
                 document.getElementById('play-btn').onclick = () => {
                     document.getElementById('video-iframe').src = `https://vidsrc.me/embed/${mType}/${mId}`;
                     document.getElementById('player-container').style.display = 'block';
+                    document.getElementById('player-container').scrollIntoView({ behavior: 'smooth' });
                 };
             }
         }
