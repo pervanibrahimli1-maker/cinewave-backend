@@ -225,18 +225,75 @@ function initAIChat() {
 }
 
 // --- 8. SƏHİFƏ YÜKLƏNMƏLƏRİ ---
-async function loadHomeData() {
-    const d = await apiCall('home');
-    if (d?.featured) {
-        const h = d.featured;
-        document.getElementById('featured-section').style.backgroundImage = `linear-gradient(90deg, #0a0b10 0%, rgba(10,11,16,0.8) 45%, rgba(10,11,16,0.1) 100%), url(${CONFIG.HD + h.backdrop_path})`;
-        document.getElementById('featured-title').innerText = h.title || h.name;
-        document.getElementById('featured-desc').innerText = h.overview || "Təsvir yoxdur.";
-        document.getElementById('hero-play-btn').onclick = () => location.href = `/movie/movie/${h.id}/${slugify(h.title || h.name)}`;
+const detBox = document.getElementById('details-content');
+    if (detBox) {
+        const path = window.location.pathname.split('/');
+        const mType = path.includes('movie') ? path[path.indexOf('movie') + 1] : 'movie';
+        const mId = path.includes('movie') ? path[path.indexOf('movie') + 2] : null;
+
+        if(mId) {
+            const m = await apiCall(`details/${mType}/${mId}`);
+            if(m && m.success) {
+                apiCall(`views/increment/${mId}`, false, 'POST'); // Baxış sayını artır
+                const name = m.title || m.name;
+                const runtime = m.runtime || (m.episode_run_time ? m.episode_run_time[0] : 45);
+                const rating = m.vote_average ? m.vote_average.toFixed(1) : "N/A";
+                const views = m.viewCount || 0;
+                
+                document.title = `CineWave | ${name}`;
+
+                detBox.innerHTML = `
+                    <section class="detail-hero">
+                        <div class="detail-poster"><img src="${CONFIG.IMG+m.poster_path}" alt="poster"></div>
+                        <div class="detail-info">
+                            <h1>${name}</h1>
+                            
+                            <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                                <span class="imdb-tag">IMDb</span> 
+                                <span style="color: #ffc107; font-weight: bold; font-size: 1.1rem;">⭐ ${rating}</span>
+                                <span style="color: #a0a0a0;">| <i class="fas fa-clock"></i> ${formatRuntime(runtime)}</span>
+                                <span style="color: var(--primary); font-weight: bold; background: rgba(255,77,0,0.1); padding: 4px 12px; border-radius: 10px;">
+                                    <i class="fas fa-eye"></i> ${views} baxış
+                                </span>
+                            </div>
+
+                            <p style="font-size: 1.05rem; line-height: 1.6; color: #ddd; margin-bottom: 25px;">${m.overview || "Təsvir yoxdur."}</p>
+                            
+                            <div class="featured-actions">
+                                <button class="btn primary-btn" id="play-btn"><i class="fas fa-play"></i> İzlə</button>
+                                <button class="btn secondary-btn" id="add-watchlist-btn"><i class="fas fa-plus"></i> Siyahıya əlavə et</button>
+                            </div>
+
+                            <h3 style="margin-top:30px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">Heyət</h3>
+                            <div class="cast-row" style="display:flex; overflow-x:auto; gap:15px; padding:10px 0;">
+                                ${m.cast?.slice(0,12).map(c => `
+                                    <div onclick="location.href='/actor/${c.id}/${slugify(c.name)}'" style="cursor:pointer; text-align:center; flex:0 0 80px;">
+                                        <img src="${c.profile_path ? CONFIG.IMG+c.profile_path : 'https://via.placeholder.com/80'}" style="width:65px; height:65px; border-radius:50%; object-fit:cover; border: 2px solid var(--primary);">
+                                        <p style="font-size:10px; color:white; margin-top:5px;">${c.name}</p>
+                                    </div>`).join('')}
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <div id="player-container" style="display:none; margin-top:30px;">
+                        <iframe id="video-iframe" src="" allowfullscreen style="width:100%; height:500px; border:2px solid var(--primary); border-radius:15px;"></iframe>
+                    </div>
+
+                    <h2 style="margin:40px 0 20px; border-left:5px solid var(--primary); padding-left:15px;">Oxşar Məzmunlar</h2>
+                    <div class="movie-row" id="similar-grid"></div>`;
+
+                renderItems('similar-grid', m.similar, mType);
+
+                document.getElementById('play-btn').onclick = () => {
+                    document.getElementById('video-iframe').src = `https://vidsrc.me/embed/${mType}/${mId}`;
+                    document.getElementById('player-container').style.display = 'block';
+                    document.getElementById('player-container').scrollIntoView({ behavior: 'smooth' });
+                };
+                
+                document.getElementById('add-watchlist-btn').onclick = () => window.addToWatchlist(m.id, name, m.poster_path, mType);
+            }
+        }
     }
-    if(d?.popularMovies) renderItems('popular-movies', d.popularMovies, 'movie');
-    if(d?.popularTV) renderItems('new-releases', d.popularTV, 'tv');
-}
 
 // --- 9. DOM CONTENT LOADED ---
 document.addEventListener('DOMContentLoaded', async () => {
@@ -255,31 +312,50 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // DETALLAR SƏHİFƏSİ
-    const detBox = document.getElementById('details-content');
+const detBox = document.getElementById('details-content');
     if (detBox) {
         const path = window.location.pathname.split('/');
         const mType = path.includes('movie') ? path[path.indexOf('movie') + 1] : 'movie';
         const mId = path.includes('movie') ? path[path.indexOf('movie') + 2] : null;
+
         if(mId) {
             const m = await apiCall(`details/${mType}/${mId}`);
             if(m && m.success) {
+                apiCall(`views/increment/${mId}`, false, 'POST'); // Baxış sayını artır
                 const name = m.title || m.name;
-                document.title = `CineWave | ${name}`;
+                const runtime = m.runtime || (m.episode_run_time ? m.episode_run_time[0] : 45);
+                const rating = m.vote_average ? m.vote_average.toFixed(1) : "N/A";
+                const views = m.viewCount || 0;
                 
-                // HTML-i qururuq (Oxşar məzmunlar bloku ilə birlikdə)
+                document.title = `CineWave | ${name}`;
+
                 detBox.innerHTML = `
                     <section class="detail-hero">
-                        <div class="detail-poster"><img src="${CONFIG.IMG+m.poster_path}"></div>
+                        <div class="detail-poster"><img src="${CONFIG.IMG+m.poster_path}" alt="poster"></div>
                         <div class="detail-info">
                             <h1>${name}</h1>
-                            <div class="movie-meta">⭐ ${m.vote_average?.toFixed(1)}</div>
-                            <p>${m.overview}</p>
-                            <div class="featured-actions"><button class="btn primary-btn" id="play-btn">İzlə</button></div>
-                            <h3 style="margin-top:20px;">Heyət</h3>
-                            <div class="cast-row" style="display:flex; overflow-x:auto; gap:15px; padding-bottom:10px; margin-top:10px;">
+                            
+                            <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                                <span class="imdb-tag">IMDb</span> 
+                                <span style="color: #ffc107; font-weight: bold; font-size: 1.1rem;">⭐ ${rating}</span>
+                                <span style="color: #a0a0a0;">| <i class="fas fa-clock"></i> ${formatRuntime(runtime)}</span>
+                                <span style="color: var(--primary); font-weight: bold; background: rgba(255,77,0,0.1); padding: 4px 12px; border-radius: 10px;">
+                                    <i class="fas fa-eye"></i> ${views} baxış
+                                </span>
+                            </div>
+
+                            <p style="font-size: 1.05rem; line-height: 1.6; color: #ddd; margin-bottom: 25px;">${m.overview || "Təsvir yoxdur."}</p>
+                            
+                            <div class="featured-actions">
+                                <button class="btn primary-btn" id="play-btn"><i class="fas fa-play"></i> İzlə</button>
+                                <button class="btn secondary-btn" id="add-watchlist-btn"><i class="fas fa-plus"></i> Siyahıya əlavə et</button>
+                            </div>
+
+                            <h3 style="margin-top:30px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">Heyət</h3>
+                            <div class="cast-row" style="display:flex; overflow-x:auto; gap:15px; padding:10px 0;">
                                 ${m.cast?.slice(0,12).map(c => `
-                                    <div onclick="location.href='/actor/${c.id}/${slugify(c.name)}'" style="cursor:pointer; text-align:center; flex:0 0 70px;">
-                                        <img src="${CONFIG.IMG+c.profile_path}" style="width:60px; height:60px; border-radius:50%; object-fit:cover; border:2px solid var(--primary);">
+                                    <div onclick="location.href='/actor/${c.id}/${slugify(c.name)}'" style="cursor:pointer; text-align:center; flex:0 0 80px;">
+                                        <img src="${c.profile_path ? CONFIG.IMG+c.profile_path : 'https://via.placeholder.com/80'}" style="width:65px; height:65px; border-radius:50%; object-fit:cover; border: 2px solid var(--primary);">
                                         <p style="font-size:10px; color:white; margin-top:5px;">${c.name}</p>
                                     </div>`).join('')}
                             </div>
@@ -290,23 +366,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <iframe id="video-iframe" src="" allowfullscreen style="width:100%; height:500px; border:2px solid var(--primary); border-radius:15px;"></iframe>
                     </div>
 
-                    <!-- OXŞAR MƏZMUNLAR BÖLMƏSİ -->
                     <h2 style="margin:40px 0 20px; border-left:5px solid var(--primary); padding-left:15px;">Oxşar Məzmunlar</h2>
                     <div class="movie-row" id="similar-grid"></div>`;
 
-                // Oxşar filmləri render edirik
-                if (m.similar && m.similar.length > 0) {
-                    renderItems('similar-grid', m.similar, mType);
-                } else {
-                    document.getElementById('similar-grid').innerHTML = '<p style="color:gray;">Bənzər məzmun tapılmadı.</p>';
-                }
+                renderItems('similar-grid', m.similar, mType);
 
-                // İzlə düyməsi logikası
                 document.getElementById('play-btn').onclick = () => {
                     document.getElementById('video-iframe').src = `https://vidsrc.me/embed/${mType}/${mId}`;
                     document.getElementById('player-container').style.display = 'block';
                     document.getElementById('player-container').scrollIntoView({ behavior: 'smooth' });
                 };
+                
+                document.getElementById('add-watchlist-btn').onclick = () => window.addToWatchlist(m.id, name, m.poster_path, mType);
             }
         }
     }
