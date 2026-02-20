@@ -267,7 +267,7 @@ app.post('/api/ai/chat', async (req, res) => {
             return res.status(500).json({ reply: "Sistem xətası: API açarı tapılmadı." });
         }
 
-        // Gemini 2.0 Flash modelindən istifadə edirik
+        // STABİL V1 VERSİYASI VƏ 1.5 FLASH MODELİ
         const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
         const response = await fetch(url, {
@@ -275,23 +275,29 @@ app.post('/api/ai/chat', async (req, res) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contents: [{
-                    parts: [{ text: `Sən CineWave film saytının ən müasir AI köməkçisisən (Model: Gemini 2.0). İstifadəçilərlə Azərbaycan dilində, çox səmimi və maraqlı danış. Onlara film təklifləri ver. Sual: ${message}` }]
+                    parts: [{ text: `Sən CineWave film saytının ağıllı AI köməkçisisən. İstifadəçilərə Azərbaycan dilində, mehriban və səmimi cavablar ver. Onlara film və seriallar təklif et. İstifadəçi sualı: ${message}` }]
                 }]
             })
         });
 
         const data = await response.json();
 
+        // Google tərəfindən gələn hər hansı xətanı yoxla
+        if (data.error) {
+            console.error("Gemini V1 Error:", data.error.message);
+            return res.json({ reply: "Bağışlayın, hazırda cavab verə bilmirəm. Bir az sonra yenidən yoxlayın." });
+        }
+
+        // Cavabı qaytar
         if (data.candidates && data.candidates[0].content.parts[0].text) {
             const aiResponse = data.candidates[0].content.parts[0].text;
             res.json({ reply: aiResponse });
         } else {
-            console.error("Gemini 2.0 Error:", JSON.stringify(data));
-            res.json({ reply: "Hazırda cavab verə bilmirəm, bir az sonra yoxlayın." });
+            res.json({ reply: "Təəssüf ki, sualınıza uyğun cavab tapılmadı." });
         }
     } catch (err) {
         console.error("Fatal AI Error:", err);
-        res.status(500).json({ reply: "Bağlantı xətası." });
+        res.status(500).json({ reply: "Bağlantı xətası baş verdi." });
     }
 });
 
