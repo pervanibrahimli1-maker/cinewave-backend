@@ -258,45 +258,118 @@ app.get('/api/person/:id/credits', async (req, res) => {
     }
 });
 
-// AI Söhbət Route-u (Təkmilləşdirilmiş)
+// AI Söhbət Route-u (Təkmilləşdirilmiş)// server.js - AI Fix Version
+const express = require('express');
+const translate = require('google-translate-api-x');
+const cors = require('cors');
+const dotenv = require('dotenv');
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const mongoSanitize = require('express-mongo-sanitize');
+const xssClean = require('xss-clean');
+const hpp = require('hpp');
+const crypto = require('crypto');
+
+dotenv.config();
+const app = express();
+app.set('trust proxy', 1); 
+
+const PORT = process.env.PORT || 10000;
+const JWT_SECRET = process.env.JWT_SECRET || 'gizli_açar_123';
+const TMDB_API_KEY = process.env.TMDB_API_KEY;
+const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
+
+// TƏHLÜKƏSİZLİK
+app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
+app.use(mongoSanitize());
+app.use(xssClean());
+app.use(hpp());
+app.use(express.json());
+app.use(cors({ origin: true, credentials: true }));
+
+// DATABASE MODELLƏRİ
+mongoose.connect(process.env.MONGODB_URI)
+    .then(() => console.log('✅ MongoDB Connected.'))
+    .catch(error => console.error('❌ DB Error:', error));
+
+const User = mongoose.model('User', new mongoose.Schema({
+    fullName: String, email: { type: String, unique: true }, username: { type: String, unique: true },
+    password: String, watchlist: []
+}));
+
+const View = mongoose.model('View', new mongoose.Schema({ movieId: { type: String, unique: true }, viewers: [String] }));
+
+// TMDB FETCH
+async function fetchTMDB(path, params = {}) {
+    const query = new URLSearchParams({ api_key: TMDB_API_KEY, ...params, language: 'az-AZ' });
+    try {
+        const response = await fetch(`${TMDB_BASE_URL}${path}?${query}`);
+        return await response.json();
+    } catch (e) { return null; }
+}
+
+// --- AI CHAT ROUTE (MÜKƏMMƏLLƏŞDİRİLMİŞ) ---
 app.post('/api/ai/chat', async (req, res) => {
     try {
         const { message } = req.body;
         const apiKey = process.env.GEMINI_API_KEY;
 
-        if (!apiKey) {
-            console.error("XƏTA: GEMINI_API_KEY tapılmadı!");
-            return res.status(500).json({ reply: "Sistem xətası: API açarı quraşdırılmayıb." });
-        }
+        if (!apiKey) return res.status(500).json({ reply: "Sistem: API açarı tapılmadı." });
 
-        // Ən stabil URL və Model
-        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
         const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                contents: [{
-                    parts: [{ text: `Sən CineWave film saytının ağıllı AI köməkçisisən. İstifadəçilərlə Azərbaycan dilində, mehriban və qısa danış. Sual: ${message}` }]
-                }]
+                contents: [{ parts: [{ text: `Sən CineWave film saytının AI köməkçisisən. İstifadəçilərlə Azərbaycan dilində danış. Qısa və maraqlı film təklifləri ver. Sual: ${message}` }] }],
+                safetySettings: [ // Filtrləri yumşaldırıq ki, səhvən bloklamasın
+                    { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+                    { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+                    { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+                    { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
+                ]
             })
         });
 
         const data = await response.json();
 
-        // Gemini-dən gələn cavabı analiz et
-        if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts) {
-            const aiReply = data.candidates[0].content.parts[0].text;
-            res.json({ reply: aiReply });
+        if (data.candidates && data.candidates[0].content) {
+            res.json({ reply: data.candidates[0].content.parts[0].text });
         } else {
-            console.error("Gemini API Error Detail:", JSON.stringify(data));
-            res.json({ reply: "Bağışlayın, hazırda cavab verə bilmirəm. Bir az sonra yenidən yoxlayın." });
+            console.error("AI DETAYLI XƏTA:", JSON.stringify(data));
+            res.json({ reply: "Bağışlayın, bu suala cavab verə bilmirəm. Başqa bir şey soruşun." });
         }
     } catch (err) {
-        console.error("Fatal AI Error:", err);
-        res.status(500).json({ reply: "AI ilə bağlantı kəsildi." });
+        res.status(500).json({ reply: "Bağlantı xətası." });
     }
 });
+
+// --- DİGƏR ROUTELAR ---
+app.get('/api/home', async (req, res) => {
+    const [movies, tv] = await Promise.all([fetchTMDB('/movie/popular'), fetchTMDB('/tv/popular')]);
+    let featured = movies?.results[0] || null;
+    if (featured && featured.overview) {
+        try { const tr = await translate(featured.overview, { to: 'az' }); featured.overview = tr.text; } catch(e){}
+    }
+    res.json({ featured, popularMovies: movies?.results || [], popularTV: tv?.results || [] });
+});
+
+app.get('/api/details/:type/:id', async (req, res) => {
+    const { type, id } = req.params;
+    const [mainData, credits, recommendations] = await Promise.all([
+        fetchTMDB(`/${type}/${id}`), fetchTMDB(`/${type}/${id}/credits`), fetchTMDB(`/${type}/${id}/recommendations`)
+    ]);
+    res.json({ ...mainData, cast: credits?.cast?.slice(0, 15) || [], similar: recommendations?.results?.slice(0, 12) || [], success: true });
+});
+
+app.get('/api/search', async (req, res) => { res.json(await fetchTMDB('/search/multi', { query: req.query.query })); });
+
+app.listen(PORT, () => console.log(`🚀 Server on ${PORT}`));
+module.exports = app;
 app.get('/movie/:type/:id/:slug?', async (req, res) => {
   const { type, id } = req.params;
 
