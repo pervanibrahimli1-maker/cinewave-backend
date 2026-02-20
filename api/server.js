@@ -213,7 +213,7 @@ app.post('/api/ai/chat', async (req, res) => {
             headers: { "Authorization": `Bearer ${process.env.GROQ_API_KEY}`, "Content-Type": "application/json" },
             body: JSON.stringify({
                 model: "llama-3.3-70b-versatile",
-                messages: [{ role: "system", content: "Sən CineWave AI-san. Azərbaycan dilində qısa film tövsiyələri ver." }, { role: "user", content: message }]
+                messages: [{ role: "system", content: "Sən CineWave AI-san. Sən filmlər üzrə mütəxəssissən. İstifadəçilərin bəyəndiyi film tipinə, növnə, janrına görə onlara məsləhətlər verəcəksən." }, { role: "user", content: message }]
             })
         });
         const groqData = await groqRes.json();
