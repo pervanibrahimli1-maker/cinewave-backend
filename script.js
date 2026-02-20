@@ -1,4 +1,4 @@
-// script.js - CineWave ULTIMATE MASTER VERSION (CLEANED)
+// script.js - CineWave ULTIMATE MASTER VERSION (BÜTÜN FUNKSİYALAR BİRLƏŞDİRİLDİ)
 const CONFIG = {
     API: '/api', 
     IMG: 'https://image.tmdb.org/t/p/w500',
@@ -19,11 +19,7 @@ function escapeHTML(str) {
 
 function slugify(text) {
     if(!text) return "video";
-    return text.toString().toLowerCase()
-        .replace(/\s+/g, '-')
-        .replace(/[^\w\-]+/g, '')
-        .replace(/\-\-+/g, '-')
-        .replace(/^-+/, '').replace(/-+$/, '');
+    return text.toString().toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '').replace(/\-\-+/g, '-').replace(/^-+/, '').replace(/-+$/, '');
 }
 
 function formatRuntime(min) {
@@ -52,6 +48,10 @@ async function apiCall(end, isAuth = false, method = 'GET', body = null) {
     if (body) options.body = JSON.stringify(body);
     try {
         const response = await fetch(`${CONFIG.API}/${end}`, options);
+        if (response.status === 401 && isAuth) {
+            localStorage.clear(); window.location.href = '/login.html';
+            return { success: false };
+        }
         return await response.json();
     } catch (e) { return { success: false }; }
 }
@@ -73,7 +73,7 @@ function renderItems(containerId, itemsData, typeField = 'movie') {
         
         return `
             <div class="movie-item">
-                <img src="${m.poster_path ? CONFIG.IMG + m.poster_path : 'https://via.placeholder.com/50x750'}" 
+                <img src="${m.poster_path ? CONFIG.IMG + m.poster_path : 'https://via.placeholder.com/500x750'}" 
                      alt="${escapeHTML(name)}" loading="lazy" onclick="location.href='${cleanURL}'">
                 <button class="card-add-btn" onclick="window.addToWatchlist('${m.id}', '${escapeHTML(name).replace(/'/g, "\\'")}', '${m.poster_path}', '${type}')">
                     <i class="fas fa-plus"></i>
@@ -81,8 +81,7 @@ function renderItems(containerId, itemsData, typeField = 'movie') {
                 <div class="movie-info-overlay" onclick="location.href='${cleanURL}'">
                     <h3>${escapeHTML(name)}</h3>
                     <div class="movie-meta">
-                        <span class="imdb-tag">IMDb</span> ⭐ ${rating} 
-                        <span class="year-span">(${year})</span>
+                        <span class="imdb-tag">IMDb</span> ⭐ ${rating} <span class="year-span">(${year})</span>
                     </div>
                 </div>
             </div>`;
@@ -96,137 +95,162 @@ function renderPagination(containerId, currentPage, totalPages, callbackName) {
     const pagDiv = document.createElement('div');
     pagDiv.id = containerId + '-pagination';
     pagDiv.className = 'pagination-container';
+    const maxP = Math.min(totalPages, 500);
     pagDiv.innerHTML = `
         <button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="window.${callbackName}(${currentPage - 1})">Geri</button>
-        <span class="page-info">Səhifə ${currentPage} / ${totalPages}</span>
-        <button class="page-btn" ${currentPage >= totalPages ? 'disabled' : ''} onclick="window.${callbackName}(${currentPage + 1})">İrəli</button>`;
+        <span class="page-info">Səhifə ${currentPage} / ${maxP}</span>
+        <button class="page-btn" ${currentPage >= maxP ? 'disabled' : ''} onclick="window.${callbackName}(${currentPage + 1})">İrəli</button>`;
     const target = document.getElementById(containerId); 
     if (target) target.parentElement.appendChild(pagDiv);
 }
 
-// --- 4. AXTARIŞ ---
+// --- 4. AUTH VƏ WATCHLIST ---
+function updateNavbarStatus() {
+    const user = JSON.parse(localStorage.getItem('cinewave_user') || 'null');
+    const authBox = document.getElementById('auth-buttons');
+    if (authBox && user) {
+        const safeN = escapeHTML(user.fullName);
+        authBox.innerHTML = `
+            <div class="user-profile-container">
+                <div class="user-profile" id="profile-trigger">${safeN[0].toUpperCase()}</div>
+                <div class="profile-dropdown" id="profile-menu">
+                    <div class="dropdown-header">${safeN}</div>
+                    <a href="/watchlist.html"><i class="fas fa-list"></i> Siyahım</a>
+                    <a href="#" id="logout-link"><i class="fas fa-sign-out-alt"></i> Çıxış</a>
+                </div>
+            </div>`;
+    }
+}
+
+window.addToWatchlist = async (id, title, poster, type) => {
+    if(!localStorage.getItem('cinewave_token')) return showNotification("Giriş edin!", "warning");
+    const r = await apiCall('watchlist/add', true, 'POST', { id: Number(id), title, poster_path: poster, movie_type: type });
+    if(r.success) showNotification(`"${title}" əlavə edildi`, 'success');
+};
+
+window.removeFromWatchlist = async (e, id, type) => {
+    if (e) e.stopPropagation();
+    if (!confirm("Siyahıdan silinsin?")) return;
+    const r = await apiCall(`watchlist/remove/${id}/${type}`, true, 'DELETE');
+    if (r?.success) { showNotification("Silindi", "success"); window.loadWatchlistPage(); }
+};
+
+window.loadWatchlistPage = async () => {
+    const box = document.getElementById('watchlistContainer'); if (!box) return;
+    box.innerHTML = '<div class="spinner" style="grid-column: 1/-1; margin: 40px auto;"></div>';
+    const list = await apiCall('watchlist', true);
+    if (!list || list.length === 0) { box.innerHTML = '<p class="empty-message">Siyahınız boşdur.</p>'; return; }
+    box.className = "movie-row";
+    box.innerHTML = list.map(i => {
+        const cleanURL = `/movie/${i.movie_type}/${i.id}/${slugify(i.title)}`;
+        return `<div class="movie-item"><img src="${CONFIG.IMG + i.poster_path}" onclick="location.href='${cleanURL}'"><div class="movie-info-overlay"><h3>${escapeHTML(i.title)}</h3><button class="remove-btn" onclick="window.removeFromWatchlist(event, '${i.id}', '${i.movie_type}')">Sil</button></div></div>`;
+    }).join('');
+};
+
+// --- 5. AXTARIŞ VƏ FİLTR ---
 function setupInstantSearch() {
     const input = document.getElementById('instant-search-input');
     const results = document.getElementById('instant-results');
     if (!input) return;
-    
     input.addEventListener('input', (e) => {
         const query = e.target.value.trim();
         clearTimeout(debounceTimer);
-        if (query.length < 2) { results.innerHTML = '<p style="text-align:center;color:gray;padding:20px;">Kəşf etmək üçün yazın...</p>'; return; }
-        
+        if (query.length < 2) return;
         debounceTimer = setTimeout(async () => {
             results.innerHTML = '<div class="spinner" style="margin:20px auto; width:30px;"></div>';
             const data = await apiCall(`search?query=${encodeURIComponent(query)}`);
-            if (data?.results?.length > 0) {
-                results.innerHTML = data.results.slice(0, 15).map(m => {
-                    const name = m.title || m.name;
+            if (data?.results) {
+                results.innerHTML = data.results.slice(0, 10).map(m => {
                     const type = m.media_type || (m.title ? 'movie' : 'tv');
-                    const cleanURL = `/movie/${type}/${m.id}/${slugify(name)}`;
-                    return `
-                    <div class="search-item" onclick="location.href='${cleanURL}'">
-                        <img src="${m.poster_path ? CONFIG.IMG + m.poster_path : 'https://via.placeholder.com/50x75'}">
-                        <div class="search-info">
-                            <h4>${escapeHTML(name)}</h4>
-                            <div class="search-meta">
-                                <span class="search-type-tag" style="background:${type==='movie'?'#ff4d00':'#00d4ff'}">${type==='movie'?'Film':'Serial'}</span>
-                            </div>
-                        </div>
+                    const cleanURL = `/movie/${type}/${m.id}/${slugify(m.title || m.name)}`;
+                    return `<div class="search-item" onclick="location.href='${cleanURL}'">
+                        <img src="${m.poster_path ? CONFIG.IMG+m.poster_path : 'https://via.placeholder.com/50x75'}">
+                        <div class="search-info"><h4>${escapeHTML(m.title || m.name)}</h4>
+                        <div class="search-meta"><span class="search-type-tag">${type==='movie'?'Film':'Serial'}</span></div></div>
                     </div>`;
                 }).join('');
-            } else { results.innerHTML = '<p style="text-align:center; color:gray; padding:20px;">Tapılmadı.</p>'; }
+            }
         }, 400);
     });
 }
 
-// --- 5. AI CHAT ---
+// --- 6. AKTYOR SƏHİFƏSİ ---
+window.loadActorPage = (p) => {
+    const start = (p - 1) * 18, end = start + 18;
+    renderItems('actor-movies-grid', allActorCredits.slice(start, end));
+    renderPagination('actor-movies-grid', p, Math.ceil(allActorCredits.length / 18), 'loadActorPage');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+// --- 7. AI CHAT (GROQ) ---
 function initAIChat() {
-    const trigger = document.getElementById('chat-trigger');
-    const windowEl = document.getElementById('chat-window');
-    const hint = document.getElementById('chat-hint');
-    const input = document.getElementById('chat-input');
-    const sendBtn = document.getElementById('send-chat');
-    const msgBox = document.getElementById('chat-messages');
-
-    if (!trigger || !windowEl) return;
-
-    setTimeout(() => { if (windowEl.style.display !== 'flex' && hint) hint.classList.add('show'); }, 3000);
-
-    trigger.onclick = () => {
-        const isShowing = windowEl.style.display === 'flex';
-        windowEl.style.display = isShowing ? 'none' : 'flex';
-        if (hint) hint.classList.remove('show');
-        if (!isShowing) input.focus();
+    const trigger = document.getElementById('chat-trigger'), win = document.getElementById('chat-window'), hint = document.getElementById('chat-hint');
+    const input = document.getElementById('chat-input'), msgBox = document.getElementById('chat-messages');
+    if (!trigger) return;
+    setTimeout(() => { if (win.style.display !== 'flex' && hint) hint.classList.add('show'); }, 3000);
+    trigger.onclick = () => { win.style.display = win.style.display === 'flex' ? 'none' : 'flex'; hint?.classList.remove('show'); };
+    document.getElementById('send-chat').onclick = async () => {
+        const msg = input.value.trim(); if (!msg) return;
+        const uDiv = document.createElement('div'); uDiv.className = 'user-msg'; uDiv.innerText = msg; msgBox.appendChild(uDiv); input.value = '';
+        const lDiv = document.createElement('div'); lDiv.className = 'ai-msg'; lDiv.innerText = '... 🤔'; msgBox.appendChild(lDiv); msgBox.scrollTop = msgBox.scrollHeight;
+        const res = await fetch('/api/ai/chat', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ message: msg, userId: localStorage.getItem('ai_uid') || 'guest' }) });
+        const data = await res.json(); lDiv.innerText = data.reply; msgBox.scrollTop = msgBox.scrollHeight;
     };
-
-    const addMsg = (text, type) => {
-        const div = document.createElement('div');
-        div.className = type === 'user' ? 'user-msg' : 'ai-msg';
-        div.innerText = text;
-        msgBox.appendChild(div);
-        msgBox.scrollTop = msgBox.scrollHeight;
-    };
-
-    const handleSend = async () => {
-        const msg = input.value.trim();
-        if (!msg) return;
-
-        addMsg(msg, 'user');
-        input.value = '';
-
-        const loadingDiv = document.createElement('div');
-        loadingDiv.className = 'ai-msg';
-        loadingDiv.innerText = 'Düşünürəm... 🤔';
-        msgBox.appendChild(loadingDiv);
-
-        let userId = localStorage.getItem("ai_user_id") || "guest_" + Math.random().toString(36).substring(7);
-        localStorage.setItem("ai_user_id", userId);
-
-        try {
-            const res = await fetch('/api/ai/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: msg, userId })
-            });
-            const data = await res.json();
-            loadingDiv.remove();
-            addMsg(data.reply || "Bağışlayın, cavab verə bilmədim.", 'ai');
-        } catch (e) {
-            loadingDiv.innerText = "Xəta baş verdi.";
-        }
-    };
-
-    if (sendBtn) sendBtn.onclick = handleSend;
-    if (input) input.onkeypress = (e) => { if (e.key === 'Enter') handleSend(); };
 }
 
-// --- 6. SƏHİFƏ YÜKLƏNMƏLƏRİ ---
-async function loadHomeData() {
-    const d = await apiCall('home');
-    if (d?.featured) {
-        const h = d.featured;
-        document.getElementById('featured-section').style.backgroundImage = `linear-gradient(90deg, #0a0b10 0%, rgba(10,11,16,0.8) 45%, rgba(10,11,16,0.1) 100%), url(${CONFIG.HD + h.backdrop_path})`;
-        document.getElementById('featured-title').innerText = h.title || h.name;
-        document.getElementById('featured-desc').innerText = h.overview || "Təsvir yoxdur.";
-        document.getElementById('hero-play-btn').onclick = () => location.href = `/movie/movie/${h.id}/${slugify(h.title || h.name)}`;
-    }
-    if(d?.popularMovies) renderItems('popular-movies', d.popularMovies, 'movie');
-    if(d?.popularTV) renderItems('new-releases', d.popularTV, 'tv');
-}
-
+// --- 8. DOM CONTENT LOADED ---
 document.addEventListener('DOMContentLoaded', async () => {
+    updateNavbarStatus();
     setupInstantSearch();
     initAIChat();
-    if (document.getElementById('featured-section')) loadHomeData();
 
-    // Mobil Menyu
-    document.getElementById('hamburger-menu')?.addEventListener('click', () => {
-        document.getElementById('mobile-nav').classList.toggle('active');
+    // SƏHİFƏLƏR ÜÇÜN LOGİKALAR
+    if (document.getElementById('featured-section')) {
+        const d = await apiCall('home');
+        if (d?.featured) {
+            const h = d.featured;
+            document.getElementById('featured-section').style.backgroundImage = `linear-gradient(90deg, #0a0b10 0%, rgba(10,11,16,0.8) 45%, rgba(10,11,16,0.1) 100%), url(${CONFIG.HD + h.backdrop_path})`;
+            document.getElementById('featured-title').innerText = h.title || h.name;
+            document.getElementById('featured-desc').innerText = h.overview || "Təsvir yoxdur.";
+            document.getElementById('hero-play-btn').onclick = () => location.href = `/movie/movie/${h.id}/${slugify(h.title || h.name)}`;
+        }
+        renderItems('popular-movies', d?.popularMovies, 'movie');
+        renderItems('new-releases', d?.popularTV, 'tv');
+    }
+
+    if (document.getElementById('watchlistContainer')) window.loadWatchlistPage();
+
+    const actorGrid = document.getElementById('actor-movies-grid');
+    if (actorGrid) {
+        const actorId = window.location.pathname.split('/').filter(Boolean).slice(-2, -1)[0];
+        const data = await apiCall(`person/${actorId}/credits`);
+        if (data?.cast) { allActorCredits = data.cast; window.loadActorPage(1); }
+    }
+
+    const detBox = document.getElementById('details-content');
+    if (detBox) {
+        const path = window.location.pathname.split('/');
+        const mType = path.includes('movie') ? path[path.indexOf('movie') + 1] : 'movie';
+        const mId = path.includes('movie') ? path[path.indexOf('movie') + 2] : null;
+        if(mId) {
+            const m = await apiCall(`details/${mType}/${mId}`);
+            if(m && m.success) {
+                document.title = `CineWave | ${m.title || m.name}`;
+                detBox.innerHTML = `<section class="detail-hero"><div class="detail-poster"><img src="${CONFIG.IMG+m.poster_path}"></div><div class="detail-info"><h1>${m.title || m.name}</h1><p>${m.overview}</p><button class="btn primary-btn" id="play-btn">İzlə</button><div class="cast-row" style="display:flex; overflow-x:auto; gap:15px; margin-top:20px;">${m.cast?.slice(0,10).map(c => `<div onclick="location.href='/actor/${c.id}/${slugify(c.name)}'" style="cursor:pointer; text-align:center;"><img src="${CONFIG.IMG+c.profile_path}" style="width:60px; height:60px; border-radius:50%; object-fit:cover; border:2px solid var(--primary);"><p style="font-size:10px; color:white;">${c.name}</p></div>`).join('')}</div></div></section><div id="player-container" style="display:none; margin-top:30px;"><iframe id="video-iframe" src="" allowfullscreen style="width:100%; height:500px; border:2px solid var(--primary); border-radius:15px;"></iframe></div>`;
+                document.getElementById('play-btn').onclick = () => {
+                    document.getElementById('video-iframe').src = `https://vidsrc.me/embed/${mType}/${mId}`;
+                    document.getElementById('player-container').style.display = 'block';
+                };
+            }
+        }
+    }
+
+    // CLICK HANDLERS
+    document.addEventListener('click', (e) => {
+        if(e.target.id === 'hamburger-menu' || e.target.closest('#hamburger-menu')) document.getElementById('mobile-nav').classList.toggle('active');
+        if(e.target.id === 'profile-trigger') document.getElementById('profile-menu').classList.toggle('show');
+        if(e.target.id === 'logout-link') { localStorage.clear(); location.href = '/index.html'; }
+        if(e.target.id === 'close-search' || e.target.classList.contains('search-modal')) document.getElementById('search-modal').style.display = 'none';
+        if(e.target.closest('.search-box') || e.target.classList.contains('fa-search')) { document.getElementById('search-modal').style.display = 'flex'; document.getElementById('instant-search-input').focus(); }
     });
 });
-
-window.loadActorPage = (page) => {
-    const items = allActorCredits.slice((page-1)*18, page*18);
-    renderItems('actor-movies-grid', items);
-    renderPagination('actor-movies-grid', page, Math.ceil(allActorCredits.length/18), 'loadActorPage');
-};
