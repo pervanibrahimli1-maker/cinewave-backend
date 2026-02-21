@@ -232,26 +232,11 @@ app.get('/api/watchlist', authMiddleware, async (req, res) => {
 });
 
 app.post('/api/watchlist/add', authMiddleware, async (req, res) => {
-    try {
-        const user = await User.findById(req.user.id);
-        if (!user) return res.status(404).json({ error: "İstifadəçi tapılmadı." });
-
-        const MAX_WATCHLIST_ITEMS = 15; // Limit burada təyin olunur
-        if (user.watchlist.length >= MAX_WATCHLIST_ITEMS) {
-            return res.status(400).json({ error: `İzləmə siyahısı maksimum ${MAX_WATCHLIST_ITEMS} element ola bilər.` });
-        }
-
-        // Eyni məzmunun artıq siyahıda olub olmadığını yoxlayır (ID və TYPE görə)
-        if (user.watchlist.some(m => Number(m.id) === Number(req.body.id) && m.movie_type === req.body.movie_type)) {
-            return res.status(400).json({ error: "Bu məzmun artıq siyahıdadır." });
-        }
-
-        user.watchlist.push(req.body);
-        await user.save();
-        res.json({ success: true, message: "Siyahıya əlavə edildi." });
-    } catch (e) {
-        res.status(500).json({ error: "Server xətası, siyahıya əlavə edilmədi." });
-    }
+    const user = await User.findById(req.user.id);
+    if (user.watchlist.some(m => Number(m.id) === Number(req.body.id))) return res.status(400).json({ error: "Artıq siyahıdadır." });
+    user.watchlist.push(req.body);
+    await user.save();
+    res.json({ success: true });
 });
 
 app.delete('/api/watchlist/remove/:id/:type', authMiddleware, async (req, res) => {
