@@ -198,7 +198,10 @@ async function loadHomeData() {
         document.getElementById('hero-add-btn').onclick = () => window.addToWatchlist(h.id, safeName, h.poster_path, 'movie');
     }
     if(d?.popularMovies) renderItems('popular-movies', d.popularMovies, 'movie');
+    
     if(d?.popularTV) renderItems('new-releases', d.popularTV, 'tv');
+
+    
 }
 
 window.loadMovies = async (p = 1) => {
@@ -206,6 +209,13 @@ window.loadMovies = async (p = 1) => {
     const d = await apiCall(`movies/popular?page=${p}`);
     renderItems('movies-popular-grid', d.results, 'movie');
     renderPagination('movies-popular-grid', p, d.total_pages, 'loadMovies');
+};
+
+window.loadMovies = async (p = 1) => {
+    if(!document.getElementById('now-playing')) return;
+    const d = await apiCall(`movies/now_playing?page=${p}`);
+    renderItems('now-playing', d.results, 'movie');
+    renderPagination('now-playing', p, d.total_pages, 'loadMovies');
 };
 
 window.loadSeries = async (p = 1) => {
