@@ -197,32 +197,57 @@ async function loadHomeData() {
         document.getElementById('hero-play-btn').onclick = () => location.href = cleanURL;
         document.getElementById('hero-add-btn').onclick = () => window.addToWatchlist(h.id, safeName, h.poster_path, 'movie');
     }
-    if(d?.popularMovies) renderItems('popular-movies', d.popularMovies, 'movie');
+    if(d?.popularMovies) {
+        renderItems('popular-movies', d.popularMovies, 'movie'); // Ana səhifədəki populyar filmlər
+    }
     
-    if(d?.popularTV) renderItems('new-releases', d.popularTV, 'tv');
-
-    
+    // YENİ: Ana səhifədəki "New Releases" (Yeni Yayımlananlar) üçün TV seriallarını yükləyək
+    const newTVData = await apiCall('tv/on-the-air?page=1'); // YENİ API ENDPOİNT
+    if (newTVData?.results) {
+        renderItems('new-releases', newTVData.results, 'tv'); // 'new-releases' div-ini yeni datalarla doldur
+    } else if (d?.popularTV) {
+        // Əgər yeni yayımlanan seriallar tapılmasa, populyarları göstərmək olar (əvvəlki məntiq)
+        renderItems('new-releases', d.popularTV, 'tv');
+    }
 }
 
-window.loadMovies = async (p = 1) => {
+// 1. Populyar Filmlər Səhifəsi üçün Funksiya (adını dəyişdirdik)
+// Bu funksiya movies.html səhifəsindəki 'movies-popular-grid' div-ini doldurur.
+window.loadPopularMovies = async (p = 1) => { // 'loadMovies' yerinə 'loadPopularMovies'
     if(!document.getElementById('movies-popular-grid')) return;
-    const d = await apiCall(`movies/popular?page=${p}`);
+    const d = await apiCall(`movies/popular?page=${p}`); // Düzgün API çağırışı
     renderItems('movies-popular-grid', d.results, 'movie');
-    renderPagination('movies-popular-grid', p, d.total_pages, 'loadMovies');
+    renderPagination('movies-popular-grid', p, d.total_pages, 'loadPopularMovies'); // Callback dəyişdirildi
 };
 
-window.loadMovies = async (p = 1) => {
-    if(!document.getElementById('now-playing')) return;
-    const d = await apiCall(`tv/now_playing?page=${p}`);
-    renderItems('now-playing', d.results, 'movie');
-    renderPagination('now-playing', p, d.total_pages, 'loadSeries');
+// 2. Hal-hazırda nümayiş olunan Filmlər Səhifəsi üçün Funksiya (YENİ)
+// Bu funksiya movies.html (və ya yeni bir now-playing-movies.html) səhifəsində 'now-playing-movies-grid' div-ini doldurur.
+window.loadNowPlayingMovies = async (p = 1) => {
+    // FƏRZ EDİLİR Kİ, SİZİN HTML-dƏ <div id="now-playing-movies-grid"></div> VAR
+    if(!document.getElementById('now-playing-movies-grid')) return;
+    const d = await apiCall(`movies/now-playing?page=${p}`); // Düzgün API çağırışı
+    renderItems('now-playing-movies-grid', d.results, 'movie'); // Düzgün növ
+    renderPagination('now-playing-movies-grid', p, d.total_pages, 'loadNowPlayingMovies'); // Düzgün callback
 };
 
+
+// 3. Populyar TV Seriallar Səhifəsi üçün Funksiya (adını dəyişdirmədik, düzgündür)
+// Bu funksiya series.html səhifəsindəki 'series-popular-grid' div-ini doldurur.
 window.loadSeries = async (p = 1) => {
     if(!document.getElementById('series-popular-grid')) return;
-    const d = await apiCall(`tv/popular?page=${p}`);
+    const d = await apiCall(`tv/popular?page=${p}`); // Düzgün API çağırışı
     renderItems('series-popular-grid', d.results, 'tv');
     renderPagination('series-popular-grid', p, d.total_pages, 'loadSeries');
+};
+
+// 4. Hal-hazırda yayımlanan TV Seriallar Səhifəsi üçün Funksiya (YENİ)
+// Bu funksiya series.html (və ya yeni bir on-the-air-series.html) səhifəsində 'on-the-air-series-grid' div-ini doldurur.
+window.loadOnTheAirSeries = async (p = 1) => {
+    // FƏRZ EDİLİR Kİ, SİZİN HTML-dƏ <div id="on-the-air-series-grid"></div> VAR
+    if(!document.getElementById('on-the-air-series-grid')) return;
+    const d = await apiCall(`tv/on-the-air?page=${p}`); // Düzgün API çağırışı
+    renderItems('on-the-air-series-grid', d.results, 'tv'); // Düzgün növ
+    renderPagination('on-the-air-series-grid', p, d.total_pages, 'loadOnTheAirSeries'); // Düzgün callback
 };
 
 // --- 7. CANLI AXTARIŞ ---
