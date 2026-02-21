@@ -304,8 +304,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupInstantSearch();
 
     if (document.getElementById('featured-section')) loadHomeData();
-    if (document.getElementById('movies-popular-grid')) window.loadMovies(1);
-    if (document.getElementById('series-popular-grid')) window.loadSeries(1);
+    if (document.getElementById('movies-popular-grid')) window.loadPopularMovies(1);
+    if (document.getElementById('now-playing-movies-grid')) window.loadNowPlayingMovies(1);
+     if (document.getElementById('series-popular-grid')) window.loadSeries(1);
+    if (document.getElementById('on-the-air-series-grid')) window.loadOnTheAirSeries(1);
     if (document.getElementById('watchlistContainer')) window.loadWatchlistPage();
     if (document.getElementById('movie-genres')) {
         const mg = await apiCall('genres/movie/list'), tg = await apiCall('genres/tv/list');
