@@ -141,6 +141,44 @@ app.get('/api/home', async (req, res) => {
     } catch (e) { res.status(500).json({ error: "Home xətası" }); }
 });
 
+// api/server.js - Mövcud 'Digər API-lar' hissəsindən əvvəl əlavə edin
+
+// Popular Filmlər üçün endpoint (BU VACİBDİR!)
+app.get('/api/movies/popular', async (req, res) => {
+    try {
+        const page = req.query.page || 1;
+        const data = await fetchTMDB('/movie/popular', { page });
+        res.json(data || { results: [], total_pages: 1 });
+    } catch (e) {
+        res.status(500).json({ error: "Filmlər yüklənərkən xəta baş verdi." });
+    }
+});
+
+// Popular TV Seriallar üçün endpoint (BU VACİBDİR!)
+app.get('/api/tv/popular', async (req, res) => {
+    try {
+        const page = req.query.page || 1;
+        const data = await fetchTMDB('/tv/popular', { page });
+        res.json(data || { results: [], total_pages: 1 });
+    } catch (e) {
+        res.status(500).json({ error: "Seriallar yüklənərkən xəta baş verdi." });
+    }
+});
+
+// Janr siyahılarını gətirmək üçün endpoint (Əvvəlki problem üçün)
+app.get('/api/genres/:type/list', async (req, res) => {
+    const { type } = req.params;
+    if (!['movie', 'tv'].includes(type)) {
+        return res.status(400).json({ error: "Yanlış janr tipi. 'movie' və ya 'tv' olmalıdır." });
+    }
+    try {
+        const data = await fetchTMDB(`/genre/${type}/list`);
+        res.json(data?.genres || []);
+    } catch (e) {
+        res.status(500).json({ error: "Janr siyahısı yüklənərkən xəta baş verdi." });
+    }
+});
+
 app.get('/api/details/:type/:id', async (req, res) => {
     const { type, id } = req.params;
     try {
