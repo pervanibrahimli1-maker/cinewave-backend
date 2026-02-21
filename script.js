@@ -213,9 +213,9 @@ window.loadMovies = async (p = 1) => {
 
 window.loadMovies = async (p = 1) => {
     if(!document.getElementById('now-playing')) return;
-    const d = await apiCall(`movies/now_playing?page=${p}`);
+    const d = await apiCall(`tv/now_playing?page=${p}`);
     renderItems('now-playing', d.results, 'movie');
-    renderPagination('now-playing', p, d.total_pages, 'loadMovies');
+    renderPagination('now-playing', p, d.total_pages, 'loadSeries');
 };
 
 window.loadSeries = async (p = 1) => {
