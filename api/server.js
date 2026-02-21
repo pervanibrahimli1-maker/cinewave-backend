@@ -154,6 +154,16 @@ app.get('/api/movies/popular', async (req, res) => {
     }
 });
 
+app.get('/api/movies/now-playing', async (req, res) => {
+    try {
+        const page = req.query.page || 1;
+        const data = await fetchTMDB('/movie/now_playing', { page });
+        res.json(data || { results: [], total_pages: 1 });
+    } catch (e) {
+        res.status(500).json({ error: "Yeni yayımlanan filmlər yüklənərkən xəta baş verdi." });
+    }
+});
+
 // Popular TV Seriallar üçün endpoint (BU VACİBDİR!)
 app.get('/api/tv/popular', async (req, res) => {
     try {
@@ -162,6 +172,16 @@ app.get('/api/tv/popular', async (req, res) => {
         res.json(data || { results: [], total_pages: 1 });
     } catch (e) {
         res.status(500).json({ error: "Seriallar yüklənərkən xəta baş verdi." });
+    }
+});
+
+app.get('/api/tv/on-the-air', async (req, res) => {
+    try {
+        const page = req.query.page || 1;
+        const data = await fetchTMDB('/tv/on_the_air', { page });
+        res.json(data || { results: [], total_pages: 1 });
+    } catch (e) {
+        res.status(500).json({ error: "Yeni yayımlanan seriallar yüklənərkən xəta baş verdi." });
     }
 });
 
