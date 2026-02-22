@@ -225,6 +225,22 @@ app.get('/api/discover/:type', async (req, res) => {
     res.json(data || { results: [], total_pages: 1 });
 });
 
+app.get('/api/details/:type/:id/season/:season_number', async (req, res) => {
+    const { type, id, season_number } = req.params;
+    // Yalnız TV serialları üçün işləməli
+    if (type !== 'tv') return res.status(400).json({ error: "Yalnız TV serialları üçün sezona müraciət edilə bilər." });
+    try {
+        // TMDB-dən müvafiq sezonun detallarını gətirir
+        const data = await fetchTMDB(`/tv/${id}/season/${season_number}`);
+        if (!data) return res.status(404).json({ error: "Sezon tapılmadı." });
+        res.json(data);
+    } catch (e) {
+        // Xəta olarsa konsola yaz və uyğun cavab qaytar
+        console.error(`Error fetching season ${season_number} for TV ID ${id}:`, e);
+        res.status(500).json({ error: "Sezon bölümləri yüklənərkən xəta baş verdi." });
+    }
+});
+
 // --- 6. WATCHLIST VƏ SƏHİFƏ SAYĞACI ---
 app.get('/api/watchlist', authMiddleware, async (req, res) => {
     const user = await User.findById(req.user.id);
