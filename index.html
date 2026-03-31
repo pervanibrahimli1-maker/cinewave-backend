@@ -11,6 +11,7 @@
 	  "url": "https://cinewave-movies.vercel.app/"
 	}
 	</script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<meta property="og:site_name" content="CineWave">
 	<meta name="apple-mobile-web-app-title" content="CineWave">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,8 +22,16 @@
 	<link rel="icon" type="image/png" href="/logo.png">
     <link rel="stylesheet" href="/style.css">
 </head>
-<body> Verification: 49834fb6ae80f22b
-    
+<body>
+	<script>
+  Swal.fire({
+    title: 'Xəbərdarlıq!',
+    text: 'Saytımızda filmləri izlərkən reklamlar çox çıxa bilər. Zəhmət olmazsa ya reklam bloklayıcılardan ya da Brave browser-indən istifadə edin. Xoş izləmələr.',
+    icon: 'warning',
+    confirmButtonText: 'Anladım',
+    confirmButtonColor: '#ff0000' // Sizin saytın rənginə uyğun qırmızı
+  });
+</script>
 <header class="main-header">
     <div class="header-left">
         <div class="logo"><a href="index.html">CineWave</a></div>
