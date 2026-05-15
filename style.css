@@ -3273,12 +3273,22 @@ body {
 
 .iframe-wrapper {
     position: relative;
-    padding-bottom: 56.25%;
+    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
     height: 0;
     overflow: hidden;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border-radius: 15px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.6);
     background: #000;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.iframe-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
 }
 
 
