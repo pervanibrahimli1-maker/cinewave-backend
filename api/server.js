@@ -417,4 +417,4 @@ app.get('/api/person/:id/credits', async (req, res) => {
 });
 
 server.listen(PORT, () => console.log(`🚀 CineWave Server is flying on ${PORT}`));
-module.exports = { app, server };
+module.exports = app;
