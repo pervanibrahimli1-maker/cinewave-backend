@@ -11,207 +11,227 @@
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <style>
         :root {
-            --wp-bg: #0a0b10;
-            --wp-panel: #161821;
+            --wp-bg: #05060a;
+            --wp-panel: rgba(22, 24, 33, 0.7);
             --wp-accent: #ff4d00;
+            --wp-border: rgba(255, 255, 255, 0.08);
         }
 
         body.watch-party-body {
             background-color: var(--wp-bg);
-            overflow: hidden;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
             height: 100vh;
+            overflow: hidden;
+            color: white;
+        }
+
+        .wp-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            height: 100vh;
+        }
+
+        /* --- LEFT SIDE: PLAYER --- */
+        .player-section {
             display: flex;
             flex-direction: column;
+            padding: 20px;
+            gap: 15px;
+            position: relative;
         }
 
         .wp-header {
-            padding: 15px 30px;
-            background: rgba(22, 24, 33, 0.8);
-            backdrop-filter: blur(10px);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            z-index: 100;
-        }
-
-        .wp-container {
-            flex: 1;
-            display: flex;
-            overflow: hidden;
-        }
-
-        .wp-player-section {
-            flex: 1;
-            background: #000;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .wp-iframe-wrapper {
-            width: 100%;
-            height: 100%;
-            position: relative;
-        }
-
-        .wp-iframe-wrapper iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        .wp-chat-section {
-            width: 350px;
             background: var(--wp-panel);
-            border-left: 1px solid rgba(255,255,255,0.1);
-            display: flex;
-            flex-direction: column;
-            transition: all 0.3s ease;
+            padding: 12px 25px;
+            border-radius: 18px;
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--wp-border);
         }
 
-        .chat-header {
-            padding: 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        #chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .chat-msg {
-            background: rgba(255,255,255,0.05);
-            padding: 10px 15px;
-            border-radius: 12px;
-            max-width: 85%;
-        }
-
-        .chat-msg .user {
-            font-weight: 600;
+        .wp-header .logo a {
+            font-size: 1.4rem;
+            font-weight: 900;
             color: var(--wp-accent);
-            font-size: 0.8rem;
-            margin-bottom: 4px;
-            display: block;
+            text-decoration: none;
         }
 
-        .chat-msg .text {
-            color: #ddd;
-            font-size: 0.9rem;
-            word-wrap: break-word;
-        }
+        .header-info { display: flex; align-items: center; gap: 20px; }
+        #wp-movie-title { font-size: 0.95rem; color: #ccc; font-weight: 500; }
 
-        .chat-input-area {
-            padding: 20px;
-            background: rgba(0,0,0,0.2);
-            display: flex;
-            gap: 10px;
-        }
-
-        .chat-input-area input {
-            flex: 1;
+        .header-actions { display: flex; gap: 10px; }
+        .wp-btn {
             background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 12px 15px;
-            border-radius: 10px;
+            border: 1px solid var(--wp-border);
             color: white;
-            outline: none;
-        }
-
-        .chat-input-area button {
-            background: var(--wp-accent);
-            color: white;
-            border: none;
-            padding: 0 15px;
+            padding: 8px 16px;
             border-radius: 10px;
             cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+            text-decoration: none;
         }
+        .wp-btn:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+        .exit-btn { background: rgba(255, 75, 43, 0.1); color: #ff4b2b; border-color: rgba(255, 75, 43, 0.2); }
+        .exit-btn:hover { background: #ff4b2b; color: white; }
 
-        .wp-users-list {
-            padding: 10px 20px;
+        .player-main {
+            flex: 1;
+            background: #000;
+            border-radius: 25px;
+            overflow: hidden;
+            border: 1px solid var(--wp-border);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .player-main iframe { width: 100%; height: 100%; border: none; }
+
+        .users-bar {
             display: flex;
             gap: 10px;
             overflow-x: auto;
-            background: rgba(0,0,0,0.1);
+            padding: 5px 0;
         }
-
         .user-pill {
-            background: rgba(255,77,0,0.15);
+            background: rgba(255,77,0,0.1);
             color: var(--wp-accent);
-            padding: 5px 12px;
+            padding: 4px 12px;
             border-radius: 20px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             white-space: nowrap;
             border: 1px solid rgba(255,77,0,0.2);
         }
 
-        .share-btn {
-            background: rgba(255,255,255,0.05);
-            color: #fff;
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.8rem;
+        /* --- RIGHT SIDE: CHAT --- */
+        .sidebar-section {
+            background: var(--wp-panel);
+            backdrop-filter: blur(20px);
+            border-left: 1px solid var(--wp-border);
             display: flex;
+            flex-direction: column;
+            padding: 20px;
+            gap: 15px;
+        }
+
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(0,0,0,0.2);
+            border-radius: 20px;
+            border: 1px solid var(--wp-border);
+            overflow: hidden;
+        }
+
+        .chat-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--wp-border);
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 8px;
         }
+        .chat-header h3 { margin: 0; font-size: 1rem; color: #eee; }
+        #user-count { font-size: 0.8rem; color: #888; }
 
-        .share-btn:hover {
-            background: rgba(255,255,255,0.1);
+        #chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
+        .chat-msg {
+            background: rgba(255,255,255,0.03);
+            padding: 10px 15px;
+            border-radius: 15px;
+            max-width: 85%;
+        }
+        .chat-msg .user { font-weight: 700; color: var(--wp-accent); font-size: 0.75rem; margin-bottom: 3px; display: block; }
+        .chat-msg .text { font-size: 0.85rem; color: #ddd; word-wrap: break-word; }
 
-        @media (max-width: 900px) {
-            .wp-container {
-                flex-direction: column;
-            }
-            .wp-chat-section {
-                width: 100%;
-                height: 300px;
-            }
+        .chat-input-area {
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+            background: rgba(0,0,0,0.2);
+        }
+        .chat-input-area input {
+            flex: 1;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--wp-border);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 12px;
+            outline: none;
+            font-size: 0.9rem;
+        }
+        .chat-input-area input:focus { border-color: var(--wp-accent); }
+        .send-btn {
+            background: var(--wp-accent);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .send-btn:hover { transform: scale(1.05); }
+
+        @media (max-width: 1024px) {
+            .wp-wrapper { grid-template-columns: 1fr; overflow-y: auto; height: auto; }
+            .sidebar-section { height: 500px; border-left: none; border-top: 1px solid var(--wp-border); }
         }
     </style>
 </head>
 <body class="watch-party-body">
-    <header class="wp-header">
-        <div class="header-left">
-            <div class="logo"><a href="/index.html">CineWave</a></div>
-            <div id="wp-movie-title" style="margin-left: 20px; color: #aaa; font-size: 0.9rem;">Yüklənir...</div>
-        </div>
-        <div class="header-right">
-            <button class="share-btn" onclick="copyRoomLink()">
-                <i class="fas fa-link"></i> Linki Kopyala
-            </button>
-        </div>
-    </header>
+    <div class="wp-wrapper">
+        <!-- SOL TƏRƏF: PLEYER -->
+        <main class="player-section">
+            <header class="wp-header">
+                <div class="header-info">
+                    <div class="logo"><a href="/index.html">CineWave</a></div>
+                    <div id="wp-movie-title">Yüklənir...</div>
+                </div>
+                <div class="header-actions">
+                    <button class="wp-btn" onclick="copyRoomLink()">
+                        <i class="fas fa-link"></i> <span>Linki Kopyala</span>
+                    </button>
+                    <a href="/index.html" class="wp-btn exit-btn">
+                        <i class="fas fa-sign-out-alt"></i> <span>Otaqdan Çıx</span>
+                    </a>
+                </div>
+            </header>
 
-    <div class="wp-container">
-        <section class="wp-player-section">
-            <div class="wp-iframe-wrapper">
+            <div class="player-main">
                 <iframe id="wp-iframe" allowfullscreen></iframe>
             </div>
-            <div class="wp-users-list" id="users-list">
-                <!-- Users will be listed here -->
-            </div>
-        </section>
 
-        <aside class="wp-chat-section">
-            <div class="chat-header">
-                <h3><i class="fas fa-comments"></i> Canlı Çat</h3>
-                <span id="user-count" style="font-size: 0.8rem; color: #888;">0 nəfər</span>
+            <div class="users-bar" id="users-list">
+                <!-- İstifadəçilər bura gələcək -->
             </div>
-            <div id="chat-messages"></div>
-            <div class="chat-input-area">
-                <input type="text" id="wp-chat-input" placeholder="Mesaj yazın...">
-                <button id="wp-send-btn"><i class="fas fa-paper-plane"></i></button>
+        </main>
+
+        <!-- SAĞ TƏRƏF: ÇAT -->
+        <aside class="sidebar-section">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h3><i class="fas fa-comments"></i> Canlı Çat</h3>
+                    <span id="user-count">0 nəfər</span>
+                </div>
+                <div id="chat-messages"></div>
+                <form class="chat-input-area" id="chat-form">
+                    <input type="text" id="wp-chat-input" placeholder="Mesaj yazın..." autocomplete="off">
+                    <button type="submit" class="send-btn" id="wp-send-btn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
             </div>
         </aside>
     </div>
@@ -265,12 +285,17 @@
 
         socket.on('user-joined', (data) => {
             updateUsers(data.users);
+            
             if (data.movie && !iframe.src) {
                 movieData = data.movie;
                 movieTitleEl.innerText = movieData.title;
+                
+                // Calculate elapsed time (in seconds)
+                const elapsed = Math.floor((Date.now() - data.startTime) / 1000);
+                
                 const embedUrl = movieData.type === 'movie' 
-                    ? `https://vidsrc.me/embed/movie/${movieData.id}`
-                    : `https://vidsrc.me/embed/tv/${movieData.id}/1/1`;
+                    ? `https://vidsrc.me/embed/movie/${movieData.id}?start=${elapsed}`
+                    : `https://vidsrc.me/embed/tv/${movieData.id}/1/1?start=${elapsed}`;
                 iframe.src = embedUrl;
             }
             

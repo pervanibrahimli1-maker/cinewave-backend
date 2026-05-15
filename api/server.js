@@ -349,6 +349,7 @@ io.on('connection', (socket) => {
                 chat: [],
                 movie: movieData,
                 isPublic: isPublic,
+                startTime: Date.now(),
                 createdAt: new Date()
             };
         }
@@ -360,7 +361,8 @@ io.on('connection', (socket) => {
             users: rooms[roomId].users, 
             chat: rooms[roomId].chat,
             movie: rooms[roomId].movie,
-            isPublic: rooms[roomId].isPublic
+            isPublic: rooms[roomId].isPublic,
+            startTime: rooms[roomId].startTime
         });
         
         console.log(`${username} joined room ${roomId}`);
