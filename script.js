@@ -404,8 +404,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </section>
                     <div id="player-container" class="player-container" style="display:none; margin-top:30px;">
                         <div class="player-options-bar">
-                            <button class="player-opt-btn active" onclick="window.changeLanguage('tr')">🇹🇷 Türkçe Dublaj</button>
-                            <button class="player-opt-btn" onclick="window.changeLanguage('en')">🌍 Orijinal / Altyazı</button>
+                            <button class="player-opt-btn active" id="lang-tr-btn" onclick="window.changeLanguage('tr')">🇹🇷 Türkçe Dublaj</button>
+                            <button class="player-opt-btn" id="lang-en-btn" onclick="window.changeLanguage('en')">🌍 Orijinal / Altyazı</button>
+                            <button class="player-opt-btn server-btn" onclick="window.switchServer()"><i class="fas fa-server"></i> Serveri Dəyiş</button>
                         </div>
                         <div class="iframe-wrapper"><iframe id="video-iframe" src="" allowfullscreen></iframe></div>
                         <div class="netflix-panel"><h3>Növbəti Bölüm</h3><h2 id="next-ep-title">Gözləyin...</h2><button class="next-btn" id="next-ep-go">İNDİ İZLƏ</button></div>
@@ -428,11 +429,51 @@ document.addEventListener('DOMContentLoaded', async () => {
                     window.changeSeason = (btn, n) => { document.querySelectorAll('.season-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); loadEp(n); };
                     loadEp(1);
                 }
+                let currentLang = 'tr';
+                let currentServer = 1;
+
+                window.changeLanguage = (lang) => {
+                    currentLang = lang;
+                    updatePlayerSource();
+                };
+
+                window.switchServer = () => {
+                    currentServer = currentServer === 1 ? 2 : 1;
+                    showNotification(`Server ${currentServer}-ə keçid edildi`, "info");
+                    updatePlayerSource();
+                };
+
+                function updatePlayerSource() {
+                    const iframe = document.getElementById('video-iframe');
+                    let url = "";
+                    
+                    if (currentServer === 1) {
+                        // vidsrc.pro - Good for TR
+                        url = mType === 'movie' 
+                            ? `https://vidsrc.pro/embed/movie/${mId}` 
+                            : `https://vidsrc.pro/embed/tv/${mId}/${currentTVState.season}/${currentTVState.episode}`;
+                        if (currentLang === 'tr') url += "?ds_lang=tr";
+                    } else {
+                        // vidsrc.me - Very stable
+                        url = mType === 'movie'
+                            ? `https://vidsrc.me/embed/movie?tmdb=${mId}`
+                            : `https://vidsrc.me/embed/tv?tmdb=${mId}&sea=${currentTVState.season}&epi=${currentTVState.episode}`;
+                    }
+
+                    iframe.src = url;
+                    
+                    // UI Updates
+                    document.getElementById('lang-tr-btn').classList.toggle('active', currentLang === 'tr');
+                    document.getElementById('lang-en-btn').classList.toggle('active', currentLang === 'en');
+                }
+
                 document.getElementById('play-btn').onclick = () => { 
+                    document.getElementById('player-container').style.display = 'flex';
                     if(mType === 'movie') { 
-                        document.getElementById('video-iframe').src = `https://vidsrc.pro/embed/movie/${mId}?ds_lang=tr`; 
-                        document.getElementById('player-container').style.display = 'flex'; 
-                    } else window.scrollTo({ top: document.getElementById('tv-controls').offsetTop - 100, behavior: 'smooth' }); 
+                        updatePlayerSource();
+                    } else {
+                        window.scrollTo({ top: document.getElementById('tv-controls').offsetTop - 100, behavior: 'smooth' });
+                    }
                 };
                 
                 // Add Watch Party Button
@@ -444,21 +485,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     wpBtn.onclick = () => window.startWatchParty(mId, mType, name, m.poster_path);
                     actionsBox.appendChild(wpBtn);
                 }
-
-                window.changeLanguage = (lang) => {
-                    const baseUrl = mType === 'movie' ? `https://vidsrc.pro/embed/movie/${mId}` : `https://vidsrc.pro/embed/tv/${mId}/${currentTVState.season}/${currentTVState.episode}`;
-                    const finalUrl = lang === 'tr' ? `${baseUrl}?ds_lang=tr` : baseUrl;
-                    
-                    document.getElementById('video-iframe').src = finalUrl;
-                    
-                    // Button active state
-                    document.querySelectorAll('.player-opt-btn').forEach(btn => {
-                        btn.classList.remove('active');
-                        if((lang === 'tr' && btn.innerText.includes('Türkçe')) || (lang === 'en' && btn.innerText.includes('Orijinal'))) {
-                            btn.classList.add('active');
-                        }
-                    });
-                };
 
                 document.getElementById('add-watchlist-btn').onclick = () => window.addToWatchlist(m.id, name, m.poster_path, mType);
                 document.getElementById('next-ep-go').onclick = () => window.playNow(currentTVState.season, currentTVState.episode + 1, run);

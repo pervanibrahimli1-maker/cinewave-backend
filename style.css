@@ -3264,6 +3264,18 @@ body {
     box-shadow: 0 4px 15px rgba(255, 77, 0, 0.3);
 }
 
+.player-opt-btn.server-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: #00d4ff;
+    border-color: rgba(0, 212, 255, 0.3);
+}
+
+.player-opt-btn.server-btn:hover {
+    background: rgba(0, 212, 255, 0.2);
+    color: white;
+}
+
+
 .iframe-wrapper {
     position: relative;
     padding-bottom: 56.25%;
