@@ -85,7 +85,6 @@ function renderItems(containerId, itemsData, typeField = 'movie') {
                 <img src="${m.poster_path ? CONFIG.IMG + m.poster_path : 'https://via.placeholder.com/500x750'}" 
                      alt="${safeName}" title="${safeName}" loading="lazy"
                      onclick="location.href='${cleanURL}'">
-                <span class="tr-dub-badge">TR Dublaj</span>
                 <button class="card-add-btn" onclick="window.addToWatchlist('${m.id}', '${safeName.replace(/'/g, "\\'")}', '${m.poster_path}', '${type}')">
                     <i class="fas fa-plus"></i>
                 </button>
@@ -403,10 +402,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                         </div>
                     </section>
                     <div id="player-container" class="player-container" style="display:none; margin-top:30px;">
-                        <div class="player-options-bar">
-                            <button class="player-opt-btn active" id="lang-tr-btn" onclick="window.changeLanguage('tr')">🇹🇷 Türkçe Dublaj</button>
-                            <button class="player-opt-btn" id="lang-en-btn" onclick="window.changeLanguage('en')">🌍 Orijinal / Altyazı</button>
-                        </div>
                         <div class="iframe-wrapper"><iframe id="video-iframe" src="" allowfullscreen></iframe></div>
                         <div class="netflix-panel"><h3>Növbəti Bölüm</h3><h2 id="next-ep-title">Gözləyin...</h2><button class="next-btn" id="next-ep-go">İNDİ İZLƏ</button></div>
                     </div>
@@ -428,25 +423,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                     window.changeSeason = (btn, n) => { document.querySelectorAll('.season-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); loadEp(n); };
                     loadEp(1);
                 }
-                let currentLang = 'tr';
-
-                window.changeLanguage = (lang) => {
-                    currentLang = lang;
-                    updatePlayerSource();
-                };
-
                 function updatePlayerSource() {
                     const iframe = document.getElementById('video-iframe');
-                    let url = mType === 'movie' 
-                        ? `https://vidsrc.pro/embed/movie/${mId}` 
-                        : `https://vidsrc.pro/embed/tv/${mId}/${currentTVState.season}/${currentTVState.episode}`;
-                    
-                    if (currentLang === 'tr') url += "?ds_lang=tr";
-                    iframe.src = url;
-                    
-                    // UI Updates
-                    document.getElementById('lang-tr-btn').classList.toggle('active', currentLang === 'tr');
-                    document.getElementById('lang-en-btn').classList.toggle('active', currentLang === 'en');
+                    iframe.src = mType === 'movie' 
+                        ? `https://vidsrc.to/embed/movie/${mId}` 
+                        : `https://vidsrc.to/embed/tv/${mId}/${currentTVState.season}/${currentTVState.episode}`;
                 }
 
                 document.getElementById('play-btn').onclick = () => { 
