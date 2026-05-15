@@ -250,8 +250,8 @@
         if (movieData) {
             movieTitleEl.innerText = movieData.title;
             const embedUrl = movieData.type === 'movie' 
-                ? `https://vidsrc.to/embed/movie/${movieData.id}`
-                : `https://vidsrc.to/embed/tv/${movieData.id}/1/1`;
+                ? `https://vidsrc.me/embed/movie/${movieData.id}`
+                : `https://vidsrc.me/embed/tv/${movieData.id}/1/1`;
             iframe.src = embedUrl;
         }
 
@@ -269,8 +269,8 @@
                 movieData = data.movie;
                 movieTitleEl.innerText = movieData.title;
                 const embedUrl = movieData.type === 'movie' 
-                    ? `https://vidsrc.to/embed/movie/${movieData.id}`
-                    : `https://vidsrc.to/embed/tv/${movieData.id}/1/1`;
+                    ? `https://vidsrc.me/embed/movie/${movieData.id}`
+                    : `https://vidsrc.me/embed/tv/${movieData.id}/1/1`;
                 iframe.src = embedUrl;
             }
             

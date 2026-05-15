@@ -426,8 +426,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 function updatePlayerSource() {
                     const iframe = document.getElementById('video-iframe');
                     iframe.src = mType === 'movie'
-                        ? `https://vidsrc.to/embed/movie/${mId}`
-                        : `https://vidsrc.to/embed/tv/${mId}/${currentTVState.season}/${currentTVState.episode}`;
+                        ? `https://vidsrc.me/embed/movie/${mId}`
+                        : `https://vidsrc.me/embed/tv/${mId}/${currentTVState.season}/${currentTVState.episode}`;
                 }
 
                 document.getElementById('play-btn').onclick = () => {
