@@ -235,6 +235,16 @@
         const movieTitleEl = document.getElementById('wp-movie-title');
 
         let movieData = JSON.parse(sessionStorage.getItem('pending_watch_party') || 'null');
+        
+        // Qonaq (guest) üçün məlumatları URL-dən oxu
+        if (!movieData) {
+            const mId = urlParams.get('id');
+            const mType = urlParams.get('type');
+            const mTitle = urlParams.get('title');
+            if (mId && mType) {
+                movieData = { id: mId, type: mType, title: decodeURIComponent(mTitle || 'Kino') };
+            }
+        }
 
         // Pleyeri dərhal yüklə (Socket-i gözləmə)
         if (movieData) {

@@ -1,6 +1,6 @@
 // script.js - CineWave ULTIMATE SEO & VERCEL VERSION
 const CONFIG = {
-    API: '/api', 
+    API: '/api',
     IMG: 'https://image.tmdb.org/t/p/w500',
     HD: 'https://image.tmdb.org/t/p/original'
 };
@@ -18,7 +18,7 @@ function escapeHTML(str) {
 }
 
 function slugify(text) {
-    if(!text) return "video";
+    if (!text) return "video";
     return text.toString().toLowerCase()
         .replace(/\s+/g, '-')
         .replace(/[^\w\-]+/g, '')
@@ -29,7 +29,7 @@ function slugify(text) {
 
 function formatRuntime(min) {
     if (!min) return "N/A";
-    return min >= 60 ? `${Math.floor(min/60)}s ${min%60}d` : `${min}d`;
+    return min >= 60 ? `${Math.floor(min / 60)}s ${min % 60}d` : `${min}d`;
 }
 
 function showNotification(message, type = 'info') {
@@ -65,21 +65,21 @@ async function apiCall(end, isAuth = false, method = 'GET', body = null) {
 }
 
 // --- 3. RENDER VƏ PAGINATION ---
-function renderItems(containerId, itemsData, typeField = 'movie') { 
-    const box = document.getElementById(containerId); 
+function renderItems(containerId, itemsData, typeField = 'movie') {
+    const box = document.getElementById(containerId);
     if (!box) return;
-    box.innerHTML = ''; 
+    box.innerHTML = '';
     const list = Array.isArray(itemsData) ? itemsData : (itemsData?.results || []);
     if (list.length === 0) { box.innerHTML = '<p class="empty-message" style="grid-column: 1/-1; text-align:center; padding:50px;">Heç nə tapılmadı.</p>'; return; }
-    
-    box.innerHTML = list.map(m => { 
+
+    box.innerHTML = list.map(m => {
         const type = m.media_type || typeField;
         const name = m.title || m.name;
         const safeName = escapeHTML(name);
         const year = (m.release_date || m.first_air_date || '').split('-')[0] || '';
         const rating = (m.vote_average && m.vote_average > 0) ? m.vote_average.toFixed(1) : "Yeni";
         const cleanURL = `/movie/${type}/${m.id}/${slugify(name)}`;
-        
+
         return `
             <div class="movie-item">
                 <img src="${m.poster_path ? CONFIG.IMG + m.poster_path : 'https://via.placeholder.com/500x750'}" 
@@ -111,7 +111,7 @@ function renderPagination(containerId, currentPage, totalPages, callbackName) {
         <button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="window.${callbackName}(${currentPage - 1})">Geri</button>
         <span class="page-info">Səhifə ${currentPage} / ${maxP}</span>
         <button class="page-btn" ${currentPage >= maxP ? 'disabled' : ''} onclick="window.${callbackName}(${currentPage + 1})">İrəli</button>`;
-    const target = document.getElementById(containerId); 
+    const target = document.getElementById(containerId);
     if (target) target.parentElement.appendChild(pagDiv);
 }
 
@@ -142,7 +142,7 @@ function startNetflixTimer(runtimeMin) {
     const nextEp = currentTVState.allEpisodes.find(ep => ep.episode_number === currentTVState.episode + 1);
     if (!nextEp) return;
     const titleEl = document.getElementById('next-ep-title');
-    if(titleEl) titleEl.innerText = `${nextEp.episode_number}. Bölüm Hazırdır`;
+    if (titleEl) titleEl.innerText = `${nextEp.episode_number}. Bölüm Hazırdır`;
     currentTVState.timeLeft = (runtimeMin * 60) - 30;
     currentTVState.timer = setInterval(() => {
         if (document.hidden) return;
@@ -182,7 +182,7 @@ async function loadHomeData() {
 
         document.getElementById('featured-section').style.backgroundImage = `linear-gradient(90deg, #0a0b10 0%, rgba(10,11,16,0.8) 45%, rgba(10,11,16,0.1) 100%), url(${CONFIG.HD + h.backdrop_path})`;
         document.getElementById('featured-title').innerText = safeName;
-        
+
         document.getElementById('featured-desc').innerHTML = `
             <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
                 <span class="imdb-tag">IMDb</span> <span style="color: #ffc107; font-weight: bold;">⭐ ${rating}</span>
@@ -197,14 +197,14 @@ async function loadHomeData() {
         document.getElementById('hero-play-btn').onclick = () => location.href = cleanURL;
         document.getElementById('hero-add-btn').onclick = () => window.addToWatchlist(h.id, safeName, h.poster_path, 'movie');
     }
-    if(d?.popularMovies) {
+    if (d?.popularMovies) {
         renderItems('popular-movies', d.popularMovies, 'movie'); // Ana səhifədəki populyar filmlər
     }
-    
-    if(d?.popularMovies) {
+
+    if (d?.popularMovies) {
         renderItems('popular-movies', d.popularMovies, 'movie'); // Ana səhifədəki populyar filmlər
     }
-    
+
     // Qlobal otaqları yüklə
     window.loadPublicRooms();
 }
@@ -212,7 +212,7 @@ async function loadHomeData() {
 // 1. Populyar Filmlər Səhifəsi üçün Funksiya (adını dəyişdirdik)
 // Bu funksiya movies.html səhifəsindəki 'movies-popular-grid' div-ini doldurur.
 window.loadPopularMovies = async (p = 1) => { // 'loadMovies' yerinə 'loadPopularMovies'
-    if(!document.getElementById('movies-popular-grid')) return;
+    if (!document.getElementById('movies-popular-grid')) return;
     const d = await apiCall(`movies/popular?page=${p}`); // Düzgün API çağırışı
     renderItems('movies-popular-grid', d.results, 'movie');
     renderPagination('movies-popular-grid', p, d.total_pages, 'loadPopularMovies'); // Callback dəyişdirildi
@@ -222,7 +222,7 @@ window.loadPopularMovies = async (p = 1) => { // 'loadMovies' yerinə 'loadPopul
 // Bu funksiya movies.html (və ya yeni bir now-playing-movies.html) səhifəsində 'now-playing-movies-grid' div-ini doldurur.
 window.loadNowPlayingMovies = async (p = 1) => {
     // FƏRZ EDİLİR Kİ, SİZİN HTML-dƏ <div id="now-playing-movies-grid"></div> VAR
-    if(!document.getElementById('now-playing-movies-grid')) return;
+    if (!document.getElementById('now-playing-movies-grid')) return;
     const d = await apiCall(`movies/now-playing?page=${p}`); // Düzgün API çağırışı
     renderItems('now-playing-movies-grid', d.results, 'movie'); // Düzgün növ
     renderPagination('now-playing-movies-grid', p, d.total_pages, 'loadNowPlayingMovies'); // Düzgün callback
@@ -232,7 +232,7 @@ window.loadNowPlayingMovies = async (p = 1) => {
 // 3. Populyar TV Seriallar Səhifəsi üçün Funksiya (adını dəyişdirmədik, düzgündür)
 // Bu funksiya series.html səhifəsindəki 'series-popular-grid' div-ini doldurur.
 window.loadSeries = async (p = 1) => {
-    if(!document.getElementById('series-popular-grid')) return;
+    if (!document.getElementById('series-popular-grid')) return;
     const d = await apiCall(`tv/popular?page=${p}`); // Düzgün API çağırışı
     renderItems('series-popular-grid', d.results, 'tv');
     renderPagination('series-popular-grid', p, d.total_pages, 'loadSeries');
@@ -242,7 +242,7 @@ window.loadSeries = async (p = 1) => {
 // Bu funksiya series.html (və ya yeni bir on-the-air-series.html) səhifəsində 'on-the-air-series-grid' div-ini doldurur.
 window.loadOnTheAirSeries = async (p = 1) => {
     // FƏRZ EDİLİR Kİ, SİZİN HTML-dƏ <div id="on-the-air-series-grid"></div> VAR
-    if(!document.getElementById('on-the-air-series-grid')) return;
+    if (!document.getElementById('on-the-air-series-grid')) return;
     const d = await apiCall(`tv/on-the-air?page=${p}`); // Düzgün API çağırışı
     renderItems('on-the-air-series-grid', d.results, 'tv'); // Düzgün növ
     renderPagination('on-the-air-series-grid', p, d.total_pages, 'loadOnTheAirSeries'); // Düzgün callback
@@ -253,20 +253,20 @@ function setupInstantSearch() {
     const input = document.getElementById('instant-search-input');
     const results = document.getElementById('instant-results');
     if (!input) return;
-    
+
     input.addEventListener('input', (e) => {
         const query = e.target.value.trim();
         clearTimeout(debounceTimer);
-        
-        if (query.length < 2) { 
-            results.innerHTML = '<p style="text-align:center;color:gray;padding:20px;">Kəşf etmək üçün yazmağa başlayın...</p>'; 
-            return; 
+
+        if (query.length < 2) {
+            results.innerHTML = '<p style="text-align:center;color:gray;padding:20px;">Kəşf etmək üçün yazmağa başlayın...</p>';
+            return;
         }
-        
+
         debounceTimer = setTimeout(async () => {
             results.innerHTML = '<div class="spinner" style="margin:20px auto; width:30px; height:30px;"></div>';
             const data = await apiCall(`search?query=${encodeURIComponent(query)}`);
-            
+
             if (data?.results?.length > 0) {
                 results.innerHTML = data.results.slice(0, 15).map(m => {
                     const name = m.title || m.name;
@@ -275,7 +275,7 @@ function setupInstantSearch() {
                     const rating = (m.vote_average && m.vote_average > 0) ? m.vote_average.toFixed(1) : "N/A";
                     const typeLabel = type === 'movie' ? 'Film' : 'Serial';
                     const cleanURL = `/movie/${type}/${m.id}/${slugify(name)}`;
-                    
+
                     return `
                     <div class="search-item" onclick="location.href='${cleanURL}'">
                         <img src="${m.poster_path ? CONFIG.IMG + m.poster_path : 'https://via.placeholder.com/50x75'}" alt="${escapeHTML(name)}">
@@ -289,8 +289,8 @@ function setupInstantSearch() {
                         </div>
                     </div>`;
                 }).join('');
-            } else { 
-                results.innerHTML = '<p style="text-align:center; color:gray; padding:20px;">Heç nə tapılmadı.</p>'; 
+            } else {
+                results.innerHTML = '<p style="text-align:center; color:gray; padding:20px;">Heç nə tapılmadı.</p>';
             }
         }, 400);
     });
@@ -304,22 +304,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (document.getElementById('featured-section')) loadHomeData();
     if (document.getElementById('movies-popular-grid')) window.loadPopularMovies(1);
     if (document.getElementById('now-playing-movies-grid')) window.loadNowPlayingMovies(1);
-     if (document.getElementById('series-popular-grid')) window.loadSeries(1);
+    if (document.getElementById('series-popular-grid')) window.loadSeries(1);
     if (document.getElementById('on-the-air-series-grid')) window.loadOnTheAirSeries(1);
     if (document.getElementById('watchlistContainer')) window.loadWatchlistPage();
     if (document.getElementById('movie-genres')) {
         const mg = await apiCall('genres/movie/list'), tg = await apiCall('genres/tv/list');
-        if(mg) document.getElementById('movie-genres').innerHTML = mg.map(g => `<span class="genre-tag" onclick="window.toggleGenre(${g.id}, this)">${g.name}</span>`).join('');
-        if(tg) document.getElementById('tv-genres').innerHTML = tg.map(g => `<span class="genre-tag" onclick="window.toggleGenre(${g.id}, this)">${g.name}</span>`).join('');
+        if (mg) document.getElementById('movie-genres').innerHTML = mg.map(g => `<span class="genre-tag" onclick="window.toggleGenre(${g.id}, this)">${g.name}</span>`).join('');
+        if (tg) document.getElementById('tv-genres').innerHTML = tg.map(g => `<span class="genre-tag" onclick="window.toggleGenre(${g.id}, this)">${g.name}</span>`).join('');
         const yr = document.querySelector('.years-row');
-        if(yr) { let yH=""; for(let y=2026; y>=1960; y--) yH += `<span class="year-tag" onclick="window.toggleYear('${y}', this)">${y}</span>`; yr.innerHTML = yH; }
+        if (yr) { let yH = ""; for (let y = 2026; y >= 1960; y--) yH += `<span class="year-tag" onclick="window.toggleYear('${y}', this)">${y}</span>`; yr.innerHTML = yH; }
     }
 
     document.addEventListener('click', (e) => {
         const sTrigger = e.target.closest('.search-box') || e.target.closest('.fa-search');
         const sM = document.getElementById('search-modal');
-        if (sTrigger) { e.preventDefault(); if(sM) { sM.style.display = 'flex'; setTimeout(() => document.getElementById('instant-search-input').focus(), 100); } return; }
-        if (e.target.closest('#close-search') || e.target === sM) { if(sM) sM.style.display = 'none'; return; }
+        if (sTrigger) { e.preventDefault(); if (sM) { sM.style.display = 'flex'; setTimeout(() => document.getElementById('instant-search-input').focus(), 100); } return; }
+        if (e.target.closest('#close-search') || e.target === sM) { if (sM) sM.style.display = 'none'; return; }
         if (document.getElementById('profile-trigger')?.contains(e.target)) { document.getElementById('profile-menu').classList.toggle('show'); return; }
         if (document.getElementById('hamburger-menu')?.contains(e.target) || e.target.closest('#hamburger-menu')) { document.getElementById('mobile-nav').classList.toggle('active'); return; }
         if (e.target.id === 'logout-link') { localStorage.clear(); location.href = '/index.html'; }
@@ -331,7 +331,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const pathParts = window.location.pathname.split('/');
         // URL-dən ID-ni götürürük: /actor/123/slug -> 123
         const actorId = pathParts[pathParts.indexOf('actor') + 1];
-        
+
         if (actorId) {
             actorGrid.innerHTML = '<div class="spinner" style="grid-column: 1/-1; margin: 40px auto;"></div>';
             apiCall(`person/${actorId}/credits`).then(data => {
@@ -359,15 +359,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             mId = p.get('id');
         }
 
-        
-        
-        if(mType && mId) {
+
+
+        if (mType && mId) {
             const m = await apiCall(`details/${mType}/${mId}`);
-            if(m && m.success !== false) {
+            if (m && m.success !== false) {
                 apiCall(`views/increment/${mId}`, false, 'POST');
                 const run = m.runtime || (m.episode_run_time ? m.episode_run_time[0] : 45);
                 const name = escapeHTML(m.title || m.name);
-                
+
                 // SEO ÜÇÜN DİNAMİK META TEQLƏR
                 document.title = `CineWave | ${name}`;
                 let metaDesc = document.querySelector('meta[name="description"]');
@@ -376,7 +376,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 detBox.innerHTML = `
                     <section class="detail-hero">
-                        <div class="detail-poster"><img src="${m.poster_path ? CONFIG.IMG+m.poster_path : ''}" alt="poster"></div>
+                        <div class="detail-poster"><img src="${m.poster_path ? CONFIG.IMG + m.poster_path : ''}" alt="poster"></div>
                         <div class="detail-info">
                             <h1>${name}</h1>
                             <div style="margin-bottom:15px; display:flex; align-items:center; gap:15px; flex-wrap:wrap;">
@@ -391,10 +391,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                             </div>
                             <h3 style="margin-top:20px;">Heyət</h3>
                             <div class="cast-row" style="display:flex; overflow-x:auto; gap:15px; padding:10px 0;">
-                                ${m.cast?.slice(0,12).map(c => `
+                                ${m.cast?.slice(0, 12).map(c => `
     <div onclick="location.href='/actor/${c.id}/${slugify(c.name)}'" 
          style="flex:0 0 80px; text-align:center; cursor:pointer;">
-        <img src="${c.profile_path ? CONFIG.IMG+c.profile_path : 'https://via.placeholder.com/80'}" 
+        <img src="${c.profile_path ? CONFIG.IMG + c.profile_path : 'https://via.placeholder.com/80'}" 
              style="width:70px; height:70px; border-radius:50%; object-fit:cover; border: 2px solid var(--primary);">
         <p style="font-size:10px; margin-top:5px; color:white;">${c.name}</p>
     </div>`).join('')}
@@ -412,33 +412,33 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (mType === 'tv') {
                     const loadEp = async (s) => {
                         const d = await apiCall(`details/tv/${mId}/season/${s}`);
-                        if(d?.episodes) document.getElementById('episode-grid').innerHTML = d.episodes.map(e => `<div class="episode-card" onclick="window.playNow(${s}, ${e.episode_number}, ${run})"><h4>${e.episode_number}. Bölüm</h4></div>`).join('');
+                        if (d?.episodes) document.getElementById('episode-grid').innerHTML = d.episodes.map(e => `<div class="episode-card" onclick="window.playNow(${s}, ${e.episode_number}, ${run})"><h4>${e.episode_number}. Bölüm</h4></div>`).join('');
                     };
                     window.playNow = (s, e, r) => {
                         currentTVState.season = s; currentTVState.episode = e;
                         updatePlayerSource();
                         document.getElementById('player-container').style.display = 'flex'; startNetflixTimer(r);
                     };
-                    if(m.seasons) document.getElementById('season-tabs').innerHTML = m.seasons.filter(s => s.season_number > 0).map((s, idx) => `<button class="season-btn ${idx===0?'active':''}" onclick="window.changeSeason(this, ${s.season_number})">Sezon ${s.season_number}</button>`).join('');
+                    if (m.seasons) document.getElementById('season-tabs').innerHTML = m.seasons.filter(s => s.season_number > 0).map((s, idx) => `<button class="season-btn ${idx === 0 ? 'active' : ''}" onclick="window.changeSeason(this, ${s.season_number})">Sezon ${s.season_number}</button>`).join('');
                     window.changeSeason = (btn, n) => { document.querySelectorAll('.season-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); loadEp(n); };
                     loadEp(1);
                 }
                 function updatePlayerSource() {
                     const iframe = document.getElementById('video-iframe');
-                    iframe.src = mType === 'movie' 
-                        ? `https://vidsrc.to/embed/movie/${mId}` 
+                    iframe.src = mType === 'movie'
+                        ? `https://vidsrc.to/embed/movie/${mId}`
                         : `https://vidsrc.to/embed/tv/${mId}/${currentTVState.season}/${currentTVState.episode}`;
                 }
 
-                document.getElementById('play-btn').onclick = () => { 
+                document.getElementById('play-btn').onclick = () => {
                     document.getElementById('player-container').style.display = 'flex';
-                    if(mType === 'movie') { 
+                    if (mType === 'movie') {
                         updatePlayerSource();
                     } else {
                         window.scrollTo({ top: document.getElementById('tv-controls').offsetTop - 100, behavior: 'smooth' });
                     }
                 };
-                
+
                 // Add Watch Party Button
                 const actionsBox = document.querySelector('.featured-actions');
                 if (actionsBox) {
@@ -456,8 +456,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     const lF = document.getElementById('login-form'), rF = document.getElementById('register-form');
-    if(lF) lF.addEventListener('submit', async (e) => { e.preventDefault(); const res = await apiCall('auth/login', false, 'POST', { email: e.target.email.value, password: e.target.password.value }); if(res.success) { localStorage.setItem('cinewave_token', res.token); localStorage.setItem('cinewave_user', JSON.stringify(res.user)); location.href = '/index.html'; } });
-    if(rF) rF.addEventListener('submit', async (e) => { e.preventDefault(); if(e.target.password.value !== e.target.confirmPassword.value) return showNotification("Şifrələr eyni deyil!", "error"); const res = await apiCall('auth/register', false, 'POST', { fullName: e.target.fullName.value, email: e.target.email.value, username: e.target.username.value, password: e.target.password.value }); if(res.success) { showNotification("Qeydiyyat uğurlu!", "success"); setTimeout(() => location.href = '/login.html', 1500); } });
+    if (lF) lF.addEventListener('submit', async (e) => { e.preventDefault(); const res = await apiCall('auth/login', false, 'POST', { email: e.target.email.value, password: e.target.password.value }); if (res.success) { localStorage.setItem('cinewave_token', res.token); localStorage.setItem('cinewave_user', JSON.stringify(res.user)); location.href = '/index.html'; } });
+    if (rF) rF.addEventListener('submit', async (e) => { e.preventDefault(); if (e.target.password.value !== e.target.confirmPassword.value) return showNotification("Şifrələr eyni deyil!", "error"); const res = await apiCall('auth/register', false, 'POST', { fullName: e.target.fullName.value, email: e.target.email.value, username: e.target.username.value, password: e.target.password.value }); if (res.success) { showNotification("Qeydiyyat uğurlu!", "success"); setTimeout(() => location.href = '/login.html', 1500); } });
 });
 
 // --- 9. WATCHLIST LOGİKASI ---
@@ -495,7 +495,8 @@ window.startWatchParty = async (id, type, title, poster) => {
         if (res.roomId) {
             const movieData = { id, type, title, poster };
             sessionStorage.setItem('pending_watch_party', JSON.stringify({ ...movieData, isPublic }));
-            location.href = `/watch-party.html?room=${res.roomId}`;
+            const safeTitle = encodeURIComponent(title);
+            location.href = `/watch-party.html?room=${res.roomId}&id=${id}&type=${type}&title=${safeTitle}`;
         }
     };
 
@@ -506,7 +507,7 @@ window.startWatchParty = async (id, type, title, poster) => {
 window.loadPublicRooms = async () => {
     const container = document.getElementById('public-rooms-container');
     if (!container) return;
-    
+
     const rooms = await apiCall('rooms/public');
     if (!rooms || rooms.length === 0) {
         container.innerHTML = '<p class="empty-message">Hal-hazırda aktiv qlobal otaq yoxdur.</p>';
@@ -528,9 +529,9 @@ window.loadPublicRooms = async () => {
 };
 window.addToWatchlist = async (id, title, poster, type) => {
     const token = localStorage.getItem('cinewave_token');
-    if(!token) return showNotification("Giriş edin!", "warning");
+    if (!token) return showNotification("Giriş edin!", "warning");
     const r = await apiCall('watchlist/add', true, 'POST', { id: Number(id), title, poster_path: poster, movie_type: type });
-    if(r.success) showNotification(`"${title}" siyahıya əlavə edildi`, 'success');
+    if (r.success) showNotification(`"${title}" siyahıya əlavə edildi`, 'success');
 };
 
 window.removeFromWatchlist = async (e, id, type) => {
@@ -545,7 +546,7 @@ window.loadWatchlistPage = async () => {
     box.innerHTML = '<div class="spinner" style="grid-column: 1/-1; margin: 40px auto;"></div>';
     const list = await apiCall('watchlist', true);
     const cl = document.getElementById('clearAllBtn');
-    if (cl) cl.onclick = async () => { if(confirm("Hamısı silinsin?")) { await apiCall('watchlist/clear', true, 'DELETE'); window.loadWatchlistPage(); } };
+    if (cl) cl.onclick = async () => { if (confirm("Hamısı silinsin?")) { await apiCall('watchlist/clear', true, 'DELETE'); window.loadWatchlistPage(); } };
     if (!list || list.length === 0) { box.innerHTML = '<div class="empty-watchlist" style="grid-column:1/-1;"><p class="empty-message">Siyahınız boşdur.</p></div>'; return; }
     box.className = "movie-row";
     box.innerHTML = list.map(i => {
@@ -559,22 +560,22 @@ window.loadActorPage = (page) => {
     const itemsPerPage = 18;
     const startIndex = (page - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    
+
     // Yaddaşdakı 100+ filmdən yalnız lazımi 18-ni kəsirik
     const pageItems = allActorCredits.slice(startIndex, endIndex);
     const totalPages = Math.ceil(allActorCredits.length / itemsPerPage);
-    
+
     // Mövcud render funksiyalarını istifadə edirik
     renderItems('actor-movies-grid', pageItems);
     renderPagination('actor-movies-grid', page, totalPages, 'loadActorPage');
-    
+
     // Səhifə dəyişəndə yuxarı sürüşdür (istifadəçi rahatlığı üçün)
     window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 // --- 10. FILTR VƏ JANR LOGİKASI ---
 window.toggleGenre = (id, el) => { const idx = filterState.genres.indexOf(id); if (idx > -1) { filterState.genres.splice(idx, 1); el.classList.remove('active'); } else { filterState.genres.push(id); el.classList.add('active'); } };
-window.toggleYear = (y, el) => { document.querySelectorAll('.year-tag').forEach(t => t.classList.remove('active')); if(filterState.year === y) { filterState.year = ""; } else { filterState.year = y; el.classList.add('active'); } };
+window.toggleYear = (y, el) => { document.querySelectorAll('.year-tag').forEach(t => t.classList.remove('active')); if (filterState.year === y) { filterState.year = ""; } else { filterState.year = y; el.classList.add('active'); } };
 
 function initAIChat() {
     const trigger = document.getElementById('chat-trigger');
@@ -661,94 +662,94 @@ function initAIChat() {
 }
 
 const lF = document.getElementById('login-form');
-    if(lF) {
-        lF.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            // 1. Düyməni dondururuq (ikiqat klik olmasın deyə)
-            const btn = lF.querySelector('button[type="submit"]');
-            if(btn.disabled) return;
-            btn.disabled = true;
-            const originalBtnText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Yoxlanılır...';
+if (lF) {
+    lF.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-            const formData = new FormData(lF);
-            const data = Object.fromEntries(formData.entries());
+        // 1. Düyməni dondururuq (ikiqat klik olmasın deyə)
+        const btn = lF.querySelector('button[type="submit"]');
+        if (btn.disabled) return;
+        btn.disabled = true;
+        const originalBtnText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Yoxlanılır...';
 
-            // 2. Backend-ə sorğu göndəririk
-            const res = await apiCall('auth/login', false, 'POST', data);
-            
-            if(res.success) { 
-                // 3. UĞURLU BİLDİRİŞ (Bunu istəyirdin)
-                showNotification("Giriş uğurlu oldu! Yönləndirilirsiniz...", "success");
+        const formData = new FormData(lF);
+        const data = Object.fromEntries(formData.entries());
 
-                localStorage.setItem('cinewave_token', res.token); 
-                localStorage.setItem('cinewave_user', JSON.stringify(res.user)); 
-                
-                // 4. Yazını görmək üçün 1.5 saniyə gözləyib sonra ana səhifəyə atırıq
-                setTimeout(() => {
-                    location.href = '/index.html'; 
-                }, 1500);
+        // 2. Backend-ə sorğu göndəririk
+        const res = await apiCall('auth/login', false, 'POST', data);
 
-            } else {
-                // 5. Xəta olsa düyməni bərpa edirik
-                showNotification(res.error || "Giriş alınmadı", "error");
-                btn.disabled = false;
-                btn.innerHTML = originalBtnText;
-                
-                // Cloudflare widgetini sıfırlayırıq ki, təzədən yoxlasın
-                if(window.turnstile) turnstile.reset();
-            }
-        });
-    }
+        if (res.success) {
+            // 3. UĞURLU BİLDİRİŞ (Bunu istəyirdin)
+            showNotification("Giriş uğurlu oldu! Yönləndirilirsiniz...", "success");
+
+            localStorage.setItem('cinewave_token', res.token);
+            localStorage.setItem('cinewave_user', JSON.stringify(res.user));
+
+            // 4. Yazını görmək üçün 1.5 saniyə gözləyib sonra ana səhifəyə atırıq
+            setTimeout(() => {
+                location.href = '/index.html';
+            }, 1500);
+
+        } else {
+            // 5. Xəta olsa düyməni bərpa edirik
+            showNotification(res.error || "Giriş alınmadı", "error");
+            btn.disabled = false;
+            btn.innerHTML = originalBtnText;
+
+            // Cloudflare widgetini sıfırlayırıq ki, təzədən yoxlasın
+            if (window.turnstile) turnstile.reset();
+        }
+    });
+}
 
 const rF = document.getElementById('register-form');
-    if(rF) {
-        rF.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            // 1. Şifrələrin eyniliyini yoxlayırıq
-            const password = rF.querySelector('input[name="password"]').value;
-            const confirmPassword = rF.querySelector('input[name="confirmPassword"]').value;
-            
-            if(password !== confirmPassword) {
-                return showNotification("Şifrələr eyni deyil!", "error");
-            }
+if (rF) {
+    rF.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-            // 2. Düyməni dondururuq (ikiqat klik və botların qarşısını almaq üçün)
-            const btn = rF.querySelector('button[type="submit"]');
-            if(btn.disabled) return;
-            btn.disabled = true;
-            const originalBtnText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Hesab yaradılır...';
+        // 1. Şifrələrin eyniliyini yoxlayırıq
+        const password = rF.querySelector('input[name="password"]').value;
+        const confirmPassword = rF.querySelector('input[name="confirmPassword"]').value;
 
-            // 3. Məlumatları (o cümlədən Cloudflare kodunu) götürürük
-            const formData = new FormData(rF);
-            const data = Object.fromEntries(formData.entries());
+        if (password !== confirmPassword) {
+            return showNotification("Şifrələr eyni deyil!", "error");
+        }
 
-            // 4. Backend-ə göndəririk
-            const res = await apiCall('auth/register', false, 'POST', data);
-            
-            if(res.success) { 
-                // 5. UĞURLU BİLDİRİŞ
-                showNotification("Qeydiyyat uğurlu oldu! Giriş səhifəsinə yönləndirilirsiniz...", "success");
+        // 2. Düyməni dondururuq (ikiqat klik və botların qarşısını almaq üçün)
+        const btn = rF.querySelector('button[type="submit"]');
+        if (btn.disabled) return;
+        btn.disabled = true;
+        const originalBtnText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Hesab yaradılır...';
 
-                // 6. 1.5 saniyə gözləyib Login səhifəsinə atırıq
-                setTimeout(() => {
-                    location.href = '/login.html'; 
-                }, 1500);
+        // 3. Məlumatları (o cümlədən Cloudflare kodunu) götürürük
+        const formData = new FormData(rF);
+        const data = Object.fromEntries(formData.entries());
 
-            } else {
-                // 7. Xəta olsa düyməni bərpa edirik
-                showNotification(res.error || "Qeydiyyat alınmadı", "error");
-                btn.disabled = false;
-                btn.innerHTML = originalBtnText;
-                
-                // Robot yoxlanışını sıfırlayırıq ki, istifadəçi yenidən yoxlasın
-                if(window.turnstile) turnstile.reset();
-            }
-        });
-    }
+        // 4. Backend-ə göndəririk
+        const res = await apiCall('auth/register', false, 'POST', data);
+
+        if (res.success) {
+            // 5. UĞURLU BİLDİRİŞ
+            showNotification("Qeydiyyat uğurlu oldu! Giriş səhifəsinə yönləndirilirsiniz...", "success");
+
+            // 6. 1.5 saniyə gözləyib Login səhifəsinə atırıq
+            setTimeout(() => {
+                location.href = '/login.html';
+            }, 1500);
+
+        } else {
+            // 7. Xəta olsa düyməni bərpa edirik
+            showNotification(res.error || "Qeydiyyat alınmadı", "error");
+            btn.disabled = false;
+            btn.innerHTML = originalBtnText;
+
+            // Robot yoxlanışını sıfırlayırıq ki, istifadəçi yenidən yoxlasın
+            if (window.turnstile) turnstile.reset();
+        }
+    });
+}
 
 async function loadHomeData() {
     const d = await apiCall('home');
@@ -761,7 +762,7 @@ async function loadHomeData() {
 
         document.getElementById('featured-section').style.backgroundImage = `linear-gradient(90deg, #0a0b10 0%, rgba(10,11,16,0.8) 45%, rgba(10,11,16,0.1) 100%), url(${CONFIG.HD + h.backdrop_path})`;
         document.getElementById('featured-title').innerText = name;
-        
+
         // DÜZGÜN STRUKTUR:
         document.getElementById('featured-desc').innerHTML = `
             <div class="feat-meta-mobile" style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
@@ -776,12 +777,12 @@ async function loadHomeData() {
                 ${h.overview || "Təsvir yoxdur."}
             </div>
         `;
-        
+
         document.getElementById('hero-play-btn').onclick = () => location.href = `/movie/movie/${h.id}/${slugify(name)}`;
         document.getElementById('hero-add-btn').onclick = () => window.addToWatchlist(h.id, name, h.poster_path, 'movie');
     }
-    if(d?.popularMovies) renderItems('popular-movies', d.popularMovies, 'movie');
-    if(d?.popularTV) renderItems('new-releases', d.popularTV, 'tv');
+    if (d?.popularMovies) renderItems('popular-movies', d.popularMovies, 'movie');
+    if (d?.popularTV) renderItems('new-releases', d.popularTV, 'tv');
 }
 
 // Səhifə yüklənəndə çat funksiyasını işə sal
