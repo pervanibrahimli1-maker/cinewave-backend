@@ -1434,8 +1434,8 @@ body {
 /* ========== MOBİL OPTİMİZASİYA (ƏLAVƏ VƏ T�KMİLLƏŞDİRİLMİŞ) ========== */
 
 /* Ümumi mobil düzəlişlər */
+/* ========== MOBİL OPTİMİZASİYA (YENİLƏNMİŞ) ========== */
 @media (max-width: 768px) {
-    
     .imdb-tag {
         display: inline-block !important;
         background: #f5c518 !important; /* TMDb standart sarı rəng */
@@ -1457,171 +1457,25 @@ body {
         font-size: 12px;
     }
     
-    /* Sağ tərəfdəki elementləri yan-yana düzürük */
-    .header-right {
-        display: flex;
-        align-items: center;
-        gap: 8px; /* Elementlər arası məsafə */
-        position: relative;
-    }
+    .main-header { height: 60px; padding: 0 15px; }
+    .logo a { font-size: 20px; }
+    .main-nav { display: none; }
+    .hamburger-menu { display: flex !important; }
 
-    /* Axtarış qutusunun mobildəki vəziyyəti */
-    .search-box {
-        position: relative;
-        width: 36px;
-        height: 36px;
-        background: transparent;
-        border: none;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: flex-end; /* Sağa söykəyirik ki, sola doğru açılsın */
-    }
+    .header-right { gap: 10px; }
+    .auth-buttons { gap: 5px; }
+    .auth-btn { padding: 6px 12px; font-size: 11px; }
 
-    .search-box .fa-search {
-        position: relative;
-        left: 0;
-        top: 0;
-        transform: none;
-        width: 36px;
-        height: 36px;
-        background: rgba(255, 77, 0, 0.1);
-        border: 1px solid rgba(255, 77, 0, 0.3);
-        border-radius: 50%;
-        color: var(--primary);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        z-index: 5;
-    }
+    .mobile-nav { top: 60px; width: 100%; padding: 20px 15px; }
+    .mobile-nav a { padding: 12px 15px; font-size: 15px; }
+    
+    .container { padding-top: 80px; }
+    .page-title { font-size: 1.8rem; margin-bottom: 20px; }
 
-    .search-box input {
-        position: absolute;
-        right: 0; /* Sağdan sola doğru açılacaq */
-        width: 0;
-        opacity: 0;
-        padding: 0;
-        visibility: hidden;
-        transition: all 0.3s ease;
-        background: #16181f;
-        border-radius: 20px;
-        height: 36px;
-        z-index: 4;
-    }
-
-    /* Axtarış aktiv olanda */
-    .search-box.active {
-        width: 180px; /* Açılanda tutacağı sahə */
-    }
-
-    .search-box.active input {
-        width: 100%;
-        opacity: 1;
-        visibility: visible;
-        padding: 0 40px 0 15px; /* İkonun altında qalmasın deyə sağdan boşluq */
-        border: 1px solid var(--primary);
-    }
-
-    
-    /* 1. Desktop menyusunu mobildə gizlət */
-    .main-nav {
-        display: none; 
-    }
-
-    /* 2. Hamburger ikonunu mobildə görünən et */
-    .hamburger-menu {
-        display: flex !important; /* Bu mütləq olmalıdır */
-    }
-
-    /* 3. Axtarış qutusunu və auth düymələrini sığışdır */
-    .header-right {
-        gap: 10px;
-    }
-
-    
-    /* Header optimizasiyası */
-    .main-header {
-        height: 60px;
-        padding: 0 12px;
-    }
-    
-    .logo a {
-        font-size: 22px;
-    }
-    
-    /* Axtarış qutusu mobil təkmilləşdirmə */
-
-    
-    /* Auth butonları mobil */
-    .auth-buttons {
-        gap: 4px;
-    }
-    
-    .auth-btn {
-        padding: 5px 10px;
-        font-size: 11px;
-        border-radius: 20px;
-    }
-    
-    .login-btn {
-        background: rgba(255, 77, 0, 0.1);
-        border: 1px solid rgba(255, 77, 0, 0.3);
-    }
-    
-    .register-btn {
-        padding: 5px 10px;
-    }
-    
-    /* Profil ikonu mobil */
-    .user-profile {
-        width: 32px;
-        height: 32px;
-        font-size: 13px;
-    }
-    
-    .profile-dropdown {
-        top: 40px;
-        min-width: 160px;
-    }
-    
-    .profile-dropdown a {
-        padding: 8px 12px;
-        font-size: 13px;
-    }
-    
-    /* Hamburger menyu */
-    .hamburger-menu {
-        width: 36px;
-        height: 36px;
-    }
-    
-    .hamburger-menu i {
-        font-size: 16px;
-    }
-    
-    .mobile-nav {
-        top: 60px;
-        width: 100%;
-        padding: 20px 15px;
-    }
-    
-    .mobile-nav a {
-        padding: 12px 15px;
-        font-size: 15px;
-    }
-    
-    /* Container padding */
-    .container {
-        padding-top: 80px;
-        padding-left: 15px;
-        padding-right: 15px;
-    }
-    
-    /* Səhifə başlığı */
-    .page-title {
-        font-size: 2rem;
-        margin-bottom: 20px;
+    /* Movie Grid Fix */
+    .movie-row { 
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important; 
+        gap: 12px !important; 
     }
     
     /* Featured film mobil */
@@ -3248,3 +3102,72 @@ body {
 
 
 
+
+
+
+/* ============================================================
+   ULTIMATE MOBILE REFRESH & SECURITY PATCH (2026)
+   ============================================================ */
+@media (max-width: 768px) {
+    .main-header { height: 60px !important; padding: 0 15px !important; }
+    .logo a { font-size: 20px !important; }
+    .main-nav { display: none !important; }
+    .hamburger-menu { display: flex !important; }
+    .header-right { gap: 10px !important; }
+    .auth-buttons { gap: 5px !important; }
+    .auth-btn { padding: 6px 12px !important; font-size: 11px !important; }
+
+    .container { padding-top: 80px !important; padding-left: 15px !important; padding-right: 15px !important; }
+    
+    /* Grid system overhaul */
+    .movie-row { 
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important; 
+        gap: 15px !important; 
+    }
+    
+    .featured-movie { 
+        min-height: 420px !important; 
+        padding: 25px !important; 
+        border-radius: 15px !important; 
+        display: flex !important;
+        align-items: flex-end !important;
+    }
+    
+    .featured-content h1 { font-size: 2rem !important; }
+    .featured-description { font-size: 0.9rem !important; -webkit-line-clamp: 3 !important; }
+    
+    .detail-hero { 
+        grid-template-columns: 1fr !important; 
+        text-align: center !important; 
+        padding: 20px !important;
+        gap: 20px !important;
+    }
+    
+    .detail-poster { 
+        width: 180px !important; 
+        margin: 0 auto !important; 
+        border-radius: 12px !important; 
+    }
+    
+    .detail-info { text-align: center !important; }
+    .detail-info h1 { font-size: 1.8rem !important; }
+    
+    .player-container { 
+        width: 100% !important; 
+        max-width: 100% !important; 
+        margin: 10px 0 !important; 
+        padding: 0 !important;
+    }
+    
+    .iframe-wrapper { border-radius: 0 !important; }
+}
+
+@media (max-width: 480px) {
+    .movie-row { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+    .auth-buttons { display: none !important; }
+    .logo a { font-size: 18px !important; }
+}
+
+/* Security Fix: Prevent layout shifts and ensure images fit */
+img { max-width: 100%; height: auto; }
+iframe { border: none; }
