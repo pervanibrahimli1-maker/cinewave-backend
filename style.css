@@ -3217,63 +3217,58 @@ body {
     box-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
 
-/* --- PLAYER OPTIONS BAR --- */
+.player-opt-btn.server-btn:hover {
+    background: rgba(0, 212, 255, 0.2);
+    color: white;
+}
+
+/* --- PLAYER CONTAINER FIX --- */
+.player-container {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 15px;
+    width: 100%;
+}
+
 .player-options-bar {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     gap: 10px;
-    margin-bottom: 20px;
     background: rgba(255,255,255,0.05);
     padding: 10px;
     border-radius: 15px;
     border: 1px solid rgba(255,255,255,0.1);
-    max-width: 500px;
-    margin-left: auto;
-    margin-right: auto;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto 10px;
 }
 
 .player-opt-btn {
-    background: rgba(255,255,255,0.05);
+    background: rgba(255,255,255,0.08);
     border: 1px solid rgba(255,255,255,0.1);
-    color: #ccc;
-    padding: 10px 20px;
+    color: #fff;
+    padding: 12px 20px;
     border-radius: 10px;
     cursor: pointer;
     font-weight: 600;
     font-size: 0.85rem;
     transition: all 0.3s ease;
-    white-space: nowrap;
+    flex: 1;
+    min-width: 150px;
+    max-height: 50px; /* Hündürlüyü məhdudlaşdırdım */
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    width: auto;
-    min-width: 140px;
 }
 
-.player-opt-btn:hover {
-    background: rgba(255,255,255,0.1);
-    color: white;
-    transform: translateY(-2px);
+@media (max-width: 600px) {
+    .player-opt-btn {
+        min-width: 100%; /* Mobildə alt-alta */
+    }
 }
 
-.player-opt-btn.active {
-    background: var(--primary);
-    color: white;
-    border-color: var(--primary);
-    box-shadow: 0 4px 15px rgba(255, 77, 0, 0.3);
-}
-
-.player-opt-btn.server-btn {
-    background: rgba(255, 255, 255, 0.1);
-    color: #00d4ff;
-    border-color: rgba(0, 212, 255, 0.3);
-}
-
-.player-opt-btn.server-btn:hover {
-    background: rgba(0, 212, 255, 0.2);
-    color: white;
-}
 
 
 .iframe-wrapper {
