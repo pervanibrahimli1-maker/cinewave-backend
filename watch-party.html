@@ -250,8 +250,8 @@
                 movieData = data.movie;
                 movieTitleEl.innerText = movieData.title;
                 const embedUrl = movieData.type === 'movie' 
-                    ? `https://vidsrc.pro/embed/movie/${movieData.id}?ds_lang=tr`
-                    : `https://vidsrc.pro/embed/tv/${movieData.id}/1/1?ds_lang=tr`;
+                    ? `https://vidsrc.to/embed/movie/${movieData.id}`
+                    : `https://vidsrc.to/embed/tv/${movieData.id}/1/1`;
                 if (!iframe.src) iframe.src = embedUrl;
             }
             
