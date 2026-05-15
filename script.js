@@ -403,6 +403,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                         </div>
                     </section>
                     <div id="player-container" class="player-container" style="display:none; margin-top:30px;">
+                        <div class="player-options-bar">
+                            <button class="player-opt-btn active" onclick="window.changeLanguage('tr')">🇹🇷 Türkçe Dublaj</button>
+                            <button class="player-opt-btn" onclick="window.changeLanguage('en')">🌍 Orijinal / Altyazı</button>
+                        </div>
                         <div class="iframe-wrapper"><iframe id="video-iframe" src="" allowfullscreen></iframe></div>
                         <div class="netflix-panel"><h3>Növbəti Bölüm</h3><h2 id="next-ep-title">Gözləyin...</h2><button class="next-btn" id="next-ep-go">İNDİ İZLƏ</button></div>
                     </div>
@@ -440,6 +444,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                     wpBtn.onclick = () => window.startWatchParty(mId, mType, name, m.poster_path);
                     actionsBox.appendChild(wpBtn);
                 }
+
+                window.changeLanguage = (lang) => {
+                    const baseUrl = mType === 'movie' ? `https://vidsrc.pro/embed/movie/${mId}` : `https://vidsrc.pro/embed/tv/${mId}/${currentTVState.season}/${currentTVState.episode}`;
+                    const finalUrl = lang === 'tr' ? `${baseUrl}?ds_lang=tr` : baseUrl;
+                    
+                    document.getElementById('video-iframe').src = finalUrl;
+                    
+                    // Button active state
+                    document.querySelectorAll('.player-opt-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                        if((lang === 'tr' && btn.innerText.includes('Türkçe')) || (lang === 'en' && btn.innerText.includes('Orijinal'))) {
+                            btn.classList.add('active');
+                        }
+                    });
+                };
 
                 document.getElementById('add-watchlist-btn').onclick = () => window.addToWatchlist(m.id, name, m.poster_path, mType);
                 document.getElementById('next-ep-go').onclick = () => window.playNow(currentTVState.season, currentTVState.episode + 1, run);
