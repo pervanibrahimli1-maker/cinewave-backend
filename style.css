@@ -3025,6 +3025,7 @@ body {
 @media (max-width: 360px) {
     .chat-hint { display: none; }
 }
+<<<<<<< HEAD
 
 /* --- WATCH PARTY & NOTIFICATIONS --- */
 .watch-party-btn {
@@ -3201,3 +3202,5 @@ body {
 }
 
 
+=======
+>>>>>>> aa6e171fffc8d11c6f3f85fa1dd4eb7f4b39ff39

@@ -393,8 +393,6 @@ io.on('connection', (socket) => {
 app.post('/api/rooms/create', authMiddleware, (req, res) => {
     const roomId = uuidv4().substring(0, 8);
     const { isPublic } = req.body;
-    // We don't initialize the room object here yet, it's done when the host joins via socket
-    // But we can reserve the ID or just return it.
     res.json({ roomId });
 });
 
@@ -409,6 +407,13 @@ app.get('/api/rooms/public', (req, res) => {
             createdAt: r.createdAt
         }));
     res.json(publicRooms);
+});
+
+// Digər API-lar
+app.get('/api/search', async (req, res) => { res.json(await fetchTMDB('/search/multi', { query: req.query.query })); });
+app.get('/api/person/:id/credits', async (req, res) => {
+    const data = await fetchTMDB(`/person/${req.params.id}/combined_credits`);
+    res.json({ cast: data?.cast || [] });
 });
 
 server.listen(PORT, () => console.log(`🚀 CineWave Server is flying on ${PORT}`));

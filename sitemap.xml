@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset
       xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -6,6 +7,16 @@
             http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 <!-- created with Free Online Sitemap Generator www.xml-sitemaps.com -->
 
+=======
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+<!-- created with Free Online Sitemap Generator www.xml-sitemaps.com -->
+
+>>>>>>> aa6e171fffc8d11c6f3f85fa1dd4eb7f4b39ff39
 
 <url>
   <loc>https://cinewave-movies.vercel.app/</loc>
@@ -46,7 +57,13 @@
   <loc>https://cinewave-movies.vercel.app/watchlist.html</loc>
   <lastmod>2026-02-19T18:51:39+00:00</lastmod>
   <priority>0.80</priority>
+<<<<<<< HEAD
 </url>
 
 
+=======
+</url>
+
+
+>>>>>>> aa6e171fffc8d11c6f3f85fa1dd4eb7f4b39ff39
 </urlset>

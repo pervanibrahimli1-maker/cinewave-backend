@@ -201,6 +201,10 @@ async function loadHomeData() {
         renderItems('popular-movies', d.popularMovies, 'movie'); // Ana səhifədəki populyar filmlər
     }
     
+    if(d?.popularMovies) {
+        renderItems('popular-movies', d.popularMovies, 'movie'); // Ana səhifədəki populyar filmlər
+    }
+    
     // Qlobal otaqları yüklə
     window.loadPublicRooms();
 }
@@ -513,7 +517,6 @@ window.loadPublicRooms = async () => {
         </div>
     `).join('');
 };
-
 window.addToWatchlist = async (id, title, poster, type) => {
     const token = localStorage.getItem('cinewave_token');
     if(!token) return showNotification("Giriş edin!", "warning");
