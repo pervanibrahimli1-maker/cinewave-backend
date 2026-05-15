@@ -3201,6 +3201,19 @@ body {
     100% { opacity: 1; }
 }
 
+.tr-dub-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(255, 77, 0, 0.9);
+    color: white;
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 0.65rem;
+    font-weight: bold;
+    z-index: 10;
+    pointer-events: none;
+    text-transform: uppercase;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
 
-=======
->>>>>>> aa6e171fffc8d11c6f3f85fa1dd4eb7f4b39ff39

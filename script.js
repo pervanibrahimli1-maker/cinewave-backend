@@ -85,6 +85,7 @@ function renderItems(containerId, itemsData, typeField = 'movie') {
                 <img src="${m.poster_path ? CONFIG.IMG + m.poster_path : 'https://via.placeholder.com/500x750'}" 
                      alt="${safeName}" title="${safeName}" loading="lazy"
                      onclick="location.href='${cleanURL}'">
+                <span class="tr-dub-badge">TR Dublaj</span>
                 <button class="card-add-btn" onclick="window.addToWatchlist('${m.id}', '${safeName.replace(/'/g, "\\'")}', '${m.poster_path}', '${type}')">
                     <i class="fas fa-plus"></i>
                 </button>
