@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Səhifə Tapılmadı | CineWave</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .error-body {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: #0a0b10;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .error-container {
+            z-index: 10;
+            padding: 20px;
+        }
+
+        .error-code {
+            font-size: 150px;
+            font-weight: 900;
+            color: var(--primary);
+            line-height: 1;
+            margin-bottom: 20px;
+            position: relative;
+            animation: glitch 2s infinite;
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0); text-shadow: -2px 0 red, 2px 0 cyan; }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); text-shadow: -2px 0 red, 2px 0 cyan; }
+        }
+
+        .error-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        .error-message {
+            font-size: 1.1rem;
+            color: var(--gray);
+            margin-bottom: 30px;
+            max-width: 500px;
+        }
+
+        .error-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        /* Arxa fonda film lenti effekti */
+        .film-strip {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.05;
+            background-image: repeating-linear-gradient(90deg, transparent, transparent 50px, #fff 50px, #fff 52px);
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .error-code { font-size: 100px; }
+            .error-title { font-size: 1.5rem; }
+            .error-actions { flex-direction: column; align-items: center; }
+        }
+    </style>
+</head>
+<body class="error-body">
+    <div class="film-strip"></div>
+    
+    <div class="error-container">
+        <div class="error-code">404</div>
+        <h1 class="error-title">KƏSİLDİ! 🎬</h1>
+        <p class="error-message">
+            Görünür bu səhnə montajda kəsilib və ya ssenaridə belə bir yer yoxdur. Narahat olmayın, rejissor hələ də çəkilişdədir!
+        </p>
+        
+        <div class="error-actions">
+            <a href="/index.html" class="btn primary-btn">
+                <i class="fas fa-home"></i> Ana Səhifəyə Qayıt
+            </a>
+            <button onclick="history.back()" class="btn secondary-btn">
+                <i class="fas fa-arrow-left"></i> Geri Dön
+            </button>
+        </div>
+    </div>
+
+    <!-- Səs effekti üçün balaca bir toxunuş (istəyə bağlı) -->
+    <script>
+        console.log("CineWave: Səhnə tapılmadı!");
+    </script>
+</body>
+</html>

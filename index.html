@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<script type="application/ld+json">
+	{
+	  "@context": "https://schema.org",
+	  "@type": "WebSite",
+	  "name": "CineWave",
+	  "url": "https://cinewave-movies.vercel.app/"
+	}
+	</script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<meta property="og:site_name" content="CineWave">
+	<meta name="apple-mobile-web-app-title" content="CineWave">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-site-verification" content="eEnt_frCy_tcq9Vh267ykZ-TA2RCKE6_Ptl5JuJ4Nng">
+    <title>CineWave | Film ve Serialları Ödənişsiz Izləyin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
+	<link rel="icon" type="image/png" href="/logo.png">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+	<script>
+  Swal.fire({
+    title: 'Xəbərdarlıq!',
+    text: 'Saytımızda filmləri izlərkən reklamlar çox çıxa bilər. Zəhmət olmazsa ya reklam bloklayıcılardan ya da Brave browser-indən istifadə edin. Xoş izləmələr.',
+    icon: 'warning',
+    confirmButtonText: 'Anladım',
+    confirmButtonColor: '#ff0000' // Sizin saytın rənginə uyğun qırmızı
+  });
+</script>
+<header class="main-header">
+    <div class="header-left">
+        <div class="logo"><a href="index.html">CineWave</a></div>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="index.html" class="active">Əsas Səhifə</a></li>
+                <li><a href="movies.html">Filmlər</a></li>
+                <li><a href="series.html">Seriallar</a></li>
+                <li><a href="genres.html">Kateqoriyalar</a></li>
+            </ul>
+        </nav>
+    </div>
+    <div class="header-right">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Axtar..." id="search-input">
+        </div>
+        <div class="auth-buttons" id="auth-buttons">
+		    <a href="login.html" class="btn auth-btn login-btn">Giriş</a>
+ 		    <a href="register.html" class="btn auth-btn register-btn">Qeydiyyat</a>
+		</div>
+        <div class="hamburger-menu" id="hamburger-menu">
+            <i class="fas fa-bars"></i>
+        </div>
+    </div>
+    
+    <!-- MOBİL NAV -->
+    <nav class="mobile-nav" id="mobile-nav">
+        <ul>
+            <li><a href="index.html">Əsas Səhifə</a></li>
+            <li><a href="movies.html">Filmlər</a></li>
+            <li><a href="series.html">Seriallar</a></li>
+            <li><a href="genres.html">Kateqoriyalar</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main class="container">
+    <!-- ÖNƏ ÇIXAN FİLM (Hero) -->
+<section class="featured-movie" id="featured-section">
+    <div class="featured-content">
+        <p class="featured-tag">ÖNƏ ÇIXAN FİLM</p>
+        <h1 id="featured-title">Yüklənir...</h1>
+        <!-- BURADA ID ƏLAVƏ EDİLDİ -->
+        <div id="featured-desc" class="featured-description">Filmin təsviri gətirilir...</div>
+        <div class="featured-actions">
+            <button class="btn primary-btn" id="hero-play-btn"><i class="fas fa-play"></i> İndi İzlə</button>
+            <button class="btn secondary-btn" id="hero-add-btn"><i class="fas fa-plus"></i> Siyahıma əlavə et</button>
+        </div>
+    </div>
+    <div class="featured-poster">
+        <img id="featured-img" src="https://via.placeholder.com/1000x600" alt="Featured Movie">
+    </div>
+</section>
+
+    <!-- POPULYAR FİLMLƏR -->
+    <section class="movie-category">
+        <h2>Yeni Filmlər</h2>
+        <div class="movie-row" id="popular-movies">
+            <div class="loading-placeholder">
+                <div class="spinner"></div>
+                <p>Filmlər yüklənir...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Qlobal Watch Party-lər -->
+    <section class="container" style="margin-top: 40px;">
+        <h2 class="section-title"><i class="fas fa-broadcast-tower"></i> Qlobal Watch Party-lər</h2>
+        <div class="public-rooms-grid" id="public-rooms-container">
+            <!-- Public rooms will be loaded here -->
+        </div>
+    </section>
+
+    <!-- YENİ ÇIXIŞLAR -->
+    <section class="container">
+        <h2 class="section-title">Populyar Filmlər</h2>
+        <div class="movie-row" id="new-releases">
+            <div class="loading-placeholder">
+                <div class="spinner"></div>
+                <p>Yeni çıxışlar yüklənir...</p>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="main-footer">
+    <div class="footer-content">
+        <div class="footer-section footer-about">
+            <h3>CINEWAVE</h3>
+            <p>Filmlərin və serialların sonsuz dünyasına qapı. Ən yeni və populyar məzmunu CineWave ilə kəşf edin. Hər zövqə uyğun kateqoriyalarla mükəmməl əyləncə təmin edirik.</p>
+        </div>
+        <div class="footer-section footer-links">
+            <h4>Tez Keçidlər</h4>
+            <ul>
+                <li><a href="index.html">Əsas Səhifə</a></li>
+                <li><a href="movies.html">Filmlər</a></li>
+                <li><a href="series.html">Seriallar</a></li>
+                <li><a href="genres.html">Kateqoriyalar</a></li>
+                <li><a href="watchlist.html">İzləmə Siyahım</a></li>
+            </ul>
+        </div>
+        <div class="footer-section footer-support">
+            <h4>Dəstək</h4>
+            <ul>
+                <li><a href="#">Yardım Mərkəzi</a></li>
+                <li><a href="#">Əlaqə</a></li>
+                <li><a href="#">Geri Bildirim</a></li>
+                <li><a href="#">Tez-tez Verilən Suallar</a></li>
+            </ul>
+        </div>
+        <div class="footer-section footer-legal">
+            <h4>Hüquqi</h4>
+            <ul>
+                <li><a href="#">Gizlilik Siyasəti</a></li>
+                <li><a href="#">İstifadə Şərtləri</a></li>
+                <li><a href="#">Cookie Siyasəti</a></li>
+            </ul>
+        </div>
+        <div class="footer-section footer-social">
+            <h4>Bizi İzləyin</h4>
+            <div class="social-icons">
+                <a href="https://facebook.com" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="https://instagram.com" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="https://twitter.com" target="_blank" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
+                <a href="https://youtube.com" target="_blank" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                <a href="https://tiktok.com" target="_blank" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2026 CineWave. Bütün hüquqlar qorunur.</p>
+    </div>
+</footer>
+
+    <!-- CANLI AXTARIŞ MODALI (Bura əlavə edildi) -->
+    <div id="search-modal" class="search-modal">
+        <div class="search-modal-content">
+            <div class="search-header">
+                <i class="fas fa-search search-main-icon"></i>
+                <input type="text" id="instant-search-input" placeholder="Film və ya serialın adını yazın..." autocomplete="off">
+                <button id="close-search" class="close-search-btn"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="instant-results" class="instant-results">
+                <div class="search-placeholder">
+                    <i class="fas fa-film"></i>
+                    <p>Kəşf etmək üçün yazmağa başlayın...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- AI Chat UI -->
+<!-- AI Chat UI -->
+<div id="ai-chat-wrapper">
+    <div id="chat-hint" class="chat-hint">Film tapa bilmirsiniz? Məndən soruşun! 😊</div>
+    
+    <div id="chat-window" class="chat-window">
+        <div class="chat-header">
+            <span>CineWave AI Köməkçi</span>
+            <button id="close-chat"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="chat-messages" class="chat-messages">
+            <div class="ai-msg">Salam! Mən CineWave AI. Bu gün hansı janrda film axtarırsınız? 😊</div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" placeholder="Məs: Qorxulu film təklif et...">
+            <button id="send-chat"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+    
+    <button id="chat-trigger" class="chat-trigger">
+        <i class="fas fa-robot"></i>
+    </button>
+</div>
+	
+<script src="/script.js"></script>
+</body>
+</html>

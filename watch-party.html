@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineWave | Watch Party</title>
+    <link rel="stylesheet" href="/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="/logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        :root {
+            --wp-bg: #0a0b10;
+            --wp-panel: #161821;
+            --wp-accent: #ff4d00;
+        }
+
+        body.watch-party-body {
+            background-color: var(--wp-bg);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .wp-header {
+            padding: 15px 30px;
+            background: rgba(22, 24, 33, 0.8);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            z-index: 100;
+        }
+
+        .wp-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .wp-player-section {
+            flex: 1;
+            background: #000;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .wp-iframe-wrapper {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .wp-iframe-wrapper iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .wp-chat-section {
+            width: 350px;
+            background: var(--wp-panel);
+            border-left: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+
+        .chat-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        #chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .chat-msg {
+            background: rgba(255,255,255,0.05);
+            padding: 10px 15px;
+            border-radius: 12px;
+            max-width: 85%;
+        }
+
+        .chat-msg .user {
+            font-weight: 600;
+            color: var(--wp-accent);
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .chat-msg .text {
+            color: #ddd;
+            font-size: 0.9rem;
+            word-wrap: break-word;
+        }
+
+        .chat-input-area {
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 12px 15px;
+            border-radius: 10px;
+            color: white;
+            outline: none;
+        }
+
+        .chat-input-area button {
+            background: var(--wp-accent);
+            color: white;
+            border: none;
+            padding: 0 15px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .wp-users-list {
+            padding: 10px 20px;
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            background: rgba(0,0,0,0.1);
+        }
+
+        .user-pill {
+            background: rgba(255,77,0,0.15);
+            color: var(--wp-accent);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            border: 1px solid rgba(255,77,0,0.2);
+        }
+
+        .share-btn {
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .share-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        @media (max-width: 900px) {
+            .wp-container {
+                flex-direction: column;
+            }
+            .wp-chat-section {
+                width: 100%;
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body class="watch-party-body">
+    <header class="wp-header">
+        <div class="header-left">
+            <div class="logo"><a href="/index.html">CineWave</a></div>
+            <div id="wp-movie-title" style="margin-left: 20px; color: #aaa; font-size: 0.9rem;">Yüklənir...</div>
+        </div>
+        <div class="header-right">
+            <button class="share-btn" onclick="copyRoomLink()">
+                <i class="fas fa-link"></i> Linki Kopyala
+            </button>
+        </div>
+    </header>
+
+    <div class="wp-container">
+        <section class="wp-player-section">
+            <div class="wp-iframe-wrapper">
+                <iframe id="wp-iframe" allowfullscreen></iframe>
+            </div>
+            <div class="wp-users-list" id="users-list">
+                <!-- Users will be listed here -->
+            </div>
+        </section>
+
+        <aside class="wp-chat-section">
+            <div class="chat-header">
+                <h3><i class="fas fa-comments"></i> Canlı Çat</h3>
+                <span id="user-count" style="font-size: 0.8rem; color: #888;">0 nəfər</span>
+            </div>
+            <div id="chat-messages"></div>
+            <div class="chat-input-area">
+                <input type="text" id="wp-chat-input" placeholder="Mesaj yazın...">
+                <button id="wp-send-btn"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const roomId = urlParams.get('room');
+        const user = JSON.parse(localStorage.getItem('cinewave_user') || 'null');
+        
+        if (!roomId || !user) {
+            location.href = '/login.html';
+        }
+
+        const socket = io();
+        const iframe = document.getElementById('wp-iframe');
+        const chatBox = document.getElementById('chat-messages');
+        const chatInput = document.getElementById('wp-chat-input');
+        const sendBtn = document.getElementById('wp-send-btn');
+        const usersList = document.getElementById('users-list');
+        const userCount = document.getElementById('user-count');
+        const movieTitleEl = document.getElementById('wp-movie-title');
+
+        let movieData = JSON.parse(sessionStorage.getItem('pending_watch_party') || 'null');
+
+        // Join Room
+        socket.emit('join-room', { 
+            roomId, 
+            username: user.fullName,
+            movieData: movieData,
+            isPublic: movieData ? movieData.isPublic : false
+        });
+
+        socket.on('user-joined', (data) => {
+            updateUsers(data.users);
+            if (data.movie) {
+                movieData = data.movie;
+                movieTitleEl.innerText = movieData.title;
+                const embedUrl = movieData.type === 'movie' 
+                    ? `https://vidsrc.pro/embed/movie/${movieData.id}?ds_lang=tr`
+                    : `https://vidsrc.pro/embed/tv/${movieData.id}/1/1?ds_lang=tr`;
+                if (!iframe.src) iframe.src = embedUrl;
+            }
+            
+            // Load existing chat
+            chatBox.innerHTML = '';
+            data.chat.forEach(msg => addMessage(msg));
+        });
+
+        socket.on('user-left', (users) => {
+            updateUsers(users);
+        });
+
+        socket.on('new-message', (msg) => {
+            addMessage(msg);
+        });
+
+        function updateUsers(users) {
+            userCount.innerText = `${users.length} nəfər`;
+            usersList.innerHTML = users.map(u => `<span class="user-pill"><i class="fas fa-user"></i> ${u.username}</span>`).join('');
+        }
+
+        function addMessage(msg) {
+            const div = document.createElement('div');
+            div.className = 'chat-msg';
+            div.innerHTML = `<span class="user">${msg.username}</span><span class="text">${msg.message}</span>`;
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function sendMessage() {
+            const text = chatInput.value.trim();
+            if (!text) return;
+            socket.emit('send-message', { roomId, username: user.fullName, message: text });
+            chatInput.value = '';
+        }
+
+        sendBtn.onclick = sendMessage;
+        chatInput.onkeypress = (e) => { if (e.key === 'Enter') sendMessage(); };
+
+        function copyRoomLink() {
+            navigator.clipboard.writeText(window.location.href);
+            alert('Otaq linki kopyalandı! Dostlarına göndər.');
+        }
+
+        // SYNC LOGIC (Simple Version for Embeds)
+        // Since we are using an iframe, we cannot easily control the video state due to cross-origin policies.
+        // However, we can notify users when the host refreshes or changes something.
+    </script>
+</body>
+</html>

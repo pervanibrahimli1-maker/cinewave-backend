@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineWave | Giriş</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="/logo.png">
+    <link rel="stylesheet" href="/style.css">
+	<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <style>
+        /* Sürüşmə və ölçü problemlərini həll edən əlavə CSS */
+        html, body {
+            height: 100%; /* HTML və body-nin tam hündürlüyü almasını təmin edir */
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden; /* Üfüqi sürüşməni ləğv edir */
+        }
+
+        .auth-body {
+            background: linear-gradient(135deg, #0a0b10 0%, #16181f 50%, #0f1015 100%);
+            min-height: 100%; /* HTML/body 100% olduğuna görə min-height də 100% olsun */
+            display: flex;
+            flex-direction: column; /* Elementlərin şaquli olaraq yığılmasını təmin edir */
+            align-items: center; /* Üfüqi mərkəzləşdirmə */
+            justify-content: flex-start; /* Kontentin yuxarıdan başlamasını təmin edir ki, aşağıya sürüşə bilsin */
+            padding: 20px;
+            position: relative;
+            overflow-y: auto; /* Şaquli sürüşməyə icazə verir */
+            box-sizing: border-box; /* Paddingin elementin ümumi ölçüsünə daxil olmasını təmin edir */
+            -webkit-overflow-scrolling: touch; /* iOS cihazlarda sürüşməni hamar edir */
+        }
+        
+        /* Floating background elements for visual appeal */
+        .auth-body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(255, 77, 0, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255, 107, 0, 0.1) 0%, transparent 50%);
+            z-index: 0;
+        }
+
+        .auth-container {
+            background: rgba(22, 24, 31, 0.8);
+            backdrop-filter: blur(25px);
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100%;
+            max-width: 500px;
+            padding: 50px;
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1); /* Dəyişiklik: inset shadow əlavə edildi */
+            position: relative;
+            z-index: 1;
+            margin-top: auto; /* Flex konteyner daxilində yuxarıdan avtomatik boşluq */
+            margin-bottom: auto; /* Flex konteyner daxilində aşağıdan avtomatik boşluq (mərkəzləşdirmə üçün) */
+            flex-shrink: 0; /* Konteynerin ölçüsünün daralmasının qarşısını alır */
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .auth-header .logo {
+            font-size: 42px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff4d00, #ff6b00, #ff4d00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        .auth-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .auth-header p {
+            color: #a0a0a0;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-group label i { /* Dəyişiklik: label içindəki iconlar üçün rəng */
+            color: #ff4d00;
+            width: 20px;
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-with-icon i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+            transition: color 0.3s;
+        }
+
+        .input-with-icon input {
+            width: 100%;
+            padding: 16px 20px 16px 50px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .input-with-icon input:focus {
+            outline: none;
+            border-color: #ff4d00;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.2);
+        }
+
+        .input-with-icon input:focus + i { /* Dəyişiklik: Fokuslananda icon rəngi */
+            color: #ff4d00;
+        }
+
+        .password-field {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.3s;
+        }
+
+        .toggle-password:hover {
+            color: #ff4d00;
+        }
+
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .remember-me input {
+            width: 18px;
+            height: 18px;
+            accent-color: #ff4d00;
+            cursor: pointer;
+        }
+
+        .remember-me label {
+            color: #a0a0a0;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .forgot-password {
+            color: #00d4ff;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .forgot-password:hover {
+            color: #ff4d00;
+            text-decoration: underline;
+        }
+
+        .auth-btn {
+            background: linear-gradient(135deg, #ff4d00, #ff6b00);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 77, 0, 0.3);
+        }
+
+        .auth-footer {
+            text-align: center;
+            color: #a0a0a0;
+            font-size: 14px;
+            margin-top: 30px;
+        }
+
+        .auth-footer a {
+            color: #00d4ff;
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 5px;
+            transition: color 0.3s;
+        }
+
+        .auth-footer a:hover {
+            color: #ff4d00;
+            text-decoration: underline;
+        }
+
+        .back-home {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            color: #a0a0a0;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            transition: color 0.3s;
+            z-index: 2;
+        }
+
+        .back-home:hover {
+            color: #ff4d00;
+        }
+
+        /* Responsive */
+        @media (max-width: 576px) {
+            .auth-container {
+                padding: 30px 20px; /* Üfüqi paddingi bir qədər azaldır */
+                border-radius: 20px;
+            }
+            
+            .auth-header .logo {
+                font-size: 32px; /* Loqo şrift ölçüsünü azaldır */
+            }
+            
+            .back-home {
+                top: 20px;
+                left: 20px;
+            }
+
+            .input-with-icon input {
+                padding: 14px 20px 14px 45px; /* Inputların şaquli paddingini azaldır */
+            }
+
+            .auth-btn {
+                padding: 16px; /* Düymənin paddingini azaldır */
+            }
+        }
+
+        /* Floating icons */
+        .floating-icon {
+            position: absolute;
+            font-size: 24px;
+            color: rgba(255, 255, 255, 0.05);
+            animation: float 6s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body class="auth-body">
+    <!-- Floating background icons -->
+    <div class="floating-icon" style="top: 15%; left: 8%;"><i class="fas fa-lock-open"></i></div>
+    <div class="floating-icon" style="top: 25%; right: 12%;"><i class="fas fa-key"></i></div>
+    <div class="floating-icon" style="bottom: 25%; left: 15%;"><i class="fas fa-user-circle"></i></div>
+    <div class="floating-icon" style="bottom: 10%; right: 8%;"><i class="fas fa-ticket-alt"></i></div>
+    <div class="floating-icon" style="top: 50%; left: 3%;"><i class="fas fa-door-open"></i></div>
+
+    <a href="index.html" class="back-home">
+        <i class="fas fa-arrow-left"></i>
+        <span>Əsas Səhifə</span>
+    </a>
+
+    <div class="auth-container">
+        <div class="auth-header">
+            <a href="index.html" class="logo">CineWave</a>
+            <h1>Giriş Edin</h1>
+            <p>Hesabınıza daxil olun və filmsel təcrübənizə davam edin</p>
+        </div>
+
+        <form id="login-form" class="auth-form">
+            <div class="form-group">
+                <label for="email">
+                    <i class="fas fa-envelope"></i> Email Ünvanı
+                </label>
+                <div class="input-with-icon">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="email" name="email" placeholder="example@mail.com" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">
+                    <i class="fas fa-lock"></i> Şifrə
+                </label>
+                <div class="password-field">
+                    <div class="input-with-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" name="password" placeholder="Şifrənizi daxil edin" required>
+                    </div>
+                    <button type="button" class="toggle-password" onclick="togglePassword('password'); return false;">
+    					<i class="fas fa-eye"></i>
+					</button>
+                </div>
+            </div>
+
+            <div class="remember-forgot">
+                <div class="remember-me">
+                    <input type="checkbox" id="remember">
+                    <label for="remember">Məni xatırla</label>
+                </div>
+                <a href="#" class="forgot-password">Şifrəni unutmusunuz?</a>
+            </div>
+<div class="cf-turnstile" data-sitekey="0x4AAAAAACf7V8dmY7jh--F_"></div>
+            <button type="submit" class="auth-btn" id="loginBtn">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Giriş Et</span>
+            </button>
+
+            <div class="auth-footer">
+                Hesabınız yoxdur?
+                <a href="register.html">Qeydiyyatdan Keçin</a>
+            </div>
+        </form>
+    </div>
+<script>
+    function togglePassword(fieldId) {
+        const passwordField = document.getElementById(fieldId);
+        // Düymənin daxilindəki iconu tapırıq
+        const icon = event.currentTarget.querySelector('i');
+        
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            passwordField.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+</script>
+    <script src="/script.js"></script>
+</body>
+</html>
