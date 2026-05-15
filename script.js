@@ -421,7 +421,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     };
                     window.playNow = (s, e, r) => {
                         currentTVState.season = s; currentTVState.episode = e;
-                        document.getElementById('video-iframe').src = `https://vidsrc.me/embed/tv/${mId}/${s}/${e}?ds_lang=tr`;
+                        updatePlayerSource();
                         document.getElementById('player-container').style.display = 'flex'; startNetflixTimer(r);
                     };
                     if(m.seasons) document.getElementById('season-tabs').innerHTML = m.seasons.filter(s => s.season_number > 0).map((s, idx) => `<button class="season-btn ${idx===0?'active':''}" onclick="window.changeSeason(this, ${s.season_number})">Sezon ${s.season_number}</button>`).join('');
@@ -438,8 +438,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 function updatePlayerSource() {
                     const iframe = document.getElementById('video-iframe');
                     let url = mType === 'movie' 
-                        ? `https://vidsrc.me/embed/movie/${mId}` 
-                        : `https://vidsrc.me/embed/tv/${mId}/${currentTVState.season}/${currentTVState.episode}`;
+                        ? `https://vidsrc.pro/embed/movie/${mId}` 
+                        : `https://vidsrc.pro/embed/tv/${mId}/${currentTVState.season}/${currentTVState.episode}`;
                     
                     if (currentLang === 'tr') url += "?ds_lang=tr";
                     iframe.src = url;

@@ -3224,14 +3224,16 @@ body {
 
 /* --- PLAYER CONTAINER FIX --- */
 .player-container {
-    display: none; /* Default hidden */
+    display: none;
     flex-direction: column !important;
-    gap: 15px;
+    gap: 8px; /* Boşluğu azaltdım */
     width: 95%;
-    max-width: 900px; /* Pleyer çox böyük olmasın deyə limit */
-    margin: 30px auto !important; /* Səhifəni ortalasın */
+    max-width: 900px;
+    margin: 20px auto !important;
+    height: auto !important; /* Hündürlük pleyerə görə tənzimlənsin */
     z-index: 100;
 }
+
 
 
 .player-options-bar {
