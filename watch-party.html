@@ -279,6 +279,17 @@
             data.chat.forEach(msg => addMessage(msg));
         });
 
+        socket.on('room-error', (msg) => {
+            document.body.innerHTML = `
+                <div style="height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#0a0b10; color:white; font-family:sans-serif; text-align:center; padding:20px;">
+                    <i class="fas fa-door-closed" style="font-size:4rem; color:#ff4d00; margin-bottom:20px;"></i>
+                    <h1 style="margin-bottom:10px;">Otaq Bağlanıb</h1>
+                    <p style="color:#aaa; margin-bottom:30px;">${msg}</p>
+                    <a href="/index.html" style="background:#ff4d00; color:white; text-decoration:none; padding:12px 25px; border-radius:10px; font-weight:600;">Ana Səhifəyə Qayıt</a>
+                </div>
+            `;
+        });
+
         socket.on('user-left', (users) => {
             updateUsers(users);
         });

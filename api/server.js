@@ -338,18 +338,22 @@ io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
 
     socket.on('join-room', ({ roomId, username, movieData, isPublic }) => {
-        socket.join(roomId);
         if (!rooms[roomId]) {
+            // Əgər otaq yoxdursa və movieData gəlməyibsə (yəni köhnə/səhv linkdirsə)
+            if (!movieData) {
+                return socket.emit('room-error', 'Bu otaq artıq bağlanıb və ya mövcud deyil.');
+            }
+            // Əgər movieData varsa, otağı bərpa etməyə çalışırıq (Vercel üçün vacibdir)
             rooms[roomId] = {
-                id: roomId,
-                host: socket.id,
-                movie: movieData,
                 users: [],
                 chat: [],
-                isPublic: isPublic || false,
+                movie: movieData,
+                isPublic: isPublic,
                 createdAt: new Date()
             };
         }
+        
+        socket.join(roomId);
         rooms[roomId].users.push({ id: socket.id, username });
         
         io.to(roomId).emit('user-joined', { 
