@@ -1511,6 +1511,7 @@ body {
         font-size: 0.85rem;
         margin-bottom: 20px;
         -webkit-line-clamp: 4;
+        line-clamp: 4;
     }
     
     .featured-actions {
@@ -1875,6 +1876,7 @@ body {
 		overflow: hidden;
     	-webkit-box-orient: vertical;
         -webkit-line-clamp: 2;
+        line-clamp: 2;
 }
     
     .auth-btn {
@@ -1952,6 +1954,7 @@ body {
         font-size: 0.85rem;
         margin-bottom: 20px;
         -webkit-line-clamp: 3;
+        line-clamp: 3;
     }
     
     .featured-content h1 {
@@ -2875,11 +2878,10 @@ body {
     }
 }
 
-/* Çox kiçik ekranlarda balonu gizlət ki, ekranı örtməsin */
+/* Çox kiçik ekranlarda balonu gizlət ki, ekranı örtməsi */
 @media (max-width: 360px) {
     .chat-hint { display: none; }
 }
-<<<<<<< HEAD
 
 /* --- WATCH PARTY & NOTIFICATIONS --- */
 .watch-party-btn {
@@ -3134,7 +3136,7 @@ body {
     }
     
     .featured-content h1 { font-size: 2rem !important; }
-    .featured-description { font-size: 0.9rem !important; -webkit-line-clamp: 3 !important; }
+    .featured-description { font-size: 0.9rem !important; -webkit-line-clamp: 3 !important; line-clamp: 3 !important; }
     
     .detail-hero { 
         grid-template-columns: 1fr !important; 
