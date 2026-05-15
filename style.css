@@ -3224,11 +3224,15 @@ body {
 
 /* --- PLAYER CONTAINER FIX --- */
 .player-container {
-    display: flex !important;
+    display: none; /* Default hidden */
     flex-direction: column !important;
     gap: 15px;
-    width: 100%;
+    width: 95%;
+    max-width: 900px; /* Pleyer çox böyük olmasın deyə limit */
+    margin: 30px auto !important; /* Səhifəni ortalasın */
+    z-index: 100;
 }
+
 
 .player-options-bar {
     display: flex;
@@ -3273,13 +3277,13 @@ body {
 
 .iframe-wrapper {
     position: relative;
-    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-    height: 0;
+    width: 100%;
+    aspect-ratio: 16 / 9; /* Müasir 16:9 formatı */
     overflow: hidden;
     border-radius: 15px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.7);
     background: #000;
-    border: 1px solid rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
 }
 
 .iframe-wrapper iframe {
@@ -3290,5 +3294,6 @@ body {
     height: 100%;
     border: none;
 }
+
 
 
